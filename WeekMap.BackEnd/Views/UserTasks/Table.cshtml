@@ -1,0 +1,23 @@
+﻿@model IEnumerable<WebApp.Models.UserTask>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Location</th>
+            <th>User</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var task in Model)
+        {
+            <tr>
+                <td>@task.Name</td>
+                <td>@task.Description</td>
+                <td>@task.Location</td>
+                <td>@task.User?.Username</td>
+            </tr>
+        }
+    </tbody>
+</table>

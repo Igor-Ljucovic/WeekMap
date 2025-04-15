@@ -1,0 +1,30 @@
+﻿@*
+
+@model UserViewModel
+
+<div class="container mt-5 d-flex justify-content-center">
+    <div class="card shadow-lg" style="min-width: 50%;">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">User Details</h4>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <h6 class="fw-bold">Id:</h6>
+                <p class="text-muted">@Model.Id</p>
+            </div>
+            <div class="mb-3">
+                <h6 class="fw-bold">First Name:</h6>
+                <p class="text-muted">@Model.FirstName</p>
+            </div>
+            <div class="mb-3">
+                <h6 class="fw-bold">Last Name:</h6>
+                <p class="text-muted">@Model.LastName</p>
+            </div>
+        </div>
+        <div class="card-footer text-end">
+            <button type="button" class="btn btn-outline-primary">Edit Details</button>
+        </div>
+    </div>
+</div>
+
+*@

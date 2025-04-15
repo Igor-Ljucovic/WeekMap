@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>40aac90f-97cc-4039-80c7-24e880db7162</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Models\CalendarTask - Copy\**" />
+    <Compile Remove="Models\CalendarTasks - Copy\**" />
+    <Compile Remove="Models\NoDeadlineTask - Copy\**" />
+    <Compile Remove="Models\RepetitiveTask - Copy\**" />
+    <Compile Remove="Models\Task - Copy\**" />
+    <Compile Remove="Models\TaskCategory - Copy\**" />
+    <Compile Remove="Models\User - Copy\**" />
+    <Content Remove="Models\CalendarTask - Copy\**" />
+    <Content Remove="Models\CalendarTasks - Copy\**" />
+    <Content Remove="Models\NoDeadlineTask - Copy\**" />
+    <Content Remove="Models\RepetitiveTask - Copy\**" />
+    <Content Remove="Models\Task - Copy\**" />
+    <Content Remove="Models\TaskCategory - Copy\**" />
+    <Content Remove="Models\User - Copy\**" />
+    <EmbeddedResource Remove="Models\CalendarTask - Copy\**" />
+    <EmbeddedResource Remove="Models\CalendarTasks - Copy\**" />
+    <EmbeddedResource Remove="Models\NoDeadlineTask - Copy\**" />
+    <EmbeddedResource Remove="Models\RepetitiveTask - Copy\**" />
+    <EmbeddedResource Remove="Models\Task - Copy\**" />
+    <EmbeddedResource Remove="Models\TaskCategory - Copy\**" />
+    <EmbeddedResource Remove="Models\User - Copy\**" />
+    <None Remove="Models\CalendarTask - Copy\**" />
+    <None Remove="Models\CalendarTasks - Copy\**" />
+    <None Remove="Models\NoDeadlineTask - Copy\**" />
+    <None Remove="Models\RepetitiveTask - Copy\**" />
+    <None Remove="Models\Task - Copy\**" />
+    <None Remove="Models\TaskCategory - Copy\**" />
+    <None Remove="Models\User - Copy\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="MailKit" Version="4.11.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.28" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.28">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.28" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.28" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.25" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.28">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Utils\" />
+    <Folder Include="Views\CalendarTasks\" />
+    <Folder Include="Views\RepetitiveTasks\" />
+    <Folder Include="Views\TaskCategories\" />
+    <Folder Include="Views\NoDeadlineTasks\" />
+  </ItemGroup>
+
+</Project>

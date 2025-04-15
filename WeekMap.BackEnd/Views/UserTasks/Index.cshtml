@@ -1,0 +1,40 @@
+﻿@model IEnumerable<WebApp.Models.UserTask>
+@{
+    ViewData["Title"] = "User Tasks";
+}
+
+<h2>User Tasks</h2>
+
+<p>
+    <a asp-action="Create">Create New Task</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Date Created</th>
+            <th>Location</th>
+            <th>User</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Description</td>
+                <td>@item.DateCreated?.ToString("g")</td>
+                <td>@item.Location</td>
+                <td>@item.User?.Username</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.UserTaskID">Details</a> |
+                    <a asp-action="Edit" asp-route-id="@item.UserTaskID">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@item.UserTaskID">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
