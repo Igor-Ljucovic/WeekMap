@@ -7,8 +7,8 @@ public class StrongPasswordAttribute : ValidationAttribute
     {
         var password = value as string;
 
-        // can't contain non-ASCII characters
-        if (string.IsNullOrEmpty(password) || !Regex.IsMatch(password, @"^[\x20-\x7E]+$"))
+        // can only contain alphanumerics or symbols
+        if (string.IsNullOrEmpty(password) || !Regex.IsMatch(password, @"^[\x21-\x7E]+$"))
             return false;
 
         return password.Length >= 8
@@ -19,7 +19,7 @@ public class StrongPasswordAttribute : ValidationAttribute
 
     public override string FormatErrorMessage(string name)
     {
-        return $"{name} must be at least 8 characters long, at most 64 characters long, contain at least one uppercase letter and one number," +
-            $" and only contain letters, numbers or symbols (no emojis or non-english characters)";
+        return $"{name} must contain at least one uppercase letter and one number," +
+            $" and only contain letters, numbers or symbols (no emojis or non-english characters). It can't have whitespaces";
     }
 }

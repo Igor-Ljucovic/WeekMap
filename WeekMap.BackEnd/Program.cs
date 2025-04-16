@@ -16,11 +16,11 @@ builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor(); // optional but useful
 
 // register CORS policy
-builder.Services.AddCors(options => { options.AddPolicy("AllowReactApp", policy => policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod()); });
+builder.Services.AddCors(options => { options.AddPolicy("AllowLocalhost3000", policy => policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod()); });
 
 var app = builder.Build();
 // ENABLE CORS BEFORE routing/middleware
-app.UseCors("AllowReactApp");
+app.UseCors("AllowLocalhost3000");
 
 using (var scope = app.Services.CreateScope())
 {

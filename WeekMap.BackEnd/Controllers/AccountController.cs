@@ -5,6 +5,8 @@ using WebApp.Models;
 using WebApp.Services;
 using System.Security.Cryptography;
 
+[ApiController]
+[Route("api/[controller]")]
 public class AccountController : Controller
 {
     private readonly AppDbContext _context;
@@ -14,14 +16,8 @@ public class AccountController : Controller
         _context = context;
     }
 
-    [HttpGet]
-    public IActionResult Register()
-    {
-        return View();
-    }
-
     [HttpPost]
-    [Route("api/account/register")]
+    [Route("register")]
     public IActionResult Register([FromBody] User user)
     {
         if (!ModelState.IsValid)
@@ -53,14 +49,6 @@ public class AccountController : Controller
         byte[] tokenBytes = new byte[byteLength];
         RandomNumberGenerator.Fill(tokenBytes);
         return Convert.ToBase64String(tokenBytes);
-    }
-
-
-    [HttpGet]
-    public IActionResult Login()
-    {
-        Debug.WriteLine("login");
-        return View();
     }
 
     [HttpPost]

@@ -17,11 +17,23 @@ export default function RegisterPage() {
             body: JSON.stringify(form),
         });
 
-        if (response.ok) {
+        if (response.ok) 
             setMessage("Registration successful!");
-        } else {
+        else 
+        {
             const error = await response.json();
-            setMessage("Error: " + JSON.stringify(error));
+          
+            // Handle model validation errors (from ModelState from C#)
+            if (error.errors) {
+                const firstKey = Object.keys(error.errors)[0];
+                const firstErrorMessage = error.errors[firstKey][0];
+                setMessage(firstErrorMessage);
+            } 
+            // Handle errors thrown by the controller"
+            else if (error.message) 
+                setMessage(error.message);
+            else 
+                setMessage("Unknown error occurred.");
         }
     };
 
@@ -58,7 +70,7 @@ export default function RegisterPage() {
 
                 <button type="submit">Register</button>
             </form>
-            <p>{message}</p>
+            <p id="registration-message">{message}</p>
         </div>
     );
 }
