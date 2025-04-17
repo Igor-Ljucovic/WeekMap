@@ -15,7 +15,7 @@ namespace WebApp.Controllers
 
         public IActionResult Index()
         {
-            var tasks = _context.Tasks.Include(t => t.User).ToList();
+            var tasks = _context.UserTasks.Include(t => t.User).ToList();
             return View(tasks); // this populates the Model for the view
         }
 

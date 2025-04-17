@@ -6,7 +6,7 @@ namespace WebApp.Data
     public class AppDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
-        public DbSet<UserTask> Tasks { get; set; }
+        public DbSet<UserTask> UserTasks { get; set; }
         public DbSet<CalendarTask> CalendarTasks { get; set; }
         public DbSet<RepetitiveTask> RepetitiveTasks { get; set; }
         public DbSet<NoDeadlineTask> NoDeadlineTasks { get; set; }
@@ -25,6 +25,7 @@ namespace WebApp.Data
             modelBuilder.Entity<CalendarTask>().ToTable("CalendarTasks");
             modelBuilder.Entity<RepetitiveTask>().ToTable("RepetitiveTasks");
             modelBuilder.Entity<NoDeadlineTask>().ToTable("NoDeadlineTasks");
+            modelBuilder.Entity<UserTask>().ToTable("UserTasks");
 
             base.OnModelCreating(modelBuilder);
         }

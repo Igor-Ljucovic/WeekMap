@@ -26,7 +26,7 @@ public class AccountController : Controller
         if (_context.Users.Any(u => u.Username == user.Username))
             return BadRequest(new { field = "username", message = "Username already exists." });
 
-        if (_context.Users.Any(u => u.Email == user.Email))
+        if (_context.Users.Any(u => u.Email.ToLower() == user.Email.ToLower()))
             return BadRequest(new { field = "email", message = "Email is already in use." });
 
         user.EmailConfirmationToken = GenerateSecureToken(32);

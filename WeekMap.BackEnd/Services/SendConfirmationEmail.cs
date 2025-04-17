@@ -19,11 +19,11 @@ namespace WebApp.Services
             };
 
             using var client = new SmtpClient();
-            client.Connect("sandbox.smtp.mailtrap.io", 2525, MailKit.Security.SecureSocketOptions.StartTls);
-            client.Authenticate("445f285727bc3d", "bd1cb459060c67");
+            //client.Connect("sandbox.smtp.mailtrap.io", 2525, MailKit.Security.SecureSocketOptions.StartTls);
+            //client.Authenticate("445f285727bc3d", "bd1cb459060c67");
 
-            client.Send(message);
-            client.Disconnect(true);
+            //client.Send(message);
+            //client.Disconnect(true);
         }
     }
 }
