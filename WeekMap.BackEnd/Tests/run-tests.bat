@@ -1,4 +1,4 @@
-﻿@echo off
+@echo off
 title Running WeekMap Tests
 echo =============================
 echo CHECKING BACKEND (https://localhost:7141)
@@ -43,6 +43,6 @@ cd /d "E:\JOB\Git Hub my-projects\my-personal-projects\WeekMap\WeekMap.Tests"
 python main.py
 
 echo =============================
-echo ✅ ALL DONE
+echo ALL DONE
 echo =============================
-pause
+pause  - can you tell me what exactly this code does? I think it doesnt give enough time for frontend to start, so it does the tests before frontend is ready.

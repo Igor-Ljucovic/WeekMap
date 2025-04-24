@@ -11,7 +11,7 @@ export default function RegisterPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const response = await fetch("https://localhost:7141/api/account/register", {
+        const response = await fetch("https://localhost:7141/api/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(form),
@@ -23,13 +23,11 @@ export default function RegisterPage() {
         {
             const error = await response.json();
           
-            // Handle model validation errors (from ModelState from C#)
             if (error.errors) {
                 const firstKey = Object.keys(error.errors)[0];
                 const firstErrorMessage = error.errors[firstKey][0];
                 setMessage(firstErrorMessage);
             } 
-            // Handle errors thrown by the controller"
             else if (error.message) 
                 setMessage(error.message);
             else 

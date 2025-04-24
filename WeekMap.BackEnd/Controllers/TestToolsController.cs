@@ -20,9 +20,8 @@ namespace WeekMap.Controllers
         public IActionResult CleanupAllTables()
         {
             if (!_env.IsEnvironment("Test"))
-            {
                 return Forbid("CleanupAllTables can only run in the Test environment.");
-            }
+            
 
             // the order MATTERS
             _context.TaskCategories.RemoveRange(_context.TaskCategories);
