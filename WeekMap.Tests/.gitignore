@@ -1,0 +1,22 @@
+# Ignore everything by default
+*
+
+# But allow important files and folders
+!.gitignore
+!weekmap.py
+!tools/
+!tools/**/*.py
+!tests/
+!tests/**/*.py
+
+# Ignore common Python build artifacts
+__pycache__/
+*.pyc
+
+# Ignore Python virtual environment folders
+Lib/
+Scripts/
+pyvenv.cfg
+
+# Ignore PyCharm or JetBrains IDE configs
+.idea/
