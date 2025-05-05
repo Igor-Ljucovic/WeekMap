@@ -8,11 +8,11 @@ if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     command = sys.argv[1] if len(sys.argv) > 1 else ""
 
-    if command == "test" or command == "start":
+    if command == "test" or command == "start" or command == "":
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         setup_project()
 
-        if command == "test":
+        if command == "test" or command == "":
             run_tests()
     else:
         script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]

@@ -21,14 +21,21 @@ namespace WeekMap.Controllers
         {
             if (!_env.IsEnvironment("Test"))
                 return Forbid("CleanupAllTables can only run in the Test environment.");
-            
 
-            // the order MATTERS
-            _context.TaskCategories.RemoveRange(_context.TaskCategories);
-            _context.RepetitiveTasks.RemoveRange(_context.RepetitiveTasks);
-            _context.CalendarTasks.RemoveRange(_context.CalendarTasks);
-            _context.NoDeadlineTasks.RemoveRange(_context.NoDeadlineTasks);
-            _context.UserTasks.RemoveRange(_context.UserTasks);
+
+            // The order MATTERS - delete child tables first
+            _context.RealisedWeekMapActivities.RemoveRange(_context.RealisedWeekMapActivities);
+            _context.PlannedWeekMapActivities.RemoveRange(_context.PlannedWeekMapActivities);
+
+            _context.RealisedWeekMaps.RemoveRange(_context.RealisedWeekMaps);
+            _context.PlannedWeekMaps.RemoveRange(_context.PlannedWeekMaps);
+
+            _context.Activities.RemoveRange(_context.Activities);
+            _context.ActivityCategories.RemoveRange(_context.ActivityCategories);
+
+            _context.UserDefaultWeekMapSettings.RemoveRange(_context.UserDefaultWeekMapSettings);
+            _context.UserSettings.RemoveRange(_context.UserSettings);
+
             _context.Users.RemoveRange(_context.Users);
 
             _context.SaveChanges();

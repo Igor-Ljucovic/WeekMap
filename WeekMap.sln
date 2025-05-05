@@ -23,7 +23,12 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WeekMap.FrontEnd", "WeekMap
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "52527"
+		SlnRelativePath = "WeekMap.FrontEnd\"
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeekMap.Tests", "WeekMap.Tests\WeekMap.Tests.csproj", "{3A63C38E-D25A-47E0-B800-585326CD6713}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnitTests", "XUnitTests\XUnitTests.csproj", "{56009733-F5EE-4614-BDFB-25E47592008B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +44,14 @@ Global
 		{C1521DE7-482C-402E-B169-0BB2065CD9E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1521DE7-482C-402E-B169-0BB2065CD9E1}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{C1521DE7-482C-402E-B169-0BB2065CD9E1}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{3A63C38E-D25A-47E0-B800-585326CD6713}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A63C38E-D25A-47E0-B800-585326CD6713}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A63C38E-D25A-47E0-B800-585326CD6713}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A63C38E-D25A-47E0-B800-585326CD6713}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56009733-F5EE-4614-BDFB-25E47592008B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56009733-F5EE-4614-BDFB-25E47592008B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56009733-F5EE-4614-BDFB-25E47592008B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56009733-F5EE-4614-BDFB-25E47592008B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

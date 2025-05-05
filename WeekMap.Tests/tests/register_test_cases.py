@@ -33,9 +33,9 @@ edge_cases = [
     make_case("user932", "a" * 100 + "@test.com", "Password123", False),
 
     # No uppercase or digit in password
-    make_case("user123", "user@test.com", "password", False),
-    make_case("user123", "user@test.com", "PASSWORD", False),
-    make_case("user123", "user@test.com", "password!", False),
+    make_case("user753", "user53@test.com", "password", False),
+    make_case("user754", "user54@test.com", "PASSWORD", False),
+    make_case("user755", "user55@test.com", "password!", False),
 
     # Valid edge case (borderline valid)
     make_case("usr", "x@x.com", "Abcdefg1", False),
@@ -70,12 +70,19 @@ def is_registration_valid(username, password, email):
 
 def generate_test_cases(random_user_cases, include_edge_cases):
     cases = []
+    seen = set()
+    def generate_unique_entry():
+        while True:
+            username = random_string(random.randint(0, 15))
+            email = f"{random_string(random.randint(0, 15))}@test.com"
+            password = random_string(random.randint(0, 15))
+            identifier = (username, email, password)
+            if identifier not in seen:
+                seen.add(identifier)
+                return make_case(username, email, password, False)
+
     for _ in range(random_user_cases):
-        # generate random alphanumeric string that is 0-15 characters long
-        username = random_string(random.randint(0, 15))
-        email = f"{random_string(random.randint(0, 15))}@test.com"
-        password = random_string(random.randint(0, 15))
-        cases.append(make_case(username, email, password, False))
+        cases.append(generate_unique_entry())
 
     if (include_edge_cases):
         cases.extend(edge_cases)

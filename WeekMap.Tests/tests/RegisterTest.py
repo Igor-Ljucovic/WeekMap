@@ -24,7 +24,7 @@ def register_user(driver, case):
     driver.find_element(By.TAG_NAME, "form").submit()
     try:
         # wait at most 7 seconds until a new "p" tag appeas in the DOM
-        WebDriverWait(driver, 7).until(lambda d: d.find_element(By.ID, "registration-message").text.strip() != "" )
+        WebDriverWait(driver, 7).until(lambda d: d.find_element(By.ID, "registration-message").text.strip() != "")
         message = driver.find_element(By.ID, "registration-message").text
         return message
     except TimeoutException:

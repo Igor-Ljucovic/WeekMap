@@ -5,7 +5,7 @@ namespace WebApp.Models
 {
     public class User
     {
-        public int UserID { get; set; }
+        public long UserID { get; set; }
 
         [Required(ErrorMessage = "Username is required.")]
         [MinLength(3, ErrorMessage = "Username must be at least 3 characters long.")]
@@ -26,14 +26,18 @@ namespace WebApp.Models
         public bool IsEmailConfirmed { get; set; } = false;
 
         [ValidateNever]
-        public string EmailConfirmationToken { get; set; }
+        public string? EmailConfirmationToken { get; set; }
 
         public DateTime? EmailConfirmationTokenExpiresAt { get; set; }
 
         [ValidateNever]
-        public ICollection<UserTask> UserTasks { get; set; }
+        public ICollection<Activity> Activities { get; set; } = new List<Activity>();
         [ValidateNever]
-        public ICollection<TaskCategory> TaskCategories { get; set; }
+        public ICollection<ActivityCategory> ActivityCategories { get; set; } = new List<ActivityCategory>();
+        [ValidateNever]
+        public UserDefaultWeekMapSettings UserDefaultWeekMapSettings { get; set; }
+        [ValidateNever]
+        public UserSettings UserSettings { get; set; }
     }
 }
 

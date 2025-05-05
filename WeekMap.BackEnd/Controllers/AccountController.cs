@@ -11,10 +11,12 @@ namespace WebApp.Controllers
     public class AccountController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public AccountController(AppDbContext context)
+        public AccountController(AppDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         [HttpPost("api/register")]
@@ -41,8 +43,9 @@ namespace WebApp.Controllers
 
             _context.Users.Add(user);
             _context.SaveChanges();
-
+            
             var confirmationLink = Url.Action("ConfirmEmail", "Account", new { token = user.EmailConfirmationToken, userId = user.UserID }, protocol: Request.Scheme);
+            
             new EmailConfirmationService().SendConfirmationEmail(user, confirmationLink);
 
             return Ok(new { message = "User registered successfully. Check your email to confirm." });
@@ -69,7 +72,8 @@ namespace WebApp.Controllers
             //if (!user.IsEmailConfirmed)
             //    return StatusCode(403, new { message = "Please confirm your email before logging in." });
 
-            HttpContext.Session.SetInt32("UserID", user.UserID);
+            // it has to be converted to string, because only Int32 is supported in HttpContext, but not Int64 (long)
+            HttpContext.Session.SetString("UserID", user.UserID.ToString());
             HttpContext.Session.SetString("Username", user.Username);
 
             return Ok(new { message = "Login successful!" });
