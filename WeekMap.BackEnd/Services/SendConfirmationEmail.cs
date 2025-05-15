@@ -1,8 +1,8 @@
 ﻿using MailKit.Net.Smtp;
 using MimeKit;
-using WebApp.Models;
+using WeekMap.Models;
 
-namespace WebApp.Services
+namespace WeekMap.Services
 {
     public class EmailConfirmationService
     {

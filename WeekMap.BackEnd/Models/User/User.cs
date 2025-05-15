@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
+using WeekMap.Attributes;
 
-namespace WebApp.Models
+namespace WeekMap.Models
 {
     public class User
     {

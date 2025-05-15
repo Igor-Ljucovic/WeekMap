@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using WebApp.Data;
+using WeekMap.Data;
 
 #nullable disable
 
@@ -22,7 +22,7 @@ namespace WeekMap.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("WebApp.Models.Activity", b =>
+            modelBuilder.Entity("WeekMap.Models.Activity", b =>
                 {
                     b.Property<long>("ActivityID")
                         .ValueGeneratedOnAdd()
@@ -61,7 +61,7 @@ namespace WeekMap.Migrations
                     b.ToTable("Activities", (string)null);
                 });
 
-            modelBuilder.Entity("WebApp.Models.ActivityCategory", b =>
+            modelBuilder.Entity("WeekMap.Models.ActivityCategory", b =>
                 {
                     b.Property<long>("ActivityCategoryID")
                         .ValueGeneratedOnAdd()
@@ -71,8 +71,7 @@ namespace WeekMap.Migrations
 
                     b.Property<string>("Color")
                         .IsRequired()
-                        .HasMaxLength(6)
-                        .HasColumnType("nvarchar(6)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -89,7 +88,7 @@ namespace WeekMap.Migrations
                     b.ToTable("ActivityCategories", (string)null);
                 });
 
-            modelBuilder.Entity("WebApp.Models.PlannedWeekMap", b =>
+            modelBuilder.Entity("WeekMap.Models.PlannedWeekMap", b =>
                 {
                     b.Property<long>("PlannedWeekMapID")
                         .ValueGeneratedOnAdd()
@@ -115,7 +114,7 @@ namespace WeekMap.Migrations
                     b.Property<bool>("ShowSaturday")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("ShowSaturdayAndSunday")
+                    b.Property<bool>("ShowSunday")
                         .HasColumnType("bit");
 
                     b.Property<long>("UserID")
@@ -123,8 +122,7 @@ namespace WeekMap.Migrations
 
                     b.Property<string>("WeekStartDay")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PlannedWeekMapID");
 
@@ -133,12 +131,15 @@ namespace WeekMap.Migrations
                     b.ToTable("PlannedWeekMaps", (string)null);
                 });
 
-            modelBuilder.Entity("WebApp.Models.PlannedWeekMapActivity", b =>
+            modelBuilder.Entity("WeekMap.Models.PlannedWeekMapActivity", b =>
                 {
+                    b.Property<long>("PlannedWeekMapID")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("ActivityID")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("PlannedWeekMapID")
+                    b.Property<long>("PlannedWeekMapActivityID")
                         .HasColumnType("bigint");
 
                     b.Property<TimeSpan>("EndTime")
@@ -168,14 +169,14 @@ namespace WeekMap.Migrations
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("time");
 
-                    b.HasKey("ActivityID", "PlannedWeekMapID");
+                    b.HasKey("PlannedWeekMapID", "ActivityID", "PlannedWeekMapActivityID");
 
-                    b.HasIndex("PlannedWeekMapID");
+                    b.HasIndex("ActivityID");
 
                     b.ToTable("PlannedWeekMapActivities", (string)null);
                 });
 
-            modelBuilder.Entity("WebApp.Models.RealisedWeekMap", b =>
+            modelBuilder.Entity("WeekMap.Models.RealisedWeekMap", b =>
                 {
                     b.Property<long>("RealisedWeekMapID")
                         .ValueGeneratedOnAdd()
@@ -196,12 +197,15 @@ namespace WeekMap.Migrations
                     b.ToTable("RealisedWeekMaps", (string)null);
                 });
 
-            modelBuilder.Entity("WebApp.Models.RealisedWeekMapActivity", b =>
+            modelBuilder.Entity("WeekMap.Models.RealisedWeekMapActivity", b =>
                 {
+                    b.Property<long>("RealisedWeekMapID")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("ActivityID")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("RealisedWeekMapID")
+                    b.Property<long>("RealisedWeekMapActivityID")
                         .HasColumnType("bigint");
 
                     b.Property<bool>("IsCompleted")
@@ -213,14 +217,14 @@ namespace WeekMap.Migrations
                     b.Property<TimeSpan>("RealisedStartTime")
                         .HasColumnType("time");
 
-                    b.HasKey("ActivityID", "RealisedWeekMapID");
+                    b.HasKey("RealisedWeekMapID", "ActivityID", "RealisedWeekMapActivityID");
 
-                    b.HasIndex("RealisedWeekMapID");
+                    b.HasIndex("ActivityID");
 
                     b.ToTable("RealisedWeekMapActivities", (string)null);
                 });
 
-            modelBuilder.Entity("WebApp.Models.User", b =>
+            modelBuilder.Entity("WeekMap.Models.User", b =>
                 {
                     b.Property<long>("UserID")
                         .ValueGeneratedOnAdd()
@@ -262,7 +266,7 @@ namespace WeekMap.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("WebApp.Models.UserDefaultWeekMapSettings", b =>
+            modelBuilder.Entity("WeekMap.Models.UserDefaultWeekMapSettings", b =>
                 {
                     b.Property<long>("UserID")
                         .HasColumnType("bigint");
@@ -287,15 +291,14 @@ namespace WeekMap.Migrations
 
                     b.Property<string>("WeekStartDay")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserID");
 
                     b.ToTable("UserDefaultWeekMapSettings", (string)null);
                 });
 
-            modelBuilder.Entity("WebApp.Models.UserSettings", b =>
+            modelBuilder.Entity("WeekMap.Models.UserSettings", b =>
                 {
                     b.Property<long>("UserID")
                         .HasColumnType("bigint");
@@ -311,22 +314,21 @@ namespace WeekMap.Migrations
 
                     b.Property<string>("Theme")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserID");
 
                     b.ToTable("UserSettings", (string)null);
                 });
 
-            modelBuilder.Entity("WebApp.Models.Activity", b =>
+            modelBuilder.Entity("WeekMap.Models.Activity", b =>
                 {
-                    b.HasOne("WebApp.Models.ActivityCategory", "ActivityCategory")
+                    b.HasOne("WeekMap.Models.ActivityCategory", "ActivityCategory")
                         .WithMany()
                         .HasForeignKey("ActivityCategoryID")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("WebApp.Models.User", "User")
+                    b.HasOne("WeekMap.Models.User", "User")
                         .WithMany("Activities")
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -337,9 +339,9 @@ namespace WeekMap.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("WebApp.Models.ActivityCategory", b =>
+            modelBuilder.Entity("WeekMap.Models.ActivityCategory", b =>
                 {
-                    b.HasOne("WebApp.Models.User", "User")
+                    b.HasOne("WeekMap.Models.User", "User")
                         .WithMany("ActivityCategories")
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -348,9 +350,9 @@ namespace WeekMap.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("WebApp.Models.PlannedWeekMap", b =>
+            modelBuilder.Entity("WeekMap.Models.PlannedWeekMap", b =>
                 {
-                    b.HasOne("WebApp.Models.User", "User")
+                    b.HasOne("WeekMap.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -359,15 +361,15 @@ namespace WeekMap.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("WebApp.Models.PlannedWeekMapActivity", b =>
+            modelBuilder.Entity("WeekMap.Models.PlannedWeekMapActivity", b =>
                 {
-                    b.HasOne("WebApp.Models.Activity", "Activity")
+                    b.HasOne("WeekMap.Models.Activity", "Activity")
                         .WithMany()
                         .HasForeignKey("ActivityID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WebApp.Models.PlannedWeekMap", "PlannedWeekMap")
+                    b.HasOne("WeekMap.Models.PlannedWeekMap", "PlannedWeekMap")
                         .WithMany()
                         .HasForeignKey("PlannedWeekMapID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -378,9 +380,9 @@ namespace WeekMap.Migrations
                     b.Navigation("PlannedWeekMap");
                 });
 
-            modelBuilder.Entity("WebApp.Models.RealisedWeekMap", b =>
+            modelBuilder.Entity("WeekMap.Models.RealisedWeekMap", b =>
                 {
-                    b.HasOne("WebApp.Models.PlannedWeekMap", "PlannedWeekMap")
+                    b.HasOne("WeekMap.Models.PlannedWeekMap", "PlannedWeekMap")
                         .WithMany("RealisedWeekMaps")
                         .HasForeignKey("PlannedWeekMapID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -389,15 +391,15 @@ namespace WeekMap.Migrations
                     b.Navigation("PlannedWeekMap");
                 });
 
-            modelBuilder.Entity("WebApp.Models.RealisedWeekMapActivity", b =>
+            modelBuilder.Entity("WeekMap.Models.RealisedWeekMapActivity", b =>
                 {
-                    b.HasOne("WebApp.Models.Activity", "Activity")
+                    b.HasOne("WeekMap.Models.Activity", "Activity")
                         .WithMany()
                         .HasForeignKey("ActivityID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WebApp.Models.RealisedWeekMap", "RealisedWeekMap")
+                    b.HasOne("WeekMap.Models.RealisedWeekMap", "RealisedWeekMap")
                         .WithMany()
                         .HasForeignKey("RealisedWeekMapID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -408,34 +410,34 @@ namespace WeekMap.Migrations
                     b.Navigation("RealisedWeekMap");
                 });
 
-            modelBuilder.Entity("WebApp.Models.UserDefaultWeekMapSettings", b =>
+            modelBuilder.Entity("WeekMap.Models.UserDefaultWeekMapSettings", b =>
                 {
-                    b.HasOne("WebApp.Models.User", "User")
+                    b.HasOne("WeekMap.Models.User", "User")
                         .WithOne("UserDefaultWeekMapSettings")
-                        .HasForeignKey("WebApp.Models.UserDefaultWeekMapSettings", "UserID")
+                        .HasForeignKey("WeekMap.Models.UserDefaultWeekMapSettings", "UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("WebApp.Models.UserSettings", b =>
+            modelBuilder.Entity("WeekMap.Models.UserSettings", b =>
                 {
-                    b.HasOne("WebApp.Models.User", "User")
+                    b.HasOne("WeekMap.Models.User", "User")
                         .WithOne("UserSettings")
-                        .HasForeignKey("WebApp.Models.UserSettings", "UserID")
+                        .HasForeignKey("WeekMap.Models.UserSettings", "UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("WebApp.Models.PlannedWeekMap", b =>
+            modelBuilder.Entity("WeekMap.Models.PlannedWeekMap", b =>
                 {
                     b.Navigation("RealisedWeekMaps");
                 });
 
-            modelBuilder.Entity("WebApp.Models.User", b =>
+            modelBuilder.Entity("WeekMap.Models.User", b =>
                 {
                     b.Navigation("Activities");
 

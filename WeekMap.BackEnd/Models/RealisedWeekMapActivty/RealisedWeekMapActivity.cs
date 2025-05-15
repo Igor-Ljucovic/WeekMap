@@ -1,19 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
+using WeekMap.Attributes;
 
-namespace WebApp.Models
+namespace WeekMap.Models
 {
+    [ValidActivityTimeRange]
     public class RealisedWeekMapActivity
     {
-        public long ActivityID { get; set; }
+        [Key]
+        public long RealisedWeekMapActivityID { get; set; }
 
         [ValidateNever]
         public Activity Activity { get; set; }
-
-        public long RealisedWeekMapID { get; set; }
-
+        public long ActivityID { get; set; }
         [ValidateNever]
         public RealisedWeekMap RealisedWeekMap { get; set; }
+        public long RealisedWeekMapID { get; set; }
 
         public bool IsCompleted { get; set; }
 

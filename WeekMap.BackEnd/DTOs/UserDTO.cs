@@ -1,9 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WeekMap.Attributes;
 
 namespace WeekMap.DTOs
 {
-    public class RegisterDTO
+    public class UserDTO
     {
+        [Required(ErrorMessage = "UserID is required.")]
+        public long UserID { get; set; }
+
         [Required(ErrorMessage = "Username is required.")]
         [MinLength(3, ErrorMessage = "Username must be at least 3 characters long.")]
         [StringLength(25, ErrorMessage = "Username cannot be longer than 25 characters.")]
@@ -16,7 +20,6 @@ namespace WeekMap.DTOs
         [StrongPassword]
         public string Password { get; set; }
 
-        [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Invalid email address.")]
         public string Email { get; set; }
     }

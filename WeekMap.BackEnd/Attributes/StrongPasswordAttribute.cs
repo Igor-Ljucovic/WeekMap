@@ -2,36 +2,39 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-public class StrongPasswordAttribute : ValidationAttribute
+namespace WeekMap.Attributes
 {
-    public override bool IsValid(object? value)
+    public class StrongPasswordAttribute : ValidationAttribute
     {
-        var password = value as string;
+        public override bool IsValid(object? value)
+        {
+            var password = value as string;
 
-        if (string.IsNullOrWhiteSpace(password))
-            return false;
+            if (string.IsNullOrWhiteSpace(password))
+                return false;
 
-        // ASCII-only
-        if (Encoding.UTF8.GetByteCount(password) != password.Length)
-            return false;
+            // ASCII-only
+            if (Encoding.UTF8.GetByteCount(password) != password.Length)
+                return false;
 
-        if (password.Any(char.IsWhiteSpace))
-            return false;
+            if (password.Any(char.IsWhiteSpace))
+                return false;
 
-        // At least 1 uppercase letter
-        if (!Regex.IsMatch(password, @"[A-Z]"))
-            return false;
+            // At least 1 uppercase letter
+            if (!Regex.IsMatch(password, @"[A-Z]"))
+                return false;
 
-        // At least 1 digit 
-        if (!Regex.IsMatch(password, @"\d"))
-            return false;
+            // At least 1 digit 
+            if (!Regex.IsMatch(password, @"\d"))
+                return false;
 
-        return true;
-    }
+            return true;
+        }
 
-    public override string FormatErrorMessage(string name)
-    {
-        return $"{name} must be 8–64 characters long, contain at least one uppercase letter and one number, " +
-               $"and only contain ASCII characters without whitespaces (no emojis or non-English letters).";
+        public override string FormatErrorMessage(string name)
+        {
+            return $"{name} must be 8–64 characters long, contain at least one uppercase letter and one number, " +
+                   $"and only contain ASCII characters without whitespaces (no emojis or non-English letters).";
+        }
     }
 }

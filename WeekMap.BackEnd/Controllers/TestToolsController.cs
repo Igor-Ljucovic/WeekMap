@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WebApp.Data;
+using WeekMap.Data;
 
 namespace WeekMap.Controllers
 {

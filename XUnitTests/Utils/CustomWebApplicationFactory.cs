@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using WebApp;
-using WebApp.Data;
+using WeekMap;
+using WeekMap.Data;
 
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {

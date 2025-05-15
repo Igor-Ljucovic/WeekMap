@@ -1,19 +1,23 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using WebApp.Data;
-using WebApp.Models;
+using System.Diagnostics;
+using WeekMap.Data;
+using WeekMap.DTOs;
+using WeekMap.Models;
 
-namespace XUnitTests
+namespace WeekMap.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class ActivityCategoryController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IMapper _mapper;
 
-        public ActivityCategoryController(AppDbContext context)
+        public ActivityCategoryController(AppDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -28,7 +32,7 @@ namespace XUnitTests
         }
 
         [HttpPost]
-        public IActionResult Add([FromBody] ActivityCategory category)
+        public IActionResult Add([FromBody] ActivityCategoryDTO category)
         {
             if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
                 return Unauthorized(new { message = "User not logged in." });
@@ -37,21 +41,27 @@ namespace XUnitTests
                 return BadRequest(ModelState);
 
             category.UserID = userId;
-            _context.ActivityCategories.Add(category);
+
+            var entity = _mapper.Map<ActivityCategory>(category);
+
+            _context.ActivityCategories.Add(entity);
             _context.SaveChanges();
 
             return Ok(new { message = "Category added successfully!" });
         }
 
         [HttpPut("{id}")]
-        public IActionResult Edit(int id, [FromBody] ActivityCategory updatedCategory)
+        public IActionResult Edit(int id, [FromBody] ActivityCategoryDTO updatedCategory)
         {
+            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+                return Unauthorized(new { message = "User not logged in." });
+
             var category = _context.ActivityCategories.FirstOrDefault(c => c.ActivityCategoryID == id);
             if (category == null)
                 return NotFound();
 
-            category.Name = updatedCategory.Name;
-            category.Color = updatedCategory.Color;
+            _mapper.Map(updatedCategory, category);
+
             _context.SaveChanges();
 
             return Ok(new { message = "Category updated successfully!" });
@@ -60,6 +70,9 @@ namespace XUnitTests
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
+            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+                return Unauthorized(new { message = "User not logged in." });
+
             var category = _context.ActivityCategories.FirstOrDefault(c => c.ActivityCategoryID == id);
             if (category == null)
                 return NotFound();

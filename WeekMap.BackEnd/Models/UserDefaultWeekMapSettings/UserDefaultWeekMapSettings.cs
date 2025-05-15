@@ -1,29 +1,31 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using WeekMap.Attributes;
 
-namespace WebApp.Models
+namespace WeekMap.Models
 {
     public class UserDefaultWeekMapSettings
     {
         [Key]
         public long UserID { get; set; } 
 
-        public User User { get; set; }
-
+        public User? User { get; set; }
+        [Required(ErrorMessage = "Skip sunday is required.")]
         public bool SkipSaturday { get; set; } = false;
+        [Required(ErrorMessage = "Skip sunday is required.")]
         public bool SkipSunday { get; set; } = false;
 
         [Required(ErrorMessage = "Week start day is required.")]
-        [StringLength(10, ErrorMessage = "Week start day cannot be longer than 10 characters.")]
-        public string WeekStartDay { get; set; } = "monday";
+        [ValidWeekDay]
+        public string WeekStartDay { get; set; } = "Monday";
 
         [Required(ErrorMessage = "Day start time is required.")]
-        public TimeSpan DayStartTime { get; set; } = TimeSpan.Zero;
+        public TimeSpan DayStartTime { get; set; } = new TimeSpan(0, 0, 0);
 
         [Required(ErrorMessage = "Day end time is required.")]
-        public TimeSpan DayEndTime { get; set; } = TimeSpan.Zero;
-
+        public TimeSpan DayEndTime { get; set; } = new TimeSpan(23, 59, 59);
+        [Required(ErrorMessage = "Show place in preview is required.")]
         public bool ShowPlaceInPreview { get; set; } = false;
+        [Required(ErrorMessage = "Show description in preview is required.")]
         public bool ShowDescriptionInPreview { get; set; } = false;
     }
 }

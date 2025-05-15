@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
-using WebApp;
+using WeekMap;
 
 namespace XUnitTests.TestData
 {
@@ -21,13 +21,16 @@ namespace XUnitTests.TestData
             });
         }
 
-        public static async Task<(HttpClient client, WebApplicationFactory<Program> factory)> CreateAuthenticatedClientAsync()
+        public static async Task<(HttpClient client, WebApplicationFactory<Program> factory)> CreateAuthenticatedClientAsync(bool shouldRegister = true, bool shouldLogin = true)
         {
             var factory = CreateFactory();
             var client = CreateClient(factory);
 
-            await AccountTestHelper.RegisterUser(client);
-            await AccountTestHelper.LoginUser(client);
+            if (shouldRegister)
+                await UserTestHelper.RegisterUser(client);
+
+            if (shouldLogin)
+                await UserTestHelper.LoginUser(client);
 
             return (client, factory);
         }

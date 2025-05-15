@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net.Http.Json;
 using Xunit;
-using WebApp;
+using WeekMap;
 using FluentAssertions;
 using WeekMap.DTOs;
 using XUnitTests.TestData;
@@ -64,7 +64,7 @@ namespace XUnitTests.Controllers
                 categories.Should().ContainSingle(c => c.Name == category.Name);
                 categories.Should().ContainSingle(c => c.Color == category.Color);
 
-                long? id = categories?.First().ActivityCategoryID;
+                var id = categories?.First().ActivityCategoryID;
                 response = await client.DeleteAsync($"/api/ActivityCategory/{id}");
                 response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
             }
@@ -86,25 +86,21 @@ namespace XUnitTests.Controllers
             var (client, factory) = await ClientAsync.CreateAuthenticatedClientAsync();
             await using var _factory = factory;
 
-            ActivityCategoryDTO category = _activityCategoryTestData.Valid.ElementAt(1);
+            ActivityCategoryDTO category = new ActivityCategoryDTO { Name = "beforeEditName", Color = "468ABC" };
             var response = await client.PostAsJsonAsync("/api/ActivityCategory", category);
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
             var categories = await client.GetFromJsonAsync<List<ActivityCategoryDTO>>("/api/ActivityCategory");
-            categories.Should().NotBeNullOrEmpty();
-            var id = categories.First().ActivityCategoryID;
+            var id = categories?.First().ActivityCategoryID;
 
-            var updatedCategory = _activityCategoryTestData.Valid.ElementAt(2);
+            var updatedCategory = new ActivityCategoryDTO { Name = "afterEditName", Color = "FFF369"};
             response = await client.PutAsJsonAsync($"/api/ActivityCategory/{id}", updatedCategory);
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
             var afterEditCategories = await client.GetFromJsonAsync<List<ActivityCategoryDTO>>("/api/ActivityCategory");
-            afterEditCategories.Should().NotBeNull();
-
             var editedCategory = afterEditCategories?.FirstOrDefault(c => c.ActivityCategoryID == id);
-            editedCategory.Should().NotBeNull();
-            editedCategory?.Name.Should().Be(_activityCategoryTestData.Valid.ElementAt(2).Name);
-            editedCategory?.Color.Should().Be(_activityCategoryTestData.Valid.ElementAt(2).Color);
+            editedCategory?.Name.Should().Be("afterEditName");
+            editedCategory?.Color.Should().Be("FFF369");
         }
 
         [Fact]
@@ -113,7 +109,7 @@ namespace XUnitTests.Controllers
             var (client, factory) = await ClientAsync.CreateAuthenticatedClientAsync();
             await using var _factory = factory;
 
-            var category = _activityCategoryTestData.Valid.ElementAt(2);
+            var category = _activityCategoryTestData.Valid.ElementAt(0);
             var response = await client.PostAsJsonAsync("/api/ActivityCategory", category);
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 

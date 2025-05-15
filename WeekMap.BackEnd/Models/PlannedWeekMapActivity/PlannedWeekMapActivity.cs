@@ -1,19 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
+using WeekMap.Attributes;
 
-namespace WebApp.Models
+namespace WeekMap.Models
 {
+    [ValidActivityTimeRange]
     public class PlannedWeekMapActivity
     {
-        public long ActivityID { get; set; }
-
-        [ValidateNever]
-        public Activity Activity { get; set; }
-
-        public long PlannedWeekMapID { get; set; }
+        [Key]
+        public long PlannedWeekMapActivityID { get; set; }
 
         [ValidateNever]
         public PlannedWeekMap PlannedWeekMap { get; set; }
+        public long PlannedWeekMapID { get; set; }
+        [ValidateNever]
+        public Activity Activity { get; set; }
+        public long ActivityID { get; set; }
 
         [Required(ErrorMessage = "Start time is required.")]
         public TimeSpan StartTime { get; set; }

@@ -1,7 +1,8 @@
-using WebApp.Data;
+using WeekMap.Data;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
-namespace WebApp
+namespace WeekMap
 {
     public partial class Program
     {
@@ -21,7 +22,7 @@ namespace WebApp
 
             // register CORS policy
             builder.Services.AddCors(options => { options.AddPolicy("AllowLocalhost3000", policy => policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod()); });
-
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
             var app = builder.Build();
             // ENABLE CORS BEFORE routing/middleware
             app.UseCors("AllowLocalhost3000");

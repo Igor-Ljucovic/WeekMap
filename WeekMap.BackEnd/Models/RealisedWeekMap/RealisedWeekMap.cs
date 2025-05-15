@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
-namespace WebApp.Models
+namespace WeekMap.Models
 {
     public class RealisedWeekMap
     {

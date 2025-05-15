@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
 
-namespace WebApp.Models
+namespace WeekMap.Models
 {
     public class ActivityCategory 
     {

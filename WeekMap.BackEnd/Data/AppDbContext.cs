@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WebApp.Models;
+using WeekMap.Models;
 
-namespace WebApp.Data
+namespace WeekMap.Data
 {
     public class AppDbContext : DbContext
     {
@@ -23,8 +23,18 @@ namespace WebApp.Data
             modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
 
             // composite keys
-            modelBuilder.Entity<PlannedWeekMapActivity>().HasKey(p => new { p.ActivityID, p.PlannedWeekMapID });
-            modelBuilder.Entity<RealisedWeekMapActivity>().HasKey(r => new { r.ActivityID, r.RealisedWeekMapID });
+            modelBuilder.Entity<PlannedWeekMapActivity>().HasKey(p => new 
+            {
+                p.PlannedWeekMapID,
+                p.ActivityID,
+                p.PlannedWeekMapActivityID
+            });
+            modelBuilder.Entity<RealisedWeekMapActivity>().HasKey(p => new
+            {
+                p.RealisedWeekMapID,
+                p.ActivityID,
+                p.RealisedWeekMapActivityID
+            });
 
             //modelBuilder.Entity<RealisedWeekMap>().HasOne(r => r.PlannedWeekMap)
             //.WithMany(p => p.RealisedWeekMaps)
