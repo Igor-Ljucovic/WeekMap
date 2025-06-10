@@ -10,7 +10,8 @@ public class ActivityTestData : ITestData<ActivityDTO>
         {
             Name = "activity1",
             Description = "description1",
-            ActivityCategoryID = null
+            ActivityCategoryID = null,
+            UserID = 1
         },
         new ActivityDTO
         {
