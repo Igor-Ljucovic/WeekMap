@@ -18,9 +18,10 @@ def colorize_based_on_message_success(message, success):
 
 def register_user(driver, case):
     driver.get("http://localhost:3000/register")
-    driver.find_element(By.NAME, "username").send_keys(case["username"])
-    driver.find_element(By.NAME, "email").send_keys(case["email"])
-    driver.find_element(By.NAME, "password").send_keys(case["password"])
+    driver.find_element(By.ID, "username").send_keys(case["username"])
+    driver.find_element(By.ID, "email").send_keys(case["email"])
+    driver.find_element(By.ID, "password").send_keys(case["password"])
+    driver.find_element(By.ID, "confirmPassword").send_keys(case["password"])
     driver.find_element(By.TAG_NAME, "form").submit()
     try:
         # wait at most 7 seconds until a new "p" tag appeas in the DOM

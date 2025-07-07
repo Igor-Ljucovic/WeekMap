@@ -1,7 +1,7 @@
 import time
 import requests
 from tests.RegisterTest import test_registration_scenario
-from . import config
+from tools import config
 
 def cleanup_test_database():
     try:

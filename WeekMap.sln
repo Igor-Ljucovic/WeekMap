@@ -3,32 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeekMap", "WeekMap.BackEnd\WeekMap.csproj", "{DE687C92-D94C-4EAC-B8F4-C041C8D32043}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeekMap", "WeekMap.BackEnd.ASP.NET\WeekMap.csproj", "{CA563F6C-417A-4AE3-85B0-CC043C737D94}"
 EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WeekMap.FrontEnd", "WeekMap.FrontEnd\", "{C1521DE7-482C-402E-B169-0BB2065CD9E1}"
-	ProjectSection(WebsiteProperties) = preProject
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.8"
-		Debug.AspNetCompiler.VirtualPath = "/localhost_52527"
-		Debug.AspNetCompiler.PhysicalPath = "WeekMap.FrontEnd\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_52527\"
-		Debug.AspNetCompiler.Updateable = "true"
-		Debug.AspNetCompiler.ForceOverwrite = "true"
-		Debug.AspNetCompiler.FixedNames = "false"
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.VirtualPath = "/localhost_52527"
-		Release.AspNetCompiler.PhysicalPath = "WeekMap.FrontEnd\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_52527\"
-		Release.AspNetCompiler.Updateable = "true"
-		Release.AspNetCompiler.ForceOverwrite = "true"
-		Release.AspNetCompiler.FixedNames = "false"
-		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "52527"
-		SlnRelativePath = "WeekMap.FrontEnd\"
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeekMap.Tests", "WeekMap.Tests\WeekMap.Tests.csproj", "{3A63C38E-D25A-47E0-B800-585326CD6713}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnitTests", "XUnitTests\XUnitTests.csproj", "{56009733-F5EE-4614-BDFB-25E47592008B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XUnitTests", "WeekMap.BackEndTests.C#XUNIT\XUnitTests.csproj", "{46FB2EE3-AC58-42B5-9B60-AAE186C38826}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,22 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{DE687C92-D94C-4EAC-B8F4-C041C8D32043}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DE687C92-D94C-4EAC-B8F4-C041C8D32043}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DE687C92-D94C-4EAC-B8F4-C041C8D32043}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DE687C92-D94C-4EAC-B8F4-C041C8D32043}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C1521DE7-482C-402E-B169-0BB2065CD9E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C1521DE7-482C-402E-B169-0BB2065CD9E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C1521DE7-482C-402E-B169-0BB2065CD9E1}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{C1521DE7-482C-402E-B169-0BB2065CD9E1}.Release|Any CPU.Build.0 = Debug|Any CPU
-		{3A63C38E-D25A-47E0-B800-585326CD6713}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3A63C38E-D25A-47E0-B800-585326CD6713}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3A63C38E-D25A-47E0-B800-585326CD6713}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3A63C38E-D25A-47E0-B800-585326CD6713}.Release|Any CPU.Build.0 = Release|Any CPU
-		{56009733-F5EE-4614-BDFB-25E47592008B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{56009733-F5EE-4614-BDFB-25E47592008B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{56009733-F5EE-4614-BDFB-25E47592008B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{56009733-F5EE-4614-BDFB-25E47592008B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA563F6C-417A-4AE3-85B0-CC043C737D94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA563F6C-417A-4AE3-85B0-CC043C737D94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA563F6C-417A-4AE3-85B0-CC043C737D94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA563F6C-417A-4AE3-85B0-CC043C737D94}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46FB2EE3-AC58-42B5-9B60-AAE186C38826}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46FB2EE3-AC58-42B5-9B60-AAE186C38826}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46FB2EE3-AC58-42B5-9B60-AAE186C38826}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46FB2EE3-AC58-42B5-9B60-AAE186C38826}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
