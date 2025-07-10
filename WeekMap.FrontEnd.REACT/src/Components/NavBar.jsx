@@ -72,9 +72,7 @@ function NavBar() {
 
   return (
     <nav className="navbar navbar-expand-lg" style={{
-      backgroundColor: "rgba(178, 246, 175, 0.8)",
-      backdropFilter: "blur(8px)",
-      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+      backgroundColor: "rgb(194, 194, 194)",
       zIndex: "9999"
     }}>
       <div className="container-fluid">
@@ -97,7 +95,7 @@ function NavBar() {
                   id="navbarDropdown"
                   aria-expanded={dropdownOpen ? "true" : "false"}
                   onClick={toggleDropdown}
-                  style={{ color: "#388E3C" }}
+                  style={{ color: "#000000" }}
                 >
                   {username}
                 </button>
@@ -106,9 +104,7 @@ function NavBar() {
                   top: "100%",
                   right: "-12px",
                   zIndex: "9999",
-                  backgroundColor: "rgba(178, 246, 175, 0.95)",
-                  border: "1px solid #a8e6cf",
-                  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                  backgroundColor: "rgb(182, 182, 182)",
                   minWidth: "130px",
                   padding: "8px 0",
                 }}>
