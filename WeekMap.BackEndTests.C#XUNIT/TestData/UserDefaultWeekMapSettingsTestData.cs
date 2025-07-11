@@ -35,7 +35,7 @@ public class UserDefaultWeekMapSettingsTestData : ITestData<UserDefaultWeekMapSe
             SkipSunday = true,
             WeekStartDay = "Tuesday",
             DayStartTime = new TimeSpan(0, 0, 0),
-            DayEndTime = new TimeSpan(6, 0, 0),
+            DayEndTime = new TimeSpan(6, 30, 0),
             ShowPlaceInPreview = true,
             ShowDescriptionInPreview = true
         },
@@ -83,7 +83,7 @@ public class UserDefaultWeekMapSettingsTestData : ITestData<UserDefaultWeekMapSe
             SkipSunday = true,
             WeekStartDay = "tuesday",
             DayStartTime = new TimeSpan(0, 0, 0),
-            DayEndTime = new TimeSpan(0, 0, 0),
+            DayEndTime = new TimeSpan(23, 0, 0),
             ShowPlaceInPreview = true,
             ShowDescriptionInPreview = true
         },

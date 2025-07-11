@@ -17,7 +17,7 @@ function App() {
                     <Route path="/activities" element={<ActivitiesPage />} />
                     <Route path="/activity-categories" element={<ActivityCategoriesPage />} />
                 </Route>
-
+                
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/login" element={<LoginPage />} />
             </Routes>

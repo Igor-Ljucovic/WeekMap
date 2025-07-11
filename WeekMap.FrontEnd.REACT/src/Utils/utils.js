@@ -1,4 +1,5 @@
 import { toast } from 'react-toastify';
+import { createContext, useContext, useState } from "react";
 
 export const toastOptions = {
   position: "top-center",
@@ -24,4 +25,18 @@ export const notify = {
 
 export const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-export const DARKMODE = false;
+export const ThemeContext = createContext();
+
+export function ThemeProvider({ children }) {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  return (
+    <ThemeContext.Provider value={{ isDarkMode, setIsDarkMode }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+export function useTheme() {
+  return useContext(ThemeContext);
+}

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { notify, WEEKDAYS } from '../Utils/utils';
+import { notify, WEEKDAYS, useTheme } from '../Utils/utils';
 
 function SettingsPage() {
   const [userSettings, setUserSettings] = useState(null);
+  const { isDarkMode, setIsDarkMode } = useTheme();
   const [defaultMapSettings, setDefaultMapSettings] = useState(null);
   const userID = window.sessionStorage.getItem("id");
 
@@ -27,7 +28,9 @@ function SettingsPage() {
 
   useEffect(() => {
     if (userSettings?.theme) {
-      document.body.style.backgroundColor = userSettings.theme === "dark" ? "#1e1e1e" : "#ffffff";
+      const dark = userSettings.theme === "dark";
+      setIsDarkMode(dark);
+      document.body.style.backgroundColor = dark ? "#1e1e1e" : "#ffffff";
     }
   }, [userSettings]);
 
@@ -89,7 +92,7 @@ function SettingsPage() {
 
   const rowStyle = { marginBottom: '10px' };
 
-  const HourSelect = ({ name, value, onChange }) => (
+  const HourSelect = ({ name, value, onChange, startingHour, totaHours }) => (
   <select
     name={name}
     value={value.slice(0, 5)}
@@ -102,8 +105,8 @@ function SettingsPage() {
       width: "90px"
     }}
   >
-    {Array.from({ length: 24 }, (_, i) => {
-      const hour = i.toString().padStart(2, "0");
+    {Array.from({ length: totaHours + 1 }, (_, i) => {
+      const hour = (startingHour + i).toString().padStart(2, "0");
       return (
         <option key={hour} value={`${hour}:00`}>
           {hour}:00
@@ -165,6 +168,8 @@ function SettingsPage() {
           <HourSelect
             name="notificationTime"
             value={userSettings.notificationTime}
+            startingHour={0}
+            totaHours={23}
             onChange={(e) => {
             const updated = {
               ...userSettings,
@@ -220,6 +225,8 @@ function SettingsPage() {
           <HourSelect
             name="dayStartTime"
             value={defaultMapSettings.dayStartTime}
+            startingHour={0}
+            totaHours={23}
             onChange={(e) => {
               const newTime = e.target.value + ":00";
             if (newTime >= defaultMapSettings.dayEndTime) {
@@ -240,21 +247,61 @@ function SettingsPage() {
         <label>
           Day End Time:{" "}
           <HourSelect
-            name="dayEndTime"
-            value={defaultMapSettings.dayEndTime}
-            onChange={(e) => {
-            const newTime = e.target.value + ":00";
-            if (newTime <= defaultMapSettings.dayStartTime) {
-              notify.error("End time must be later than start time.");
-              return;
-            }
-            const updated = {
-              ...defaultMapSettings,
-              dayEndTime: newTime
-            };
-            updateMapSettingsBackend(updated);
-          } }
-          />
+  name="dayEndTime"
+  value={(() => {
+    const [h, m, s] = defaultMapSettings.dayEndTime.split(":").map(Number);
+
+    // Special case: show 24:00 if backend gives 23:59:00
+    if (h === 23 && m === 59) return "24:00";
+
+    const date = new Date();
+    date.setHours(h, m, s, 0);
+    date.setMinutes(date.getMinutes() + 1);
+
+    const hour = date.getHours();
+    const minute = date.getMinutes();
+
+    // Show 24:00 if adding 1 min rolls into next day
+    //if (hour === 0 && minute === 0) return "24:00";
+
+    return `${hour.toString().padStart(2, "0")}:${minute
+      .toString()
+      .padStart(2, "0")}`;
+  })()}
+  startingHour={1}
+  totaHours={23}
+  onChange={(e) => {
+    const selected = e.target.value;
+
+    const [h, m] = selected === "24:00" ? [0, 0] : selected.split(":").map(Number);
+    const date = new Date();
+    date.setHours(h);
+    date.setMinutes(m);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+
+    // Subtract 1 minute before sending to backend
+    date.setMinutes(date.getMinutes() - 1);
+
+    const adjusted =
+      date.getHours().toString().padStart(2, "0") +
+      ":" +
+      date.getMinutes().toString().padStart(2, "0") +
+      ":00";
+
+    if (adjusted <= defaultMapSettings.dayStartTime) {
+      notify.error("End time must be later than start time.");
+      return;
+    }
+
+    const updated = {
+      ...defaultMapSettings,
+      dayEndTime: adjusted
+    };
+    updateMapSettingsBackend(updated);
+  }}
+/>
+
         </label>
       </div>
 

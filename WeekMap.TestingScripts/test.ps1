@@ -31,7 +31,7 @@ function Wait-ForService {
 
 function Start-Backend {
     if (-not (Test-PortOpen $BACKEND_PORT)) {
-        Start-Process "cmd.exe" "/c dotnet run --launch-profile Test" -WorkingDirectory $BACKEND_PATH | Out-Null
+        Start-Process "cmd.exe" "/c dotnet run --launch-profile Development" -WorkingDirectory $BACKEND_PATH | Out-Null
         Wait-ForService -port $BACKEND_PORT
     }
 }
