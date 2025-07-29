@@ -30,6 +30,37 @@ namespace WeekMap.Controllers
             return Ok(maps);
         }
 
+        [HttpGet("{id}")] // 'id' matches parameter name
+        // new method!
+        public IActionResult GetById(long id)
+        {
+            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long sessionUserID) || sessionUserID != id)
+                return Unauthorized(new { message = "Unauthorized access." });
+
+            var map = _context.PlannedWeekMaps
+                .Where(p => p.UserID == id)
+                .OrderByDescending(p => p.DateCreated)
+                .FirstOrDefault();
+
+            if (map == null)
+                return NotFound(new { message = "No PlannedWeekMap found for user." });
+
+            return Ok(map);
+        }
+
+        [HttpGet("{id}/activities")] // new method!
+        public IActionResult GetPlannedWeekMapActivities(long id)
+        {
+            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long sessionUserID))
+                return Unauthorized(new { message = "User not logged in." });
+
+            var activities = _context.PlannedWeekMapActivities
+                .Where(a => a.PlannedWeekMapID == id)
+                .ToList();
+
+            return Ok(activities);
+        }
+
         [HttpPost]
         public IActionResult Add([FromBody] PlannedWeekMapDTO map)
         {

@@ -1,5 +1,6 @@
 import { toast } from 'react-toastify';
 import { createContext, useContext, useState } from "react";
+import { useEffect } from 'react';
 
 export const toastOptions = {
   position: "top-center",
@@ -28,7 +29,22 @@ export const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
 export const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkModeState] = useState(false);
+
+  const setIsDarkMode = (dark) => {
+    setIsDarkModeState(dark);
+    localStorage.setItem("theme", dark ? "dark" : "light");
+    document.body.style.backgroundColor = dark ? "#1e1e1e" : "#ffffff";
+  };
+
+  useEffect(() => {
+    const storedTheme = localStorage.getItem("theme");
+    if (storedTheme === "dark") {
+      setIsDarkMode(true);
+    } else {
+      setIsDarkMode(false);
+    }
+  }, []);
 
   return (
     <ThemeContext.Provider value={{ isDarkMode, setIsDarkMode }}>

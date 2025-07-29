@@ -82,7 +82,7 @@ function NavBar() {
 
         <div className="collapse navbar-collapse show" id="navbarNavAltMarkup">
           <div className="navbar-nav">
-            <Link className="nav-link" to="/">Week maps</Link>
+            <Link className="nav-link" to="/weekmaps">Week maps</Link>
             <Link className="nav-link" to="/activity-categories">Activity categories</Link>
             <Link className="nav-link" to="/activities">Activities</Link>
           </div>

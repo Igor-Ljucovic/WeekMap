@@ -6,6 +6,7 @@ import LoginPage from "./Components/LoginPage";
 import SettingsPage from "./Components/SettingsPage";
 import ActivitiesPage from "./Components/ActivitiesPage";
 import ActivityCategoriesPage from "./Components/ActivityCategoriesPage";
+import WeekMapsPage from "./Components/WeekMapsPage";
 
 function App() {
     return (
@@ -16,6 +17,7 @@ function App() {
                     <Route path="/settings" element={<SettingsPage />} />
                     <Route path="/activities" element={<ActivitiesPage />} />
                     <Route path="/activity-categories" element={<ActivityCategoriesPage />} />
+                    <Route path="/weekmaps" element={<WeekMapsPage />} />
                 </Route>
                 
                 <Route path="/register" element={<RegisterPage />} />

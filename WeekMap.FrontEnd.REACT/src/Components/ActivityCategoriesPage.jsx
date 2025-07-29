@@ -226,8 +226,7 @@ function ActivityCategoriesPage() {
                   height: '20px',
                   backgroundColor: `#${cat.color}`,
                   borderRadius: '50%',
-                  marginRight: '15px',
-                  border: '1px solid #888'
+                  marginRight: '15px'
                 }}></div>
                 <span>{cat.name}</span>
               </div>
