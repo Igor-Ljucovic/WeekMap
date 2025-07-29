@@ -9,6 +9,9 @@ namespace WeekMap.DTOs
     public class PlannedWeekMapDTO
     {
         public long PlannedWeekMapID { get; set; }
+        [Required(ErrorMessage = "Name is required.")]
+        [StringLength(50, ErrorMessage = "Name must be at most 50 characters.")]
+        public string Name { get; set; }
         [Required(ErrorMessage = "Show Saturday is required.")]
         public bool ShowSaturday { get; set; }
         [Required(ErrorMessage = "Show Sunday is required.")]

@@ -33,6 +33,7 @@ namespace XUnitTests.Controllers
 
             var plannedWeekMaps = await client.GetFromJsonAsync<List<PlannedWeekMapDTO>>("api/PlannedWeekMap");
             plannedWeekMaps.Should().ContainSingle(m =>
+                m.Name == plannedWeekMap.Name &&
                 m.WeekStartDay == plannedWeekMap.WeekStartDay &&
                 m.DayStartTime == plannedWeekMap.DayStartTime &&
                 m.DayEndTime == plannedWeekMap.DayEndTime &&
@@ -62,6 +63,7 @@ namespace XUnitTests.Controllers
                 plannedWeekMaps = await response.Content.ReadFromJsonAsync<List<PlannedWeekMapDTO>>();
 
                 plannedWeekMaps.Should().ContainSingle(m =>
+                    m.Name == plannedWeekMap.Name &&
                     m.WeekStartDay == plannedWeekMap.WeekStartDay &&
                     m.DayStartTime == plannedWeekMap.DayStartTime &&
                     m.DayEndTime == plannedWeekMap.DayEndTime &&
@@ -98,6 +100,7 @@ namespace XUnitTests.Controllers
 
             PlannedWeekMapDTO plannedWeekMapDTO = new PlannedWeekMapDTO
             {
+                Name = "name1",
                 WeekStartDay = "Monday",
                 DayStartTime = new TimeSpan(8, 0, 0),
                 DayEndTime = new TimeSpan(16, 0, 0),
@@ -123,6 +126,7 @@ namespace XUnitTests.Controllers
                 var afterEditPlannedWeekMap = await client.GetFromJsonAsync<List<PlannedWeekMapDTO>>("/api/PlannedWeekMap");
                 var editedMap = afterEditPlannedWeekMap?.FirstOrDefault(m => m.PlannedWeekMapID == id);
 
+                editedMap?.Name.Should().Be(updatedPlannedWeekMap.Name);
                 editedMap?.WeekStartDay.Should().Be(updatedPlannedWeekMap.WeekStartDay);
                 editedMap?.DayStartTime.Should().Be(updatedPlannedWeekMap.DayStartTime);
                 editedMap?.DayEndTime.Should().Be(updatedPlannedWeekMap.DayEndTime);
@@ -145,6 +149,7 @@ namespace XUnitTests.Controllers
 
                 plannedWeekMaps.Should().ContainSingle(m =>
                     m.PlannedWeekMapID == id &&
+                    m.Name == plannedWeekMap.Name &&
                     m.WeekStartDay == plannedWeekMapDTO.WeekStartDay &&
                     m.DayStartTime == plannedWeekMapDTO.DayStartTime &&
                     m.DayEndTime == plannedWeekMapDTO.DayEndTime &&

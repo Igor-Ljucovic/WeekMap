@@ -25,14 +25,10 @@ namespace WeekMap.Data
             // composite keys
             modelBuilder.Entity<PlannedWeekMapActivity>().HasKey(p => new 
             {
-                p.PlannedWeekMapID,
-                p.ActivityID,
                 p.PlannedWeekMapActivityID
             });
             modelBuilder.Entity<RealisedWeekMapActivity>().HasKey(p => new
             {
-                p.RealisedWeekMapID,
-                p.ActivityID,
                 p.RealisedWeekMapActivityID
             });
 

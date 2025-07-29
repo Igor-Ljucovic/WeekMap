@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using WeekMap.Attributes;
 
 namespace WeekMap.Models
@@ -8,6 +9,7 @@ namespace WeekMap.Models
     public class PlannedWeekMapActivity
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long PlannedWeekMapActivityID { get; set; }
 
         [ValidateNever]
@@ -23,7 +25,7 @@ namespace WeekMap.Models
         [Required(ErrorMessage = "End time is required.")]
         public TimeSpan EndTime { get; set; }
         public bool RepeatEveryWeek { get; set; } = true;
-        public DateTime ActivityDate { get; set; }
+        public DateTime? ActivityDate { get; set; }
 
         public bool OnMonday { get; set; }
         public bool OnTuesday { get; set; }

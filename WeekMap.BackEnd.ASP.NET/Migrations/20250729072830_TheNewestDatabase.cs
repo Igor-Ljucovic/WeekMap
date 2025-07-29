@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace WeekMap.Migrations
 {
-    public partial class NewDatabase : Migration
+    public partial class TheNewestDatabase : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -34,7 +34,7 @@ namespace WeekMap.Migrations
                     ActivityCategoryID = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Color = table.Column<string>(type: "nvarchar(6)", maxLength: 6, nullable: false),
+                    Color = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserID = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
@@ -54,9 +54,10 @@ namespace WeekMap.Migrations
                 {
                     PlannedWeekMapID = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     ShowSaturday = table.Column<bool>(type: "bit", nullable: false),
-                    ShowSaturdayAndSunday = table.Column<bool>(type: "bit", nullable: false),
-                    WeekStartDay = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    ShowSunday = table.Column<bool>(type: "bit", nullable: false),
+                    WeekStartDay = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DayStartTime = table.Column<TimeSpan>(type: "time", nullable: false),
                     DayEndTime = table.Column<TimeSpan>(type: "time", nullable: false),
                     ShowPlaceInPreview = table.Column<bool>(type: "bit", nullable: false),
@@ -82,7 +83,7 @@ namespace WeekMap.Migrations
                     UserID = table.Column<long>(type: "bigint", nullable: false),
                     SkipSaturday = table.Column<bool>(type: "bit", nullable: false),
                     SkipSunday = table.Column<bool>(type: "bit", nullable: false),
-                    WeekStartDay = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    WeekStartDay = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DayStartTime = table.Column<TimeSpan>(type: "time", nullable: false),
                     DayEndTime = table.Column<TimeSpan>(type: "time", nullable: false),
                     ShowPlaceInPreview = table.Column<bool>(type: "bit", nullable: false),
@@ -104,7 +105,7 @@ namespace WeekMap.Migrations
                 columns: table => new
                 {
                     UserID = table.Column<long>(type: "bigint", nullable: false),
-                    Theme = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Theme = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Notification = table.Column<bool>(type: "bit", nullable: false),
                     NotificationTime = table.Column<TimeSpan>(type: "time", nullable: false),
                     EmailUpdates = table.Column<bool>(type: "bit", nullable: false)
@@ -174,10 +175,14 @@ namespace WeekMap.Migrations
                 name: "PlannedWeekMapActivities",
                 columns: table => new
                 {
-                    ActivityID = table.Column<long>(type: "bigint", nullable: false),
+                    PlannedWeekMapActivityID = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     PlannedWeekMapID = table.Column<long>(type: "bigint", nullable: false),
+                    ActivityID = table.Column<long>(type: "bigint", nullable: false),
                     StartTime = table.Column<TimeSpan>(type: "time", nullable: false),
                     EndTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    RepeatEveryWeek = table.Column<bool>(type: "bit", nullable: false),
+                    ActivityDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     OnMonday = table.Column<bool>(type: "bit", nullable: false),
                     OnTuesday = table.Column<bool>(type: "bit", nullable: false),
                     OnWednesday = table.Column<bool>(type: "bit", nullable: false),
@@ -188,7 +193,7 @@ namespace WeekMap.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PlannedWeekMapActivities", x => new { x.ActivityID, x.PlannedWeekMapID });
+                    table.PrimaryKey("PK_PlannedWeekMapActivities", x => x.PlannedWeekMapActivityID);
                     table.ForeignKey(
                         name: "FK_PlannedWeekMapActivities_Activities_ActivityID",
                         column: x => x.ActivityID,
@@ -207,6 +212,8 @@ namespace WeekMap.Migrations
                 name: "RealisedWeekMapActivities",
                 columns: table => new
                 {
+                    RealisedWeekMapActivityID = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     ActivityID = table.Column<long>(type: "bigint", nullable: false),
                     RealisedWeekMapID = table.Column<long>(type: "bigint", nullable: false),
                     IsCompleted = table.Column<bool>(type: "bit", nullable: false),
@@ -215,7 +222,7 @@ namespace WeekMap.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RealisedWeekMapActivities", x => new { x.ActivityID, x.RealisedWeekMapID });
+                    table.PrimaryKey("PK_RealisedWeekMapActivities", x => x.RealisedWeekMapActivityID);
                     table.ForeignKey(
                         name: "FK_RealisedWeekMapActivities_Activities_ActivityID",
                         column: x => x.ActivityID,
@@ -246,6 +253,11 @@ namespace WeekMap.Migrations
                 column: "UserID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PlannedWeekMapActivities_ActivityID",
+                table: "PlannedWeekMapActivities",
+                column: "ActivityID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PlannedWeekMapActivities_PlannedWeekMapID",
                 table: "PlannedWeekMapActivities",
                 column: "PlannedWeekMapID");
@@ -254,6 +266,11 @@ namespace WeekMap.Migrations
                 name: "IX_PlannedWeekMaps_UserID",
                 table: "PlannedWeekMaps",
                 column: "UserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RealisedWeekMapActivities_ActivityID",
+                table: "RealisedWeekMapActivities",
+                column: "ActivityID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RealisedWeekMapActivities_RealisedWeekMapID",

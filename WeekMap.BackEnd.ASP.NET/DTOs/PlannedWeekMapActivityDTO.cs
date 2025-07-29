@@ -18,7 +18,7 @@ namespace WeekMap.DTOs
         public TimeSpan EndTime { get; set; }
 
         public bool RepeatEveryWeek { get; set; } = true;
-        public DateTime ActivityDate { get; set; }
+        public DateTime? ActivityDate { get; set; }
         public bool OnMonday { get; set; }
         public bool OnTuesday { get; set; }
         public bool OnWednesday { get; set; }

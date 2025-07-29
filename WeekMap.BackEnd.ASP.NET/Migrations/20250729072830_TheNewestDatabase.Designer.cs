@@ -12,8 +12,8 @@ using WeekMap.Data;
 namespace WeekMap.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250513164223_AddPrimaryKeyToRealisedWeekMapActivity")]
-    partial class AddPrimaryKeyToRealisedWeekMapActivity
+    [Migration("20250729072830_TheNewestDatabase")]
+    partial class TheNewestDatabase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -107,6 +107,11 @@ namespace WeekMap.Migrations
                     b.Property<TimeSpan>("DayStartTime")
                         .HasColumnType("time");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<bool>("ShowDescriptionInPreview")
                         .HasColumnType("bit");
 
@@ -135,13 +140,16 @@ namespace WeekMap.Migrations
 
             modelBuilder.Entity("WeekMap.Models.PlannedWeekMapActivity", b =>
                 {
-                    b.Property<long>("PlannedWeekMapID")
+                    b.Property<long>("PlannedWeekMapActivityID")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("PlannedWeekMapActivityID"), 1L, 1);
+
+                    b.Property<DateTime?>("ActivityDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<long>("ActivityID")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("PlannedWeekMapActivityID")
                         .HasColumnType("bigint");
 
                     b.Property<TimeSpan>("EndTime")
@@ -168,12 +176,20 @@ namespace WeekMap.Migrations
                     b.Property<bool>("OnWednesday")
                         .HasColumnType("bit");
 
+                    b.Property<long>("PlannedWeekMapID")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("RepeatEveryWeek")
+                        .HasColumnType("bit");
+
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("time");
 
-                    b.HasKey("PlannedWeekMapID", "ActivityID", "PlannedWeekMapActivityID");
+                    b.HasKey("PlannedWeekMapActivityID");
 
                     b.HasIndex("ActivityID");
+
+                    b.HasIndex("PlannedWeekMapID");
 
                     b.ToTable("PlannedWeekMapActivities", (string)null);
                 });
@@ -201,13 +217,13 @@ namespace WeekMap.Migrations
 
             modelBuilder.Entity("WeekMap.Models.RealisedWeekMapActivity", b =>
                 {
-                    b.Property<long>("RealisedWeekMapID")
+                    b.Property<long>("RealisedWeekMapActivityID")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("RealisedWeekMapActivityID"), 1L, 1);
 
                     b.Property<long>("ActivityID")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("RealisedWeekMapActivityID")
                         .HasColumnType("bigint");
 
                     b.Property<bool>("IsCompleted")
@@ -219,9 +235,14 @@ namespace WeekMap.Migrations
                     b.Property<TimeSpan>("RealisedStartTime")
                         .HasColumnType("time");
 
-                    b.HasKey("RealisedWeekMapID", "ActivityID", "RealisedWeekMapActivityID");
+                    b.Property<long>("RealisedWeekMapID")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("RealisedWeekMapActivityID");
 
                     b.HasIndex("ActivityID");
+
+                    b.HasIndex("RealisedWeekMapID");
 
                     b.ToTable("RealisedWeekMapActivities", (string)null);
                 });
