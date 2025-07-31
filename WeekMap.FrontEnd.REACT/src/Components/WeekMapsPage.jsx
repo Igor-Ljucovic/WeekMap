@@ -15,15 +15,103 @@ function WeekMapsPage() {
   const [newMap, setNewMap] = useState(null);
   const [showActivityModal, setShowActivityModal] = useState(false);
   const [allActivities, setAllActivities] = useState([]);
+  const [isEditingActivity, setIsEditingActivity] = useState(false);
   const [newActivity, setNewActivity] = useState({
-    activityID: null, startTime: "00:00", endTime: "00:00", activityDate: "2025-01-01",
-    repeatEveryWeek: true, onMonday: false, onTuesday: false, onWednesday: false,
-    onThursday: false, onFriday: false, onSaturday: false, onSunday: false,
+    activityID: null, 
+    startTime: "00:00", 
+    endTime: "00:00", 
+    activityDate: "2025-01-01",
+    repeatEveryWeek: true, 
+    onMonday: false, 
+    onTuesday: false, 
+    onWednesday: false,
+    onThursday: false, 
+    onFriday: false, 
+    onSaturday: false, 
+    onSunday: false,
   });
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editMapSettings, setEditMapSettings] = useState({
+    showPlaceInPreview: true,
+    showDescriptionInPreview: true,
+  });
+
+  const handleEditActivityClick = () => {
+    if (!selectedActivity) return;
+
+    setNewActivity({
+      activityID: selectedActivity.activityID,
+      startTime: selectedActivity.startTime.slice(0, 5),
+      endTime: selectedActivity.endTime.slice(0, 5),
+      activityDate: selectedActivity.activityDate?.slice(0, 10) ?? "2025-01-01",
+      repeatEveryWeek: selectedActivity.repeatEveryWeek,
+      onMonday: selectedActivity.onMonday,
+      onTuesday: selectedActivity.onTuesday,
+      onWednesday: selectedActivity.onWednesday,
+      onThursday: selectedActivity.onThursday,
+      onFriday: selectedActivity.onFriday,
+      onSaturday: selectedActivity.onSaturday,
+      onSunday: selectedActivity.onSunday,
+      plannedWeekMapActivityID: selectedActivity.plannedWeekMapActivityID, // Needed for PUT
+    });
+
+    setIsEditingActivity(true);
+    setShowViewActivityModal(false);
+    setShowActivityModal(true);
+  };
+
+  const buttonStyle = {
+    padding: "6px 12px",
+    border: "none",
+    borderRadius: "5px",
+    fontSize: "14px",
+    marginRight: "10px"
+  };
+
+  const addButtonStyle = {
+    ...buttonStyle,
+    backgroundColor: "#5cb85c",
+    color: "white"
+  };
+
+  const editButtonStyle = {
+    ...buttonStyle,
+    backgroundColor: "#0275d8",
+    color: "white"
+  };
+
+  const deleteButtonStyle = {
+    ...buttonStyle,
+    backgroundColor: "#d9534f",
+    color: "white"
+  };
+
+  const cancelButtonStyle = {
+    ...buttonStyle,
+    backgroundColor: "#6c757d",
+    color: "white"
+  };
+
+  const [selectedActivity, setSelectedActivity] = useState(null);
+  const [showViewActivityModal, setShowViewActivityModal] = useState(false);
 
   const navigate = useNavigate();
   const { isDarkMode, setIsDarkMode } = useTheme();
   const userID = window.sessionStorage.getItem("id");
+
+  const getWeekStartDate = () => {
+    if (!plannedMap) return null;
+
+    const today = new Date();
+    const weekStartDayName = plannedMap.weekStartDay || 'Monday'; 
+    const startDayIndex = WEEKDAYS.indexOf(weekStartDayName);
+    const todayOurIndex = (today.getDay() + 6) % 7;
+    const daysToSubtract = (todayOurIndex - startDayIndex + 7) % 7;
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - daysToSubtract);
+    startDate.setHours(0, 0, 0, 0);
+    return startDate;
+  };
 
   // --- Data Fetching and Effects ---
   useEffect(() => {
@@ -103,6 +191,7 @@ function WeekMapsPage() {
       .catch(() => {
         // Fallback if defaults fail to load
         setNewMap({
+          name: "map",
           weekStartDay: "Monday",
           dayStartTime: "08:00",
           dayEndTime: "24:00",
@@ -129,8 +218,13 @@ function WeekMapsPage() {
     }
 
     const postMap = {
-      userID: parseInt(userID), showSaturday: newMap.showSaturday, showSunday: newMap.showSunday,
-      weekStartDay: newMap.weekStartDay, dayStartTime: startTime, dayEndTime: endTime,
+      userID: parseInt(userID), 
+      name: newMap.name, 
+      showSaturday: newMap.showSaturday, 
+      showSunday: newMap.showSunday,
+      weekStartDay: newMap.weekStartDay, 
+      dayStartTime: startTime, 
+      dayEndTime: endTime,
       showPlaceInPreview: newMap.showPlaceInPreview, showDescriptionInPreview: newMap.showDescriptionInPreview
     };
 
@@ -148,6 +242,24 @@ function WeekMapsPage() {
     }
   };
 
+  const handleDeleteActivity = async (plannedWeekMapActivityID) => {
+    if (!plannedWeekMapActivityID || !window.confirm("Are you sure you want to delete this activity from the map?")) return;
+    try {
+      const res = await fetch(`api/PlannedWeekMapActivity/${plannedWeekMapActivityID}`, {
+        method: "DELETE",
+        credentials: "include"
+      });
+      if (!res.ok) throw new Error();
+      notify.success("Activity removed from map.");
+      setShowViewActivityModal(false);
+
+      const refreshed = await fetch(`api/PlannedWeekMap/${plannedMap.plannedWeekMapID}/activities`, { credentials: "include" });
+      setWeekMapActivities(await refreshed.json());
+    } catch {
+      notify.error("Failed to remove activity.");
+    }
+  };
+
   const isDateDisabled = () => {
     if (newActivity.repeatEveryWeek) return true;
     return WEEKDAYS.some(day => newActivity["on" + day]);
@@ -156,7 +268,6 @@ function WeekMapsPage() {
   const isRepeatForced = () => WEEKDAYS.some(day => newActivity["on" + day]);
 
   const handleAddActivityToMap = async () => {
-
     const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
     if (!timeRegex.test(newActivity.startTime) || !timeRegex.test(newActivity.endTime)) {
       notify.error("Start and end times must be in HH:MM 24-hour format.");
@@ -179,14 +290,11 @@ function WeekMapsPage() {
     const payload = {
       plannedWeekMapID: plannedMap.plannedWeekMapID,
       activityID: newActivity.activityID,
+      ...(isEditingActivity && { plannedWeekMapActivityID: newActivity.plannedWeekMapActivityID }),
       startTime: newActivity.startTime.length === 5 ? newActivity.startTime + ":00" : newActivity.startTime,
-      endTime: (() => {
-        const raw = newActivity.endTime;
-        if (raw === "12:00" || raw === "12:00:00") return "23:59:00";
-        return raw.length === 5 ? raw + ":00" : raw;
-      })(),
-      activityDate: newActivity.activityDate,
-      repeatEveryWeek: newActivity.repeatEveryWeek,
+      endTime: newActivity.endTime.length === 5 ? newActivity.endTime + ":00" : newActivity.endTime,
+      activityDate: isDateDisabled() ? null : newActivity.activityDate,
+      repeatEveryWeek: isDateDisabled() ? newActivity.repeatEveryWeek : false,
       onMonday: newActivity.onMonday,
       onTuesday: newActivity.onTuesday,
       onWednesday: newActivity.onWednesday,
@@ -197,8 +305,14 @@ function WeekMapsPage() {
     };
 
     try {
-      const res = await fetch("api/PlannedWeekMapActivity", {
-        method: "POST",
+      const url = isEditingActivity
+        ? `api/PlannedWeekMapActivity/${newActivity.plannedWeekMapActivityID}`
+        : "api/PlannedWeekMapActivity";
+
+      const method = isEditingActivity ? "PUT" : "POST";
+      console.log("Editing activity payload:", payload);
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(payload),
@@ -206,19 +320,23 @@ function WeekMapsPage() {
 
       if (!res.ok) {
         const error = await res.json();
-        notify.error(error?.message || "Failed to add activity.");
+        notify.error(error?.message || "Failed to save activity.");
         return;
       }
 
-      notify.success("Activity added to map!");
+      notify.success(isEditingActivity ? "Activity updated!" : "Activity added to map!");
       setShowActivityModal(false);
+      setIsEditingActivity(false);
+      setSelectedActivity(null);
       setNewActivity({
         activityID: null, startTime: "00:00", endTime: "00:00", activityDate: "",
         repeatEveryWeek: true, onMonday: false, onTuesday: false, onWednesday: false,
         onThursday: false, onFriday: false, onSaturday: false, onSunday: false,
       });
+
       const refreshed = await fetch(`api/PlannedWeekMap/${plannedMap.plannedWeekMapID}/activities`, { credentials: "include" });
       setWeekMapActivities(await refreshed.json());
+
     } catch (err) {
       notify.error("Unexpected error occurred.");
     }
@@ -238,17 +356,31 @@ function WeekMapsPage() {
   if (!plannedMap) {
     return (
       <div style={{ padding: '20px', color: isDarkMode ? '#fff' : '#000' }}>
+        
         <h2>Your Week Maps</h2>
-        <button onClick={loadDefaults}>+ Add Week Map</button>
+        <button onClick={loadDefaults} style={addButtonStyle}>
+          Add Week Map
+        </button>
         <p style={{ marginTop: '20px' }}>Loading or no week maps found. Please add one.</p>
         <ToastContainer limit={1} theme={isDarkMode ? "dark" : "light"} />
-
+        
         {/* ✅ Still render modal even when no maps exist */}
         {showModal && newMap && (
           <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 }}>
             <div style={{ backgroundColor: isDarkMode ? "#222" : "#fff", padding: "20px", borderRadius: "10px", width: "400px", color: isDarkMode ? "#fff" : "#000" }}>
               <h3>New Week Map</h3>
               <div style={{ marginBottom: "10px" }}>
+                <div style={{ marginBottom: "10px" }}>
+                  <label>Name:</label>
+                  <input
+                    type="text"
+                    value={newMap.name}
+                    onChange={(e) => setNewMap({ ...newMap, name: e.target.value })}
+                    style={{ width: "100%", height: "32px" }}
+                    maxLength={50}
+                    required
+                  />
+                </div>
                 <label>Week Start Day:</label>
                 <select value={newMap.weekStartDay} onChange={(e) => setNewMap({ ...newMap, weekStartDay: e.target.value })} style={{ width: "100%", height: "32px" }}>
                   {WEEKDAYS.map(day => (
@@ -256,7 +388,7 @@ function WeekMapsPage() {
                   ))}
                 </select>
               </div>
-
+                  
               <div style={{ marginBottom: "10px" }}>
                 <label>Day Start Time:</label>
                 <select value={newMap.dayStartTime} onChange={(e) => setNewMap({ ...newMap, dayStartTime: e.target.value })} style={{ width: "100%", height: "32px" }}>
@@ -291,8 +423,12 @@ function WeekMapsPage() {
                 </div>
               ))}
 
-              <button onClick={handleAddNewMap} style={{ marginRight: "10px" }}>Add</button>
-              <button onClick={() => setShowModal(false)}>Cancel</button>
+              <button onClick={handleAddNewMap} style={isEditingActivity ? editButtonStyle : addButtonStyle}>
+                {isEditingActivity ? "Edit" : "Add"}
+              </button>
+              <button onClick={() => setShowModal(false)} style={cancelButtonStyle}>
+                Cancel
+              </button>
             </div>
           </div>
         )}
@@ -326,25 +462,80 @@ function WeekMapsPage() {
     position: "relative",
   };
 
+    const now = new Date();
+    const currentDay = WEEKDAYS[now.getDay() === 0 ? 6 : now.getDay() - 1]; // JS Sunday = 0, our list starts at Monday
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    const startMinutes = timeToMinutes(dayStartTime);
+    const endMinutes = dayEndTime.startsWith("23:59") ? 1440 : timeToMinutes(dayEndTime);
+    const isCurrentInRange = currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+    const offsetTop = isCurrentInRange ? (currentMinutes - startMinutes) : null;
+
   return (
     <div style={{ padding: "20px", color: isDarkMode ? "#fff" : "#000" }}>
       <h2>Your Week Maps</h2>
+      
       <div style={{ marginBottom: "10px" }}>
-        <button onClick={loadDefaults} style={{ marginRight: "10px" }}>+Add Week Map</button>
-        <button onClick={handleDeleteMap} style={{ backgroundColor: "#d9534f", color: "white" }}>Delete Current</button>
+        <button onClick={loadDefaults} style={addButtonStyle}>
+          Add Week Map
+        </button>
         <button
-          onClick={() => { 
-            const currentYear = new Date().getFullYear(); 
-            setNewActivity({activityDate: `${currentYear}-01-01`});
+          onClick={() => {
+            if (plannedMap) {
+              setEditMapSettings({
+                showPlaceInPreview: plannedMap.showPlaceInPreview,
+                showDescriptionInPreview: plannedMap.showDescriptionInPreview
+              });
+              setShowEditModal(true);
+            }
+          }}
+          style={editButtonStyle}
+        >
+          Week Map Settings
+        </button>
+        <button onClick={handleDeleteMap} style={deleteButtonStyle}>
+          Delete Current Week Map
+        </button>
+        <button
+          onClick={() => {
+            const currentYear = new Date().getFullYear();
+            setNewActivity({ activityDate: `${currentYear}-01-01` });
             setShowActivityModal(true);
           }}
-          style={{ marginRight: "10px" }}
+          style={addButtonStyle}
         >
-          +Add Activity to Map
+          Add Activity to Map
         </button>
       </div>
+      {weekMapActivities.some(act => act.activityDate) && (
+      <div style={{ marginBottom: "15px" }}>
+        <label style={{ marginRight: "10px" }}>One-time activities with a date:</label>
+        <select
+          onChange={(e) => {
+            const selectedID = parseInt(e.target.value);
+            const activity = weekMapActivities.find(act => act.plannedWeekMapActivityID === selectedID);
+            if (activity) {
+              setSelectedActivity(activity);
+              setShowViewActivityModal(true);
+            }
+          }}
+          style={{ padding: "6px", fontSize: "14px", width: "300px" }}
+          defaultValue=""
+        >
+          <option value="" disabled>Select an activity</option>
+          {weekMapActivities
+            .filter(act => act.activityDate)
+            .sort((a, b) => a.activityDate.localeCompare(b.activityDate))
+            .map(act => (
+              <option key={act.plannedWeekMapActivityID} value={act.plannedWeekMapActivityID}>
+                {`${act.activity?.name || 'Unnamed'} (${act.activityDate.slice(0, 10)})`}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
       <div style={{ marginBottom: "10px" }}>
-        <label>Choose a week map:{" "}<select value={plannedMap.plannedWeekMapID} onChange={(e) => { const selectedMap = allWeekMaps.find(m => m.plannedWeekMapID === parseInt(e.target.value)); setPlannedMap(selectedMap); }}>{allWeekMaps.map((map) => (<option key={map.plannedWeekMapID} value={map.plannedWeekMapID}>{map.dayStartTime} to {map.dayEndTime.startsWith("23:59") ? "24:00:00" : map.dayEndTime}</option>))}</select></label>
+        <label>Current Week Map:{" "}<select value={plannedMap.plannedWeekMapID} onChange={(e) => { const selectedMap = allWeekMaps.find(m => m.plannedWeekMapID === parseInt(e.target.value)); setPlannedMap(selectedMap); }}>{allWeekMaps.map((map) => (<option key={map.plannedWeekMapID} value={map.plannedWeekMapID}>{map.name}</option>))}</select></label>
       </div>
 
       <div style={gridContainerStyle}>
@@ -354,15 +545,35 @@ function WeekMapsPage() {
         
         {WEEKDAYS.map((day, index) => (
           <div key={`${day}-column`} style={{ gridRow: `2 / span ${hours.length}`, gridColumn: index + 2, position: 'relative', borderRight: index < WEEKDAYS.length - 1 ? `1px solid ${isDarkMode ? "#555" : "#ccc"}` : 'none' }}>
+            {isCurrentInRange && day === currentDay && (
+              <div style={{
+                position: 'absolute',
+                top: `${offsetTop}px`,
+                left: 0,
+                width: "100%",
+                height: "2px",
+                backgroundColor: "yellow",
+                zIndex: 20
+              }}></div>
+            )}
             {hours.map((_, i) => (
               <div key={`${day}-line-${i}`} style={{ position: 'absolute', top: `${i * HOUR_ROW_HEIGHT}px`, left: 0, right: 0, height: `${HOUR_ROW_HEIGHT}px`, borderBottom: `1px solid ${isDarkMode ? "#555" : "#ccc"}`, boxSizing: 'border-box' }}></div>
             ))}
             {weekMapActivities
               .filter(act => {
-                if (!act["on" + day]) return false;
-                if (day === 'Saturday' && !showSaturday) return false;
-                if (day === 'Sunday' && !showSunday) return false;
-                return true;
+                const isRepeating = act.repeatEveryWeek && act["on" + day];
+                if (isRepeating) return true;
+
+                if (!act.activityDate) return false;
+
+                const actDate = new Date(act.activityDate);
+                const weekStart = getWeekStartDate();
+                if (!weekStart) return false;
+
+                const columnDate = new Date(weekStart);
+                columnDate.setDate(columnDate.getDate() + WEEKDAYS.indexOf(day));
+
+                return actDate.toDateString() === columnDate.toDateString();
               })
               .map((act, actIndex) => {
                 const startMinutesTotal = timeToMinutes(act.startTime);
@@ -376,11 +587,49 @@ function WeekMapsPage() {
                 const uniqueRenderKey = `${day}-${actIndex}-${act.startTime || ''}`;
 
                 return (
-                  <div key={uniqueRenderKey} style={{ position: 'absolute', top: `${top}px`, height: `${height}px`, left: '2px', right: '2px', backgroundColor: `#${act.activityCategory?.color || "888"}`, color: "#fff", padding: "6px", borderRadius: "6px", fontSize: "12px", overflow: "hidden", zIndex: 10, boxSizing: 'border-box' }}>
-                    <b>{act.name}</b>
-                    {ShowPlaceInPreview && act.place && <div style={{ fontSize: "11px" }}>📍 {act.place}</div>}
-                    {ShowDescriptionInPreview && act.description && <div style={{ fontSize: "11px", marginTop: "2px", fontStyle: 'italic' }}>{act.description}</div>}
-                    <div style={{ position: 'absolute', bottom: '4px', fontSize: '11px' }}>{act.startTime} - {act.endTime}</div>
+                  <div
+                    key={uniqueRenderKey}
+                    onClick={() => {
+                      setSelectedActivity(act);
+                      setShowViewActivityModal(true);
+                    }}
+                    style={{
+                      cursor: "pointer",
+                      position: 'absolute',
+                      top: `${top}px`,
+                      height: `${height}px`,
+                      left: '2px',
+                      right: '2px',
+                      backgroundColor: `#${act.activity?.activityCategory?.color || "888"}`,
+                      color: "#fff",
+                      padding: "6px",
+                      borderRadius: "6px",
+                      fontSize: "14px",
+                      overflow: "hidden",
+                      zIndex: 10,
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    <div style={{ fontWeight: "bold" }}>{act.activity?.name || "Unnamed"}</div>
+
+                    {plannedMap.showPlaceInPreview && act.activity?.location && (
+                      <div style={{ fontSize: "11px", marginTop: "2px" }}>
+                        📍 {act.activity.location}
+                      </div>
+                    )}
+
+                    {plannedMap.showDescriptionInPreview && act.activity?.description && (
+                      <div style={{
+                        fontSize: "11px",
+                        fontStyle: "italic",
+                        marginTop: "2px",
+                        whiteSpace: "pre-wrap",
+                        overflowWrap: "break-word",
+                        wordBreak: "break-word"
+                      }}>
+                        {act.activity.description}
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -393,27 +642,266 @@ function WeekMapsPage() {
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 }}>
           <div style={{ backgroundColor: isDarkMode ? "#222" : "#fff", padding: "20px", borderRadius: "10px", width: "400px", color: isDarkMode ? "#fff" : "#000" }}>
             <h3>New Week Map</h3>
+            <div style={{ marginBottom: "10px" }}>
+              <label>Name:</label>
+              <input
+                type="text"
+                value={newMap.name}
+                onChange={(e) => setNewMap({ ...newMap, name: e.target.value })}
+                placeholder="Enter week map name"
+                style={{ width: "100%", height: "32px" }}
+                maxLength={50}
+                required
+              />
+            </div>
             <div style={{ marginBottom: "10px" }}><label>Week Start Day:</label><select value={newMap.weekStartDay} onChange={(e) => setNewMap({ ...newMap, weekStartDay: e.target.value })} style={{ width: "100%", height: "32px" }}>{WEEKDAYS.map(day => (<option key={`modal-weekday-${day}`} value={day}>{day}</option>))}</select></div>
             <div style={{ marginBottom: "10px" }}><label>Day Start Time:</label><select value={newMap.dayStartTime} onChange={(e) => setNewMap({ ...newMap, dayStartTime: e.target.value })} style={{ width: "100%", height: "32px" }}>{Array.from({ length: 24 }, (_, i) => (<option key={`modal-start-hour-${i}`} value={`${i.toString().padStart(2, "0")}:00`}>{`${i.toString().padStart(2, "0")}:00`}</option>))}</select></div>
             <div style={{ marginBottom: "10px" }}><label>Day End Time:</label><select value={newMap.dayEndTime === "23:59" || newMap.dayEndTime === "23:59:00" ? "24:00" : newMap.dayEndTime} onChange={(e) => { const v = e.target.value; setNewMap({ ...newMap, dayEndTime: v === "24:00" ? "23:59" : v }); }} style={{ width: "100%", height: "32px" }}>{Array.from({ length: 24 }, (_, i) => (<option key={`modal-end-hour-${i}`} value={`${i.toString().padStart(2, "0")}:00`}>{`${i.toString().padStart(2, "0")}:00`}</option>))}<option value="24:00">24:00</option></select></div>
             {[{ label: "Show Saturday", key: "showSaturday" }, { label: "Show Sunday", key: "showSunday" }, { label: "Show Place In Preview", key: "showPlaceInPreview" }, { label: "Show Description In Preview", key: "showDescriptionInPreview" }].map(({ label, key }) => (<div key={`modal-checkbox-${key}`} style={{ marginBottom: "10px" }}><label><input type="checkbox" checked={newMap[key]} onChange={(e) => setNewMap({ ...newMap, [key]: e.target.checked })} /> {label}</label></div>))}
-            <button onClick={handleAddNewMap} style={{ marginRight: "10px" }}>Add</button>
-            <button onClick={() => setShowModal(false)}>Cancel</button>
+            <button onClick={handleAddNewMap} style={addButtonStyle}>Add</button>
+            <button onClick={() => setShowModal(false)} style={cancelButtonStyle}>Cancel</button>
+          </div>
+        </div>
+      )}
+      {showEditModal && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.5)", display: "flex",
+          justifyContent: "center", alignItems: "center", zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: isDarkMode ? "#222" : "#fff",
+            padding: "20px", borderRadius: "10px", width: "400px",
+            color: isDarkMode ? "#fff" : "#000"
+          }}>
+            <h3>Edit Preview Settings</h3>
+
+            <div style={{ marginBottom: "10px" }}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={editMapSettings.showPlaceInPreview}
+                  onChange={(e) =>
+                    setEditMapSettings(prev => ({ ...prev, showPlaceInPreview: e.target.checked }))
+                  }
+                />{" "}
+                Show Place In Preview
+              </label>
+            </div>
+
+            <div style={{ marginBottom: "10px" }}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={editMapSettings.showDescriptionInPreview}
+                  onChange={(e) =>
+                    setEditMapSettings(prev => ({ ...prev, showDescriptionInPreview: e.target.checked }))
+                  }
+                />{" "}
+                Show Description In Preview
+              </label>
+            </div>
+
+            <div style={{ marginTop: "15px" }}>
+              <button
+                onClick={async () => {
+                  try {
+                    const response = await fetch(`api/PlannedWeekMap/${plannedMap.plannedWeekMapID}`, {
+                      method: "PUT",
+                      headers: { "Content-Type": "application/json" },
+                      credentials: "include",
+                      body: JSON.stringify({
+                        ...plannedMap,
+                        showPlaceInPreview: editMapSettings.showPlaceInPreview,
+                        showDescriptionInPreview: editMapSettings.showDescriptionInPreview
+                      })
+                    });
+
+                    if (!response.ok) throw new Error("Failed to update week map.");
+
+                    notify.success("Week map updated.");
+                    const refreshed = await fetch(`api/PlannedWeekMap`, { credentials: "include" });
+                    const updatedMaps = await refreshed.json();
+                    setAllWeekMaps(updatedMaps);
+                    const updatedSelected = updatedMaps.find(m => m.plannedWeekMapID === plannedMap.plannedWeekMapID);
+                    setPlannedMap(updatedSelected);
+                    setShowEditModal(false);
+                  } catch {
+                    notify.error("Error updating week map.");
+                  }
+                }}
+                style={editButtonStyle}
+              >
+                Save
+              </button>
+              <button onClick={() => setShowEditModal(false)} style={cancelButtonStyle}>Cancel</button>
+            </div>
           </div>
         </div>
       )}
       {showActivityModal && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 }}>
           <div style={{ backgroundColor: isDarkMode ? "#222" : "#fff", padding: "20px", borderRadius: "10px", width: "450px", color: isDarkMode ? "#fff" : "#000" }}>
-            <h3>Add Activity to This Week Map</h3>
-            <div style={{ marginBottom: "10px" }}><label>Activity:</label><select value={newActivity.activityID || ""} onChange={(e) => setNewActivity({ ...newActivity, activityID: parseInt(e.target.value) })} style={{ width: "100%" }}><option value="">-- Select Activity --</option>{allActivities.map(a => (<option key={a.activityID} value={a.activityID}>{a.name}</option>))}</select></div>
-            <div style={{ marginBottom: "10px" }}><label>Start Time:</label><input type="text"  placeholder="e.g. 13:30" value={newActivity.startTime} onChange={(e) => setNewActivity({ ...newActivity, startTime: e.target.value })} pattern="^([01]\d|2[0-3]):([0-5]\d)$" title="Enter time in HH:MM 24-hour format"/></div>
-            <div style={{ marginBottom: "10px" }}><label>End Time:</label><input type="text"  placeholder="e.g. 16:30" value={newActivity.endTime} onChange={(e) => setNewActivity({ ...newActivity, endTime: e.target.value })} pattern="^([01]\d|2[0-3]):([0-5]\d)$" title="Enter time in HH:MM 24-hour format"/></div>
-            <div style={{ marginBottom: "10px" }}><label>Date (yyyy-mm-dd):</label><input type="date" value={newActivity.activityDate} onChange={(e) => setNewActivity({ ...newActivity, activityDate: e.target.value })} style={{ width: "100%" }} disabled={isDateDisabled()}/></div>
-            <div style={{ marginBottom: "10px" }}><label><input type="checkbox" checked={isRepeatForced() || newActivity.repeatEveryWeek} onChange={(e) => setNewActivity({ ...newActivity, repeatEveryWeek: e.target.checked })} disabled={isRepeatForced()}/> Repeat Every Week</label></div>
-            <div style={{ display: "flex", flexWrap: "wrap", marginBottom: "10px" }}>{WEEKDAYS.map(day => (<label key={`activity-modal-day-${day}`} style={{ width: "50%" }}><input type="checkbox" checked={newActivity["on" + day]} onChange={(e) => setNewActivity({ ...newActivity, ["on" + day]: e.target.checked })}/> {day}</label>))}</div>
-            <button onClick={handleAddActivityToMap} style={{ marginRight: "10px" }}>Add</button>
-            <button onClick={() => setShowActivityModal(false)}>Cancel</button>
+            <h3>{isEditingActivity ? "Edit Activity" : "Add Activity to This Week Map"}</h3>
+            <div style={{ marginBottom: "10px" }}><label>Activity:</label>
+            <select
+              value={newActivity.activityID || ""}
+              onChange={(e) => setNewActivity({ ...newActivity, activityID: parseInt(e.target.value) })}
+              style={{ width: "100%" }}
+            >
+              <option value="">-- Select Activity --</option>
+              {allActivities.map(a => {
+                const color = a.activityCategory?.color ? `#${a.activityCategory.color}` : "inherit";
+                return (
+                  <option key={a.activityID} value={a.activityID} style={{ color }}>
+                    {a.name}
+                  </option>
+                );
+              })}
+            </select>
+            </div>
+            <div style={{ marginBottom: "10px" }}>
+            <label style={{ display: "block" }}>Start Time:</label>
+            <input
+              type="text"
+              placeholder="e.g. 13:30"
+              value={newActivity.startTime}
+              onChange={(e) => setNewActivity({ ...newActivity, startTime: e.target.value })}
+              pattern="^([01]\d|2[0-3]):([0-5]\d)$"
+              title="Enter time in HH:MM 24-hour format"
+              style={{ width: "100%" }}
+            />
+          </div>
+
+          <div style={{ marginBottom: "10px" }}>
+          <label style={{ display: "block" }}>End Time:</label>
+          <input
+            type="text"
+            placeholder="e.g. 16:30"
+            value={newActivity.endTime}
+            onChange={(e) => setNewActivity({ ...newActivity, endTime: e.target.value })}
+            pattern="^([01]\d|2[0-3]):([0-5]\d)$"
+            title="Enter time in HH:MM 24-hour format"
+            style={{ width: "100%" }}
+          />
+          </div>
+
+          <div style={{ marginBottom: "10px" }}>
+            <label>Date (yyyy-mm-dd):</label>
+            <input
+              type="date"
+              value={newActivity.activityDate}
+              onChange={(e) => setNewActivity({ ...newActivity, activityDate: e.target.value })}
+              style={{ width: "100%" }}
+              disabled={isDateDisabled()}
+            />
+          </div>
+
+          <div style={{ marginBottom: "10px" }}>
+            <label>
+              <input
+                type="checkbox"
+                checked={newActivity.repeatEveryWeek}
+                onChange={(e) => {
+                  const repeat = e.target.checked;
+                  setNewActivity({
+                    ...newActivity,
+                    repeatEveryWeek: repeat,
+                    ...(repeat === false && Object.fromEntries(WEEKDAYS.map(day => [`on${day}`, false])))
+                  });
+                }}
+              />
+              {" "}Repeat Every Week
+            </label>
+          </div>
+
+          <div style={{ display: "flex", flexWrap: "wrap", marginBottom: "10px" }}>
+            {WEEKDAYS.map(day => (
+              <label key={`activity-modal-day-${day}`} style={{ width: "50%" }}>
+                <input
+                  type="checkbox"
+                  checked={newActivity["on" + day]}
+                  disabled={!newActivity.repeatEveryWeek}
+                  onChange={(e) => {
+                    setNewActivity({ ...newActivity, ["on" + day]: e.target.checked });
+                  }}
+                />
+                {" "}{day}
+              </label>
+            ))}
+          </div>
+          <button onClick={handleAddActivityToMap} style= {isEditingActivity ? editButtonStyle : addButtonStyle}>
+            {isEditingActivity ? "Save" : "Add"}
+          </button>
+          <button
+            onClick={() => {
+              setShowActivityModal(false);
+              setIsEditingActivity(false);
+              setSelectedActivity(null);
+              setNewActivity({
+                activityID: null,
+                startTime: "00:00",
+                endTime: "00:00",
+                activityDate: "2025-01-01",
+                repeatEveryWeek: true,
+                onMonday: false,
+                onTuesday: false,
+                onWednesday: false,
+                onThursday: false,
+                onFriday: false,
+                onSaturday: false,
+                onSunday: false,
+              });
+            }}
+            style={cancelButtonStyle}
+          >
+            Cancel
+          </button>
+          </div>
+        </div>
+      )}
+      {showViewActivityModal && selectedActivity && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.5)", display: "flex",
+          justifyContent: "center", alignItems: "center", zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: isDarkMode ? "#222" : "#fff",
+            padding: "20px", borderRadius: "10px", width: "400px",
+            color: isDarkMode ? "#fff" : "#000"
+          }}>
+            <h3>Activity Details</h3>
+            <p><strong>Name:</strong> {selectedActivity.activity?.name || "Unnamed"}</p>
+            <p><strong>Start:</strong> {selectedActivity.startTime}</p>
+            <p><strong>End:</strong> {selectedActivity.endTime}</p>
+            {selectedActivity.activity.description && (
+              <p style={{ wordWrap: "break-word", overflowWrap: "break-word", whiteSpace: "pre-wrap" }}>
+                <strong>Description:</strong> {selectedActivity.activity.description}
+              </p>
+            )}
+            {selectedActivity.activity.location && (
+              <p><strong>Location:</strong> {selectedActivity.activity.location}</p>
+            )}
+            {selectedActivity.activityDate && (
+              <p><strong>Date:</strong> {selectedActivity.activityDate?.slice(0, 10)}</p>
+            )}
+            {WEEKDAYS.some(day => selectedActivity["on" + day]) && (
+              <p><strong>Repeats on:</strong> {
+                WEEKDAYS.filter(day => selectedActivity["on" + day]).join(", ")
+              }</p>
+            )}
+            <div style={{ marginTop: "15px" }}>
+              <button onClick={handleEditActivityClick} style={editButtonStyle}>
+                Edit
+              </button>
+              <button onClick={() => handleDeleteActivity(selectedActivity.plannedWeekMapActivityID)} style={deleteButtonStyle}>
+                Delete
+              </button>
+              <button onClick={() => setShowViewActivityModal(false)} style={cancelButtonStyle}>
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}

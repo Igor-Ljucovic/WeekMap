@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WeekMap.Data;
 using WeekMap.DTOs;
 using WeekMap.Models;
@@ -48,15 +49,17 @@ namespace WeekMap.Controllers
             return Ok(map);
         }
 
-        [HttpGet("{id}/activities")] // new method!
+        [HttpGet("{id}/activities")] // idk whether or not to put it in PlannedWeekMapActivity or here in PlannedWeekMap controller
         public IActionResult GetPlannedWeekMapActivities(long id)
         {
             if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long sessionUserID))
                 return Unauthorized(new { message = "User not logged in." });
 
             var activities = _context.PlannedWeekMapActivities
-                .Where(a => a.PlannedWeekMapID == id)
-                .ToList();
+            .Include(pwma => pwma.Activity)
+                .ThenInclude(a => a.ActivityCategory)
+            .Where(a => a.PlannedWeekMapID == id)
+            .ToList();
 
             return Ok(activities);
         }

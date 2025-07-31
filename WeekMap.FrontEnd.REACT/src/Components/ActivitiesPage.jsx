@@ -166,16 +166,36 @@ function ActivitiesPage() {
   };
 
   const buttonStyle = {
-    padding: '8px 15px',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    marginRight: '10px'
+    padding: "6px 12px",
+    border: "none",
+    borderRadius: "5px",
+    fontSize: "14px",
+    marginRight: "10px"
   };
 
-  const primaryButtonStyle = { ...buttonStyle, backgroundColor: isDarkMode ? '#cac6c6ff' : '#1f8600ff', color: isDarkMode ? 'black' : 'white' };
-  const secondaryButtonStyle = { ...buttonStyle, backgroundColor: '#6c757d', color: 'white' };
-  const dangerButtonStyle = { ...buttonStyle, backgroundColor: '#dc3545', color: 'white' };
+  const addButtonStyle = {
+    ...buttonStyle,
+    backgroundColor: "#5cb85c",
+    color: "white"
+  };
+
+  const editButtonStyle = {
+    ...buttonStyle,
+    backgroundColor: "#0275d8",
+    color: "white"
+  };
+
+  const deleteButtonStyle = {
+    ...buttonStyle,
+    backgroundColor: "#d9534f",
+    color: "white"
+  };
+
+  const cancelButtonStyle = {
+    ...buttonStyle,
+    backgroundColor: "#6c757d",
+    color: "white"
+  };
 
   return (
     <div style={containerStyle}>
@@ -224,11 +244,11 @@ function ActivitiesPage() {
         </select>
         </div>
 
-        <button type="submit" style={primaryButtonStyle}>
-          {isEditing ? 'Save Changes' : 'Add Activity'}
+        <button type="submit" style={addButtonStyle}>
+          {isEditing ? 'Save' : 'Add'}
         </button>
         {isEditing && (
-          <button type="button" onClick={resetForm} style={secondaryButtonStyle}>Cancel editing</button>
+          <button type="button" onClick={resetForm} style={cancelButtonStyle}>Cancel</button>
         )}
       </form>
 
@@ -271,8 +291,8 @@ function ActivitiesPage() {
                 })()}
               </div>
               <div>
-                <button onClick={() => handleEditClick(act)} style={secondaryButtonStyle}>Edit</button>
-                <button onClick={() => handleDeleteActivity(act.activityID)} style={dangerButtonStyle}>Delete</button>
+                <button onClick={() => handleEditClick(act)} style={editButtonStyle}>Edit</button>
+                <button onClick={() => handleDeleteActivity(act.activityID)} style={deleteButtonStyle}>Delete</button>
               </div>
             </li>
           ))}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import registerPhoto from "../Images/food-reg.jpeg";
+import registerPhoto from "../Images/loginPreview.png";
 import { Link, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -64,7 +64,7 @@ function LoginPage() {
   };
 
   return (
-    <section className="vh-100 d-flex align-items-center justify-content-center" style={{ background: "linear-gradient(to right, #2E7D32, #66BB6A, #A5D6A7)" }}>
+    <section className="vh-100 d-flex align-items-center justify-content-center" style={{ background: 'linear-gradient(to right, #7a7a7aff, #383838ff)' }}>
       <div className="card d-flex flex-row" style={{ borderRadius: "1rem", width: "50%", height: "80vh" }}>
         <div className="col-md-6 d-none d-md-block p-0" style={{ height: "100%" }}>
           <img

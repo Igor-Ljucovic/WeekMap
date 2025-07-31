@@ -2,6 +2,7 @@
 using WeekMap.Data;
 using WeekMap.Models;
 using WeekMap.DTOs;
+using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 
 namespace WeekMap.Controllers
@@ -19,18 +20,20 @@ namespace WeekMap.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("{plannedWeekMapID}/{activityID}")]
-        public IActionResult GetById(long plannedWeekMapID, long activityID)
+        [HttpGet("{plannedWeekMapActivityID}")]
+        public IActionResult GetById(long plannedWeekMapActivityID)
         {
             if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var activity = _context.PlannedWeekMapActivities.FirstOrDefault(pwma => pwma.PlannedWeekMapID == plannedWeekMapID && pwma.ActivityID == activityID);
+            var activity = _context.PlannedWeekMapActivities
+                .FirstOrDefault(pwma => pwma.PlannedWeekMapActivityID == plannedWeekMapActivityID);
 
             if (activity == null)
                 return NotFound();
 
-            return Ok(activity);
+            var dto = _mapper.Map<PlannedWeekMapActivity>(activity);
+            return Ok(dto);
         }
 
         [HttpPost]
@@ -64,13 +67,13 @@ namespace WeekMap.Controllers
             return Ok(new { message = "PlannedWeekMapActivity added successfully!" });
         }
 
-        [HttpPut("{plannedWeekMapID}/{activityID}")]
-        public IActionResult Edit(long plannedWeekMapID, long activityID, [FromBody] PlannedWeekMapActivityDTO updatedActivity)
+        [HttpPut("{plannedWeekMapActivityID}")]
+        public IActionResult Edit(long plannedWeekMapActivityID, [FromBody] PlannedWeekMapActivityDTO updatedActivity)
         {
             if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var activity = _context.PlannedWeekMapActivities.FirstOrDefault(pwma => pwma.PlannedWeekMapID == plannedWeekMapID && pwma.ActivityID == activityID);
+            var activity = _context.PlannedWeekMapActivities.FirstOrDefault(pwma => pwma.PlannedWeekMapActivityID == plannedWeekMapActivityID);
 
             if (activity == null)
                 return NotFound();
@@ -82,13 +85,13 @@ namespace WeekMap.Controllers
             return Ok(new { message = "PlannedWeekMapActivity updated successfully!" });
         }
 
-        [HttpDelete("{plannedWeekMapID}/{activityID}")]
-        public IActionResult Delete(long plannedWeekMapID, long activityID)
+        [HttpDelete("{plannedWeekMapActivityID}")]
+        public IActionResult Delete(long plannedWeekMapActivityID)
         {
             if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var activity = _context.PlannedWeekMapActivities.FirstOrDefault(pwma => pwma.PlannedWeekMapID == plannedWeekMapID && pwma.ActivityID == activityID);
+            var activity = _context.PlannedWeekMapActivities.FirstOrDefault(pwma => pwma.PlannedWeekMapActivityID == plannedWeekMapActivityID);
 
             if (activity == null)
                 return NotFound();

@@ -18,6 +18,7 @@ function HomePage() {
     if (token) {
       setIsLoggedIn(true);
       setUsername(username);
+      navigate("/weekmaps");
     } else {
       navigate("/login"); // redirect if the user isn't logged in
     }

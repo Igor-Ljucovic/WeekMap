@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import registerPhoto from "../Images/food-reg.jpeg";
 import { Link, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -72,22 +71,22 @@ function RegisterPage() {
     <section
       className="vh-100 bg-image"
       style={{
-        backgroundImage: `url(${registerPhoto})`,
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        background: 'linear-gradient(to right, #7a7a7aff, #383838ff)',
       }}
     >
       <div className="mask d-flex h-100 gradient-custom-3">
         <div className="container">
           <div className="row justify-content-center align-items-center h-100">
             <div className="col-12 col-md-11 col-lg-10 col-xl-9">
-              <div className="card w-100" style={{ borderRadius: "15px", margin: "0 auto" }}>
+              <div className="card w-100" style={{ border: "none", borderRadius: "15px", margin: "0 auto" }}>
 
                 <div
                   className="card-body p-5"
                   style={{
-                    backgroundColor: "#d4edda",
+                    backgroundColor: "#bbbbbbff",
                     borderRadius: "15px",
                   }}
                 >
@@ -168,17 +167,7 @@ function RegisterPage() {
 
                     <div className="d-flex justify-content-center mb-4">
                       <button
-                        type="submit"
-                        className="btn btn-lg gradient-custom-4 text-body"
-                        style={{
-                          padding: "15px 50px",
-                          fontSize: "18px",
-                          background: "linear-gradient(to right, #4caf50, #2e7d32)",
-                          border: "none",
-                          borderRadius: "30px",
-                          color: "white",
-                          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
-                          transition: "all 0.3s ease",
+                        className="btn btn-dark btn-lg btn-block" type="submit" style={{ fontSize: "min(1.2vw, 2vh)"
                         }}
                       >
                         Register

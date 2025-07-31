@@ -115,7 +115,7 @@ namespace XUnitTests.Controllers
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
             var existingMaps = await client.GetFromJsonAsync<List<PlannedWeekMapDTO>>("/api/PlannedWeekMap");
-            var id = existingMaps?.First().PlannedWeekMapID;
+            var id = existingMaps.First().PlannedWeekMapID;
 
             foreach (var plannedWeekMap in _plannedWeekMapTestData.Valid)
             {
@@ -149,7 +149,7 @@ namespace XUnitTests.Controllers
 
                 plannedWeekMaps.Should().ContainSingle(m =>
                     m.PlannedWeekMapID == id &&
-                    m.Name == plannedWeekMap.Name &&
+                    m.Name == plannedWeekMapDTO.Name &&
                     m.WeekStartDay == plannedWeekMapDTO.WeekStartDay &&
                     m.DayStartTime == plannedWeekMapDTO.DayStartTime &&
                     m.DayEndTime == plannedWeekMapDTO.DayEndTime &&
