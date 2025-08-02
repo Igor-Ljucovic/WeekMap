@@ -19,8 +19,6 @@ namespace WeekMap.Controllers
         [HttpDelete("cleanup-all")]
         public IActionResult CleanupAllTables()
         {
-            //throw new Exception("provera jel dodjeno do ovde");
-
             if (!_env.IsEnvironment("Test"))
                 return Forbid("CleanupAllTables can only run in the Test environment.");
 

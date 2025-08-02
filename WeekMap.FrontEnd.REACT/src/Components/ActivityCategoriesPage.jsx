@@ -9,6 +9,7 @@ function ActivityCategoriesPage() {
   const [currentCategory, setCurrentCategory] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [categoryMessage, setCategoryMessage] = useState("");
   
   const { isDarkMode } = useTheme();
   const userID = window.sessionStorage.getItem("id");
@@ -55,14 +56,19 @@ function ActivityCategoriesPage() {
         credentials: 'include',
         body: JSON.stringify(category)
       });
+
       if (!response.ok) {
         throw new Error('Failed to add category.');
       }
+
       notify.success("Category added successfully!");
+      if (navigator.webdriver) setCategoryMessage("Success");
+
       resetForm();
-      await fetchCategories(); // Refresh the list
+      await fetchCategories();
     } catch (error) {
       notify.error(error.message || "Failed to save the new category.");
+      if (navigator.webdriver) setCategoryMessage("Failure");
     }
   };
 
@@ -262,6 +268,7 @@ function ActivityCategoriesPage() {
       )}
 
       <ToastContainer limit={1} theme={isDarkMode ? 'dark' : 'light'}/>
+      {navigator.webdriver && (<p id="category-message" style={{ textAlign: 'center', marginTop: '20px' }}> {categoryMessage} </p> )}
     </div>
   );
 }

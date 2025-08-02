@@ -1,6 +1,5 @@
 using WeekMap.Data;
 using Microsoft.EntityFrameworkCore;
-using AutoMapper;
 
 namespace WeekMap
 {
@@ -11,20 +10,18 @@ namespace WeekMap
 
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
             builder.Services.AddControllers();
 
-            // ? REGISTER AppDbContext properly
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession();
-            builder.Services.AddHttpContextAccessor(); // optional but useful
+            builder.Services.AddHttpContextAccessor();
 
-            // register CORS policy
-            builder.Services.AddCors(options => { options.AddPolicy("AllowLocalhost3000", policy => policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod()); });
+            builder.Services.AddCors(options => { options.AddPolicy("AllowLocalhost3000", 
+                policy => policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod()); });
             builder.Services.AddAutoMapper(typeof(MappingProfile));
             var app = builder.Build();
-            // ENABLE CORS BEFORE routing/middleware
+
             app.UseCors("AllowLocalhost3000");
 
             using (var scope = app.Services.CreateScope())

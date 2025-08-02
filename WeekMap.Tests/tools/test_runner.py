@@ -1,16 +1,18 @@
 import time
 import requests
-from tests.RegisterTest import test_registration_scenario
 from tools import config
+
 
 def cleanup_test_database():
     try:
         response = requests.delete("https://localhost:7141/api/test-tools/cleanup-all", verify=False)
-        print(f"Database cleanup complete, HTTP response status code: {response.status_code}\n")
+        status = "successful" if response.status_code == 200 else "unsuccessful"
+        print(f"Database cleanup {status}, HTTP response status code: {response.status_code}\n")
     except Exception as e:
         print(f"Database cleanup failed: {e}\n")
 
-def run_tests():
+
+def run_tests(*test_functions):
 
     print("=" * config.PRINT_SEPERATOR_LENGTH)
     print("RUNNING PYTHON TESTS")
@@ -19,7 +21,8 @@ def run_tests():
     start_time = time.time()
 
     cleanup_test_database()
-    test_registration_scenario()
+    for test_func in test_functions:
+        test_func()
     cleanup_test_database()
 
     elapsed_seconds = time.time() - start_time
