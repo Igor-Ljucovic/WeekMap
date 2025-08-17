@@ -1,24 +1,32 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using WeekMap.Attributes;
 
-namespace WeekMap.DTOs
+namespace WeekMap.Models
 {
     [ValidActivityTimeRange]
-    public class PlannedWeekMapActivityDTO
+    public class WeekMapActivity
     {
-        public long PlannedWeekMapActivityID { get; set; }
-        public long ActivityID { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long WeekMapActivityID { get; set; }
 
-        public long PlannedWeekMapID { get; set; }
+        [ValidateNever]
+        public WeekMap WeekMap { get; set; }
+        public long WeekMapID { get; set; }
+        [ValidateNever]
+        public ActivityTemplate ActivityTemplate { get; set; }
+        public long ActivityTemplateID { get; set; }
 
         [Required(ErrorMessage = "Start time is required.")]
         public TimeSpan StartTime { get; set; }
 
         [Required(ErrorMessage = "End time is required.")]
         public TimeSpan EndTime { get; set; }
-
         public bool RepeatEveryWeek { get; set; } = true;
         public DateTime? ActivityDate { get; set; }
+
         public bool OnMonday { get; set; }
         public bool OnTuesday { get; set; }
         public bool OnWednesday { get; set; }

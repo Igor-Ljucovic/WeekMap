@@ -11,15 +11,9 @@ using System.Collections.Generic;
 
 namespace XUnitTests.Controllers
 {
-    public class PlannedWeekMapActivityControllerTests : IClassFixture<CustomWebApplicationFactory>
+    public class WeekMapActivityControllerTests
     {
-        private readonly WebApplicationFactory<Program> _factory;
-        private readonly PlannedWeekMapActivityTestData _plannedWeekMapActivityTestData = new PlannedWeekMapActivityTestData();
-
-        public PlannedWeekMapActivityControllerTests(CustomWebApplicationFactory factory)
-        {
-            _factory = factory;
-        }
+        private readonly WeekMapActivityTestData _plannedWeekMapActivityTestData = new WeekMapActivityTestData();
 
         [Fact]
         public async Task GetPlannedWeekMapActivity()
@@ -27,28 +21,28 @@ namespace XUnitTests.Controllers
             var (client, factory) = await ClientAsync.CreateAuthenticatedClientAsync();
             await using var _factory = factory;
 
-            var response = await client.GetAsync($"api/PlannedWeekMapActivity/1");
+            var response = await client.GetAsync($"api/WeekMapActivity/1");
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
 
             var plannedWeekMapActivityDTO = _plannedWeekMapActivityTestData.Valid.ElementAt(0);
-            plannedWeekMapActivityDTO.PlannedWeekMapID = 1;
-            plannedWeekMapActivityDTO.ActivityID = 1;
-            response = await client.PostAsJsonAsync("api/PlannedWeekMapActivity", plannedWeekMapActivityDTO);
-            // Not found because there are no Activities with id 1 and no PlannedWeekMaps with id 1
+            plannedWeekMapActivityDTO.WeekMapID = 1;
+            plannedWeekMapActivityDTO.ActivityTemplateID = 1;
+            response = await client.PostAsJsonAsync("api/WeekMapActivity", plannedWeekMapActivityDTO);
+            // Not found because there are no ActivityTemplates with id 1 and no PlannedWeekMaps with id 1
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
 
             // creating the necessary rows for the aggregate table to be added
             var (plannedWeekMapID, activityID) = await TestDataSeeder.SeedPlannedWeekMapActivityAsync(client);
 
-            plannedWeekMapActivityDTO.PlannedWeekMapID = plannedWeekMapID;
-            plannedWeekMapActivityDTO.ActivityID = activityID;
+            plannedWeekMapActivityDTO.WeekMapID = plannedWeekMapID;
+            plannedWeekMapActivityDTO.ActivityTemplateID = activityID;
 
-            response = await client.PostAsJsonAsync("api/PlannedWeekMapActivity", plannedWeekMapActivityDTO);
+            response = await client.PostAsJsonAsync("api/WeekMapActivity", plannedWeekMapActivityDTO);
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
-            // OK because now we have an Activity and a PlannedWeekMap with the necessary id,
+            // OK because now we have an ActivityTemplate and a PlannedWeekMap with the necessary id,
             // since this is an aggregate table, we need objects with both of the passed ids to exist
-            var lista = await client.GetFromJsonAsync<PlannedWeekMapActivity>($"api/PlannedWeekMapActivity/1");
+            var lista = await client.GetFromJsonAsync<WeekMapActivity>($"api/WeekMapActivity/1");
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
         }
 
@@ -66,22 +60,22 @@ namespace XUnitTests.Controllers
 
             foreach (var plannedWeekMapActivity in _plannedWeekMapActivityTestData.Valid)
             {
-                plannedWeekMapActivity.PlannedWeekMapID = plannedWeekMapID;
-                plannedWeekMapActivity.ActivityID = activityID;
+                plannedWeekMapActivity.WeekMapID = plannedWeekMapID;
+                plannedWeekMapActivity.ActivityTemplateID = activityID;
 
-                response = await client.PostAsJsonAsync($"api/PlannedWeekMapActivity", plannedWeekMapActivity);
+                response = await client.PostAsJsonAsync($"api/WeekMapActivity", plannedWeekMapActivity);
                 response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
-                response = await client.DeleteAsync($"api/PlannedWeekMapActivity/{increment++}");
+                response = await client.DeleteAsync($"api/WeekMapActivity/{increment++}");
                 response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
             }
 
             foreach (var plannedWeekMapActivity in _plannedWeekMapActivityTestData.Invalid)
             {
-                plannedWeekMapActivity.PlannedWeekMapID = plannedWeekMapID;
-                plannedWeekMapActivity.ActivityID = activityID;
+                plannedWeekMapActivity.WeekMapID = plannedWeekMapID;
+                plannedWeekMapActivity.ActivityTemplateID = activityID;
 
-                response = await client.PostAsJsonAsync($"api/PlannedWeekMapActivity", plannedWeekMapActivity);
+                response = await client.PostAsJsonAsync($"api/WeekMapActivity", plannedWeekMapActivity);
                 response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
             }
         }
@@ -93,23 +87,23 @@ namespace XUnitTests.Controllers
             await using var _factory = factory;
 
             HttpResponseMessage? response;
-            PlannedWeekMapActivityDTO updatedPlannedWeekMapActivity;
+            WeekMapActivityDTO updatedPlannedWeekMapActivity;
 
             // creating the necessary rows for the aggregate table to be added
             var (plannedWeekMapID, activityID) = await TestDataSeeder.SeedPlannedWeekMapActivityAsync(client);
 
             var plannedWeekMapActivityDTO = _plannedWeekMapActivityTestData.Valid.ElementAt(0);
-            plannedWeekMapActivityDTO.PlannedWeekMapID = plannedWeekMapID;
-            plannedWeekMapActivityDTO.ActivityID = activityID;
-            response = await client.PostAsJsonAsync("api/PlannedWeekMapActivity", plannedWeekMapActivityDTO);
+            plannedWeekMapActivityDTO.WeekMapID = plannedWeekMapID;
+            plannedWeekMapActivityDTO.ActivityTemplateID = activityID;
+            response = await client.PostAsJsonAsync("api/WeekMapActivity", plannedWeekMapActivityDTO);
 
             foreach (var plannedWeekMapActivity in _plannedWeekMapActivityTestData.Valid)
             {
                 updatedPlannedWeekMapActivity = plannedWeekMapActivity;
-                response = await client.PutAsJsonAsync($"api/PlannedWeekMapActivity/1", plannedWeekMapActivity);
+                response = await client.PutAsJsonAsync($"api/WeekMapActivity/1", plannedWeekMapActivity);
                 response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
-                PlannedWeekMapActivityDTO afterEditPlannedWeekMapActivity = await client.GetFromJsonAsync<PlannedWeekMapActivityDTO>($"api/PlannedWeekMapActivity/1");
+                WeekMapActivityDTO afterEditPlannedWeekMapActivity = await client.GetFromJsonAsync<WeekMapActivityDTO>($"api/WeekMapActivity/1");
                 response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
                 afterEditPlannedWeekMapActivity!.StartTime.Should().Be(updatedPlannedWeekMapActivity.StartTime);
@@ -126,13 +120,13 @@ namespace XUnitTests.Controllers
             foreach (var plannedWeekMapActivity in _plannedWeekMapActivityTestData.Invalid)
             {
                 updatedPlannedWeekMapActivity = plannedWeekMapActivity;
-                plannedWeekMapActivity.PlannedWeekMapID = plannedWeekMapID;
-                plannedWeekMapActivity.ActivityID = activityID;
+                plannedWeekMapActivity.WeekMapID = plannedWeekMapID;
+                plannedWeekMapActivity.ActivityTemplateID = activityID;
 
-                response = await client.PutAsJsonAsync($"api/PlannedWeekMapActivity/1", plannedWeekMapActivity);
+                response = await client.PutAsJsonAsync($"api/WeekMapActivity/1", plannedWeekMapActivity);
                 response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
 
-                response = await client.GetAsync($"api/PlannedWeekMapActivity/1");
+                response = await client.GetAsync($"api/WeekMapActivity/1");
                 response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
             }
         }
@@ -149,16 +143,16 @@ namespace XUnitTests.Controllers
             var (plannedWeekMapID, activityID) = await TestDataSeeder.SeedPlannedWeekMapActivityAsync(client);
 
             var plannedWeekMapActivityDTO = _plannedWeekMapActivityTestData.Valid.ElementAt(0);
-            plannedWeekMapActivityDTO.PlannedWeekMapID = plannedWeekMapID;
-            plannedWeekMapActivityDTO.ActivityID = activityID;
+            plannedWeekMapActivityDTO.WeekMapID = plannedWeekMapID;
+            plannedWeekMapActivityDTO.ActivityTemplateID = activityID;
 
-            response = await client.PostAsJsonAsync("api/PlannedWeekMapActivity", plannedWeekMapActivityDTO);
+            response = await client.PostAsJsonAsync("api/WeekMapActivity", plannedWeekMapActivityDTO);
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
-            response = await client.GetAsync($"api/PlannedWeekMapActivity/1");
+            response = await client.GetAsync($"api/WeekMapActivity/1");
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
-            response = await client.DeleteAsync($"api/PlannedWeekMapActivity/1");
+            response = await client.DeleteAsync($"api/WeekMapActivity/1");
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
         }
     }

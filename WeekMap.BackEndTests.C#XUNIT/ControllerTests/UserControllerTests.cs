@@ -9,16 +9,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace XUnitTests.Controllers
 {
-    public class UserControllerTests : IClassFixture<CustomWebApplicationFactory>
+    public class UserControllerTests
     {
-        private readonly WebApplicationFactory<Program> _factory;
-        private readonly UserTestData _userTestData;
-
-        public UserControllerTests(CustomWebApplicationFactory factory)
-        {
-            _factory = factory;
-            _userTestData = new UserTestData();
-        }
+        private readonly UserTestData _userTestData = new UserTestData();
 
         [Fact]
         public async Task RegisterUser()

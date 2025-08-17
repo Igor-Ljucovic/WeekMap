@@ -5,7 +5,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function WeekMapsPage() {
-  // --- State declarations ---
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [allWeekMaps, setAllWeekMaps] = useState([]);
@@ -16,8 +15,9 @@ function WeekMapsPage() {
   const [showActivityModal, setShowActivityModal] = useState(false);
   const [allActivities, setAllActivities] = useState([]);
   const [isEditingActivity, setIsEditingActivity] = useState(false);
+
   const [newActivity, setNewActivity] = useState({
-    activityID: null, 
+    activityTemplateID: null, 
     startTime: "00:00", 
     endTime: "00:00", 
     activityDate: "2025-01-01",
@@ -40,7 +40,7 @@ function WeekMapsPage() {
     if (!selectedActivity) return;
 
     setNewActivity({
-      activityID: selectedActivity.activityID,
+      activityTemplateID: selectedActivity.activityTemplateID,
       startTime: selectedActivity.startTime.slice(0, 5),
       endTime: selectedActivity.endTime.slice(0, 5),
       activityDate: selectedActivity.activityDate?.slice(0, 10) ?? "2025-01-01",
@@ -52,7 +52,7 @@ function WeekMapsPage() {
       onFriday: selectedActivity.onFriday,
       onSaturday: selectedActivity.onSaturday,
       onSunday: selectedActivity.onSunday,
-      plannedWeekMapActivityID: selectedActivity.plannedWeekMapActivityID, // Needed for PUT
+      weekMapActivityID: selectedActivity.weekMapActivityID,
     });
 
     setIsEditingActivity(true);
@@ -115,7 +115,7 @@ function WeekMapsPage() {
 
   // --- Data Fetching and Effects ---
   useEffect(() => {
-    fetch("api/Activity", { credentials: "include" })
+    fetch("api/ActivityTemplate", { credentials: "include" })
       .then(res => res.json())
       .then(data => setAllActivities(data))
       .catch(() => notify.error("Failed to load activities."));
@@ -134,7 +134,7 @@ function WeekMapsPage() {
 
   useEffect(() => {
     if (!userID) return;
-    fetch("api/PlannedWeekMap", { credentials: "include" })
+    fetch("api/WeekMap", { credentials: "include" })
       .then(res => res.json())
       .then(data => {
         setAllWeekMaps(data);
@@ -148,7 +148,7 @@ function WeekMapsPage() {
   useEffect(() => {
     if (plannedMap) {
       setWeekMapActivities([]);
-      fetch(`api/PlannedWeekMap/${plannedMap.plannedWeekMapID}/activities`, { credentials: "include" })
+      fetch(`api/WeekMap/${plannedMap.weekMapID}/activityTemplates`, { credentials: "include" })
         .then(res => res.json())
         .then(data => setWeekMapActivities(data))
         .catch(() => notify.error("Failed to load activities for this map."));
@@ -174,13 +174,18 @@ function WeekMapsPage() {
       })
       .then(data => {
         const rawEnd = data.dayEndTime || "23:59";
-        const cleanEndTime = rawEnd.startsWith("23:59") ? "24:00" : rawEnd.slice(0, 5);
-        const cleanStartTime = data.dayStartTime?.slice(0, 5) || "08:00";
+
+        const roundUpToNextHour = (time) => {
+          const [h, m] = time.split(":").map(Number);
+          if (m > 0) return `${(h + 1).toString().padStart(2, "0")}:00`;
+          return `${h.toString().padStart(2, "0")}:00`;
+        };
+
+        const cleanEndTime = roundUpToNextHour(rawEnd.startsWith("23:59") ? "24:00" : rawEnd.slice(0, 5));
+        const cleanStartTime = roundUpToNextHour(data.dayStartTime?.slice(0, 5) || "08:00");
 
         setNewMap({
           ...data,
-          showSaturday: !data.skipSaturday,
-          showSunday: !data.skipSunday,
           dayStartTime: cleanStartTime,
           dayEndTime: cleanEndTime,
           showPlaceInPreview: data.showPlaceInPreview ?? true,
@@ -192,11 +197,8 @@ function WeekMapsPage() {
         // Fallback if defaults fail to load
         setNewMap({
           name: "map",
-          weekStartDay: "Monday",
           dayStartTime: "08:00",
           dayEndTime: "24:00",
-          showSaturday: true,
-          showSunday: true,
           showPlaceInPreview: true,
           showDescriptionInPreview: true,
         });
@@ -219,17 +221,15 @@ function WeekMapsPage() {
 
     const postMap = {
       userID: parseInt(userID), 
-      name: newMap.name, 
-      showSaturday: newMap.showSaturday, 
-      showSunday: newMap.showSunday,
-      weekStartDay: newMap.weekStartDay, 
+      name: newMap.name,
       dayStartTime: startTime, 
       dayEndTime: endTime,
-      showPlaceInPreview: newMap.showPlaceInPreview, showDescriptionInPreview: newMap.showDescriptionInPreview
+      showPlaceInPreview: newMap.showPlaceInPreview, 
+      showDescriptionInPreview: newMap.showDescriptionInPreview
     };
 
     try {
-      const res = await fetch("api/PlannedWeekMap", {
+      const res = await fetch("api/WeekMap", {
         method: "POST", headers: { "Content-Type": "application/json" },
         credentials: "include", body: JSON.stringify(postMap)
       });
@@ -242,10 +242,10 @@ function WeekMapsPage() {
     }
   };
 
-  const handleDeleteActivity = async (plannedWeekMapActivityID) => {
-    if (!plannedWeekMapActivityID || !window.confirm("Are you sure you want to delete this activity from the map?")) return;
+  const handleDeleteActivity = async (weekMapActivityID) => {
+    if (!weekMapActivityID || !window.confirm("Are you sure you want to delete this activity from the map?")) return;
     try {
-      const res = await fetch(`api/PlannedWeekMapActivity/${plannedWeekMapActivityID}`, {
+      const res = await fetch(`api/WeekMapActivity/${weekMapActivityID}`, {
         method: "DELETE",
         credentials: "include"
       });
@@ -253,7 +253,7 @@ function WeekMapsPage() {
       notify.success("Activity removed from map.");
       setShowViewActivityModal(false);
 
-      const refreshed = await fetch(`api/PlannedWeekMap/${plannedMap.plannedWeekMapID}/activities`, { credentials: "include" });
+      const refreshed = await fetch(`api/WeekMap/${plannedMap.weekMapID}/activityTemplates`, { credentials: "include" });
       setWeekMapActivities(await refreshed.json());
     } catch {
       notify.error("Failed to remove activity.");
@@ -265,8 +265,6 @@ function WeekMapsPage() {
     return WEEKDAYS.some(day => newActivity["on" + day]);
   };
 
-  const isRepeatForced = () => WEEKDAYS.some(day => newActivity["on" + day]);
-
   const handleAddActivityToMap = async () => {
     const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
     if (!timeRegex.test(newActivity.startTime) || !timeRegex.test(newActivity.endTime)) {
@@ -274,7 +272,7 @@ function WeekMapsPage() {
       return;
     }
 
-    if (!newActivity.activityID || !newActivity.startTime || !newActivity.endTime || !newActivity.activityDate) {
+    if (!newActivity.activityTemplateID || !newActivity.startTime || !newActivity.endTime || !newActivity.activityDate) {
       notify.error("You haven't filled out all of the required fields.");
       return;
     }
@@ -288,9 +286,9 @@ function WeekMapsPage() {
     }
 
     const payload = {
-      plannedWeekMapID: plannedMap.plannedWeekMapID,
-      activityID: newActivity.activityID,
-      ...(isEditingActivity && { plannedWeekMapActivityID: newActivity.plannedWeekMapActivityID }),
+      weekMapID: plannedMap.weekMapID,
+      activityTemplateID: newActivity.activityTemplateID,
+      ...(isEditingActivity && { weekMapActivityID: newActivity.weekMapActivityID }),
       startTime: newActivity.startTime.length === 5 ? newActivity.startTime + ":00" : newActivity.startTime,
       endTime: newActivity.endTime.length === 5 ? newActivity.endTime + ":00" : newActivity.endTime,
       activityDate: isDateDisabled() ? null : newActivity.activityDate,
@@ -306,8 +304,8 @@ function WeekMapsPage() {
 
     try {
       const url = isEditingActivity
-        ? `api/PlannedWeekMapActivity/${newActivity.plannedWeekMapActivityID}`
-        : "api/PlannedWeekMapActivity";
+        ? `api/WeekMapActivity/${newActivity.weekMapActivityID}`
+        : "api/WeekMapActivity";
 
       const method = isEditingActivity ? "PUT" : "POST";
       console.log("Editing activity payload:", payload);
@@ -329,12 +327,12 @@ function WeekMapsPage() {
       setIsEditingActivity(false);
       setSelectedActivity(null);
       setNewActivity({
-        activityID: null, startTime: "00:00", endTime: "00:00", activityDate: "",
+        activityTemplateID: null, startTime: "00:00", endTime: "00:00", activityDate: "",
         repeatEveryWeek: true, onMonday: false, onTuesday: false, onWednesday: false,
         onThursday: false, onFriday: false, onSaturday: false, onSunday: false,
       });
 
-      const refreshed = await fetch(`api/PlannedWeekMap/${plannedMap.plannedWeekMapID}/activities`, { credentials: "include" });
+      const refreshed = await fetch(`api/WeekMap/${plannedMap.weekMapID}/activityTemplates`, { credentials: "include" });
       setWeekMapActivities(await refreshed.json());
 
     } catch (err) {
@@ -344,7 +342,7 @@ function WeekMapsPage() {
 
   const handleDeleteMap = () => {
     if (!plannedMap || !window.confirm("Are you sure you want to delete this week map?")) return;
-    fetch(`api/PlannedWeekMap/${plannedMap.plannedWeekMapID}`, { method: "DELETE", credentials: "include" })
+    fetch(`api/WeekMap/${plannedMap.weekMapID}`, { method: "DELETE", credentials: "include" })
       .then(res => {
         if (!res.ok) throw new Error();
         notify.success("Week map deleted.");
@@ -364,7 +362,7 @@ function WeekMapsPage() {
         <p style={{ marginTop: '20px' }}>Loading or no week maps found. Please add one.</p>
         <ToastContainer limit={1} theme={isDarkMode ? "dark" : "light"} />
         
-        {/* ✅ Still render modal even when no maps exist */}
+        {/* Still render modal even when no maps exist */}
         {showModal && newMap && (
           <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 }}>
             <div style={{ backgroundColor: isDarkMode ? "#222" : "#fff", padding: "20px", borderRadius: "10px", width: "400px", color: isDarkMode ? "#fff" : "#000" }}>
@@ -406,16 +404,19 @@ function WeekMapsPage() {
                   const v = e.target.value;
                   setNewMap({ ...newMap, dayEndTime: v === "24:00" ? "23:59" : v });
                 }} style={{ width: "100%", height: "32px" }}>
-                  {Array.from({ length: 24 }, (_, i) => (
-                    <option key={`modal-end-hour-${i}`} value={`${i.toString().padStart(2, "0")}:00`}>
-                      {`${i.toString().padStart(2, "0")}:00`}
-                    </option>
-                  ))}
+                  {Array.from({ length: 24 }, (_, i) => {
+                    const displayHour = (i + 1) % 24;
+                    return (
+                      <option key={`hour-${displayHour}`} value={`${displayHour.toString().padStart(2, "0")}:00`}>
+                        {`${displayHour.toString().padStart(2, "0")}:00`}
+                      </option>
+                    );
+                  })}
                   <option value="24:00">24:00</option>
                 </select>
               </div>
 
-              {[{ label: "Show Saturday", key: "showSaturday" }, { label: "Show Sunday", key: "showSunday" }, { label: "Show Place In Preview", key: "showPlaceInPreview" }, { label: "Show Description In Preview", key: "showDescriptionInPreview" }].map(({ label, key }) => (
+              {[{ label: "Show Place In Preview", key: "showPlaceInPreview" }, { label: "Show Description In Preview", key: "showDescriptionInPreview" }].map(({ label, key }) => (
                 <div key={`modal-checkbox-${key}`} style={{ marginBottom: "10px" }}>
                   <label>
                     <input type="checkbox" checked={newMap[key]} onChange={(e) => setNewMap({ ...newMap, [key]: e.target.checked })} /> {label}
@@ -436,7 +437,7 @@ function WeekMapsPage() {
     );
   }
 
-  const { showSaturday, showSunday, dayStartTime, dayEndTime, ShowPlaceInPreview, ShowDescriptionInPreview } = plannedMap;
+  const { dayStartTime, dayEndTime, showPlaceInPreview, showDescriptionInPreview } = plannedMap;
   const parseHour = (time) => parseInt(time.split(":")[0], 10);
   const timeToMinutes = (timeString) => {
     if(!timeString) return 0;
@@ -463,7 +464,7 @@ function WeekMapsPage() {
   };
 
     const now = new Date();
-    const currentDay = WEEKDAYS[now.getDay() === 0 ? 6 : now.getDay() - 1]; // JS Sunday = 0, our list starts at Monday
+    const currentDay = WEEKDAYS[now.getDay() === 0 ? 6 : now.getDay() - 1];
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
     const startMinutes = timeToMinutes(dayStartTime);
@@ -499,7 +500,7 @@ function WeekMapsPage() {
         <button
           onClick={() => {
             const currentYear = new Date().getFullYear();
-            setNewActivity({ activityDate: `${currentYear}-01-01` });
+            setNewActivity(prev => ({ ...prev, activityDate: `${currentYear}-01-01` }));
             setShowActivityModal(true);
           }}
           style={addButtonStyle}
@@ -513,7 +514,7 @@ function WeekMapsPage() {
         <select
           onChange={(e) => {
             const selectedID = parseInt(e.target.value);
-            const activity = weekMapActivities.find(act => act.plannedWeekMapActivityID === selectedID);
+            const activity = weekMapActivities.find(act => act.weekMapActivityID === selectedID);
             if (activity) {
               setSelectedActivity(activity);
               setShowViewActivityModal(true);
@@ -527,15 +528,15 @@ function WeekMapsPage() {
             .filter(act => act.activityDate)
             .sort((a, b) => a.activityDate.localeCompare(b.activityDate))
             .map(act => (
-              <option key={act.plannedWeekMapActivityID} value={act.plannedWeekMapActivityID}>
-                {`${act.activity?.name || 'Unnamed'} (${act.activityDate.slice(0, 10)})`}
+              <option key={act.weekMapActivityID} value={act.weekMapActivityID}>
+                {`${act.activityTemplate?.name || 'Unnamed'} (${act.activityDate.slice(0, 10)})`}
               </option>
             ))}
           </select>
         </div>
       )}
       <div style={{ marginBottom: "10px" }}>
-        <label>Current week map:{" "}<select value={plannedMap.plannedWeekMapID} onChange={(e) => { const selectedMap = allWeekMaps.find(m => m.plannedWeekMapID === parseInt(e.target.value)); setPlannedMap(selectedMap); }}>{allWeekMaps.map((map) => (<option key={map.plannedWeekMapID} value={map.plannedWeekMapID}>{map.name}</option>))}</select></label>
+        <label>Current week map:{" "}<select value={plannedMap.weekMapID} onChange={(e) => { const selectedMap = allWeekMaps.find(m => m.weekMapID === parseInt(e.target.value)); setPlannedMap(selectedMap); }}>{allWeekMaps.map((map) => (<option key={map.weekMapID} value={map.weekMapID}>{map.name}</option>))}</select></label>
       </div>
 
       <div style={gridContainerStyle}>
@@ -600,7 +601,7 @@ function WeekMapsPage() {
                       height: `${height}px`,
                       left: '2px',
                       right: '2px',
-                      backgroundColor: `#${act.activity?.activityCategory?.color || "888"}`,
+                      backgroundColor: `#${act.activityTemplate?.activityCategory?.color || "888"}`,
                       color: "#fff",
                       padding: "6px",
                       borderRadius: "6px",
@@ -610,15 +611,15 @@ function WeekMapsPage() {
                       boxSizing: 'border-box'
                     }}
                   >
-                    <div style={{ fontWeight: "bold" }}>{act.activity?.name || "Unnamed"}</div>
+                    <div style={{ fontWeight: "bold" }}>{act.activityTemplate?.name || "Unnamed"}</div>
 
-                    {plannedMap.showPlaceInPreview && act.activity?.location && (
+                    {plannedMap.showPlaceInPreview && act.activityTemplate?.location && (
                       <div style={{ fontSize: "11px", marginTop: "2px" }}>
-                        📍 {act.activity.location}
+                        📍 {act.activityTemplate.location}
                       </div>
                     )}
 
-                    {plannedMap.showDescriptionInPreview && act.activity?.description && (
+                    {plannedMap.showDescriptionInPreview && act.activityTemplate?.description && (
                       <div style={{
                         fontSize: "11px",
                         fontStyle: "italic",
@@ -627,7 +628,7 @@ function WeekMapsPage() {
                         overflowWrap: "break-word",
                         wordBreak: "break-word"
                       }}>
-                        {act.activity.description}
+                        {act.activityTemplate.description}
                       </div>
                     )}
                   </div>
@@ -705,7 +706,7 @@ function WeekMapsPage() {
               <button
                 onClick={async () => {
                   try {
-                    const response = await fetch(`api/PlannedWeekMap/${plannedMap.plannedWeekMapID}`, {
+                    const response = await fetch(`api/WeekMap/${plannedMap.weekMapID}`, {
                       method: "PUT",
                       headers: { "Content-Type": "application/json" },
                       credentials: "include",
@@ -719,10 +720,10 @@ function WeekMapsPage() {
                     if (!response.ok) throw new Error("Failed to update week map.");
 
                     notify.success("Week map updated.");
-                    const refreshed = await fetch(`api/PlannedWeekMap`, { credentials: "include" });
+                    const refreshed = await fetch(`api/WeekMap`, { credentials: "include" });
                     const updatedMaps = await refreshed.json();
                     setAllWeekMaps(updatedMaps);
-                    const updatedSelected = updatedMaps.find(m => m.plannedWeekMapID === plannedMap.plannedWeekMapID);
+                    const updatedSelected = updatedMaps.find(m => m.weekMapID === plannedMap.weekMapID);
                     setPlannedMap(updatedSelected);
                     setShowEditModal(false);
                   } catch {
@@ -744,15 +745,15 @@ function WeekMapsPage() {
             <h3>{isEditingActivity ? "Edit Activity" : "Add Activity to This Week Map"}</h3>
             <div style={{ marginBottom: "10px" }}><label>Activity:</label>
             <select
-              value={newActivity.activityID || ""}
-              onChange={(e) => setNewActivity({ ...newActivity, activityID: parseInt(e.target.value) })}
+              value={newActivity.activityTemplateID || ""}
+              onChange={(e) => setNewActivity({ ...newActivity, activityTemplateID: parseInt(e.target.value) })}
               style={{ width: "100%" }}
             >
               <option value="">-- Select Activity --</option>
               {allActivities.map(a => {
                 const color = a.activityCategory?.color ? `#${a.activityCategory.color}` : "inherit";
                 return (
-                  <option key={a.activityID} value={a.activityID} style={{ color }}>
+                  <option key={a.activityTemplateID} value={a.activityTemplateID} style={{ color }}>
                     {a.name}
                   </option>
                 );
@@ -838,7 +839,7 @@ function WeekMapsPage() {
               setIsEditingActivity(false);
               setSelectedActivity(null);
               setNewActivity({
-                activityID: null,
+                activityTemplateID: null,
                 startTime: "00:00",
                 endTime: "00:00",
                 activityDate: "2025-01-01",
@@ -871,16 +872,16 @@ function WeekMapsPage() {
             color: isDarkMode ? "#fff" : "#000"
           }}>
             <h3>Activity Details</h3>
-            <p><strong>Name:</strong> {selectedActivity.activity?.name || "Unnamed"}</p>
+            <p><strong>Name:</strong> {selectedActivity.activityTemplate?.name || "Unnamed"}</p>
             <p><strong>Start:</strong> {selectedActivity.startTime}</p>
             <p><strong>End:</strong> {selectedActivity.endTime}</p>
-            {selectedActivity.activity.description && (
+            {selectedActivity.activityTemplate.description && (
               <p style={{ wordWrap: "break-word", overflowWrap: "break-word", whiteSpace: "pre-wrap" }}>
-                <strong>Description:</strong> {selectedActivity.activity.description}
+                <strong>Description:</strong> {selectedActivity.activityTemplate.description}
               </p>
             )}
-            {selectedActivity.activity.location && (
-              <p><strong>Location:</strong> {selectedActivity.activity.location}</p>
+            {selectedActivity.activityTemplate.location && (
+              <p><strong>Location:</strong> {selectedActivity.activityTemplate.location}</p>
             )}
             {selectedActivity.activityDate && (
               <p><strong>Date:</strong> {selectedActivity.activityDate?.slice(0, 10)}</p>
@@ -894,7 +895,7 @@ function WeekMapsPage() {
               <button onClick={handleEditActivityClick} style={editButtonStyle}>
                 Edit
               </button>
-              <button onClick={() => handleDeleteActivity(selectedActivity.plannedWeekMapActivityID)} style={deleteButtonStyle}>
+              <button onClick={() => handleDeleteActivity(selectedActivity.weekMapActivityID)} style={deleteButtonStyle}>
                 Delete
               </button>
               <button onClick={() => setShowViewActivityModal(false)} style={cancelButtonStyle}>

@@ -19,13 +19,11 @@ namespace WeekMap.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
-        private readonly IWebHostEnvironment _env;
 
         public UserController(AppDbContext context, IConfiguration configuration, IWebHostEnvironment env)
         {
             _context = context;
             _configuration = configuration;
-            _env = env;
         }
 
         [HttpPost("register")]

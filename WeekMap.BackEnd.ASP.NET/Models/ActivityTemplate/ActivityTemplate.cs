@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
-using WeekMap.Models;
 
-namespace WeekMap.DTOs
+namespace WeekMap.Models
 {
-    public class ActivityDTO
+    public class ActivityTemplate
     {
-        public long ActivityID { get; set; }
+        public long ActivityTemplateID { get; set; }
 
         [Required(ErrorMessage = "Name is required.")]
         [StringLength(50, ErrorMessage = "Name cannot be longer than 50 characters.")]
@@ -22,6 +21,12 @@ namespace WeekMap.DTOs
 
         public long UserID { get; set; }
 
+        [ValidateNever]
+        public User User { get; set; }
+
         public long? ActivityCategoryID { get; set; }
+
+        [ValidateNever]
+        public ActivityCategory ActivityCategory { get; set; }
     }
 }

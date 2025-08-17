@@ -24,13 +24,13 @@ namespace WeekMap.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("WeekMap.Models.Activity", b =>
+            modelBuilder.Entity("WeekMap.Models.ActivityTemplate", b =>
                 {
-                    b.Property<long>("ActivityID")
+                    b.Property<long>("ActivityTemplateID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ActivityID"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ActivityTemplateID"), 1L, 1);
 
                     b.Property<long?>("ActivityCategoryID")
                         .HasColumnType("bigint");
@@ -54,13 +54,13 @@ namespace WeekMap.Migrations
                     b.Property<long>("UserID")
                         .HasColumnType("bigint");
 
-                    b.HasKey("ActivityID");
+                    b.HasKey("ActivityTemplateID");
 
                     b.HasIndex("ActivityCategoryID");
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("Activities", (string)null);
+                    b.ToTable("ActivityTemplates", (string)null);
                 });
 
             modelBuilder.Entity("WeekMap.Models.ActivityCategory", b =>
@@ -92,11 +92,11 @@ namespace WeekMap.Migrations
 
             modelBuilder.Entity("WeekMap.Models.PlannedWeekMap", b =>
                 {
-                    b.Property<long>("PlannedWeekMapID")
+                    b.Property<long>("WeekMapID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("PlannedWeekMapID"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("WeekMapID"), 1L, 1);
 
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
@@ -131,25 +131,25 @@ namespace WeekMap.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("PlannedWeekMapID");
+                    b.HasKey("WeekMapID");
 
                     b.HasIndex("UserID");
 
                     b.ToTable("PlannedWeekMaps", (string)null);
                 });
 
-            modelBuilder.Entity("WeekMap.Models.PlannedWeekMapActivity", b =>
+            modelBuilder.Entity("WeekMap.Models.WeekMapActivity", b =>
                 {
-                    b.Property<long>("PlannedWeekMapActivityID")
+                    b.Property<long>("WeekMapActivityID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("PlannedWeekMapActivityID"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("WeekMapActivityID"), 1L, 1);
 
                     b.Property<DateTime?>("ActivityDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("ActivityID")
+                    b.Property<long>("ActivityTemplateID")
                         .HasColumnType("bigint");
 
                     b.Property<TimeSpan>("EndTime")
@@ -176,7 +176,7 @@ namespace WeekMap.Migrations
                     b.Property<bool>("OnWednesday")
                         .HasColumnType("bit");
 
-                    b.Property<long>("PlannedWeekMapID")
+                    b.Property<long>("WeekMapID")
                         .HasColumnType("bigint");
 
                     b.Property<bool>("RepeatEveryWeek")
@@ -185,13 +185,13 @@ namespace WeekMap.Migrations
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("time");
 
-                    b.HasKey("PlannedWeekMapActivityID");
+                    b.HasKey("WeekMapActivityID");
 
-                    b.HasIndex("ActivityID");
+                    b.HasIndex("ActivityTemplateID");
 
-                    b.HasIndex("PlannedWeekMapID");
+                    b.HasIndex("WeekMapID");
 
-                    b.ToTable("PlannedWeekMapActivities", (string)null);
+                    b.ToTable("WeekMapActivities", (string)null);
                 });
 
             modelBuilder.Entity("WeekMap.Models.RealisedWeekMap", b =>
@@ -205,12 +205,12 @@ namespace WeekMap.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("PlannedWeekMapID")
+                    b.Property<long>("WeekMapID")
                         .HasColumnType("bigint");
 
                     b.HasKey("RealisedWeekMapID");
 
-                    b.HasIndex("PlannedWeekMapID");
+                    b.HasIndex("WeekMapID");
 
                     b.ToTable("RealisedWeekMaps", (string)null);
                 });
@@ -223,7 +223,7 @@ namespace WeekMap.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("RealisedWeekMapActivityID"), 1L, 1);
 
-                    b.Property<long>("ActivityID")
+                    b.Property<long>("ActivityTemplateID")
                         .HasColumnType("bigint");
 
                     b.Property<bool>("IsCompleted")
@@ -240,7 +240,7 @@ namespace WeekMap.Migrations
 
                     b.HasKey("RealisedWeekMapActivityID");
 
-                    b.HasIndex("ActivityID");
+                    b.HasIndex("ActivityTemplateID");
 
                     b.HasIndex("RealisedWeekMapID");
 
@@ -344,7 +344,7 @@ namespace WeekMap.Migrations
                     b.ToTable("UserSettings", (string)null);
                 });
 
-            modelBuilder.Entity("WeekMap.Models.Activity", b =>
+            modelBuilder.Entity("WeekMap.Models.ActivityTemplate", b =>
                 {
                     b.HasOne("WeekMap.Models.ActivityCategory", "ActivityCategory")
                         .WithMany()
@@ -352,7 +352,7 @@ namespace WeekMap.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("WeekMap.Models.User", "User")
-                        .WithMany("Activities")
+                        .WithMany("ActivityTemplates")
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -384,21 +384,21 @@ namespace WeekMap.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("WeekMap.Models.PlannedWeekMapActivity", b =>
+            modelBuilder.Entity("WeekMap.Models.WeekMapActivity", b =>
                 {
-                    b.HasOne("WeekMap.Models.Activity", "Activity")
+                    b.HasOne("WeekMap.Models.ActivityTemplate", "ActivityTemplate")
                         .WithMany()
-                        .HasForeignKey("ActivityID")
+                        .HasForeignKey("ActivityTemplateID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("WeekMap.Models.PlannedWeekMap", "PlannedWeekMap")
                         .WithMany()
-                        .HasForeignKey("PlannedWeekMapID")
+                        .HasForeignKey("WeekMapID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Activity");
+                    b.Navigation("ActivityTemplate");
 
                     b.Navigation("PlannedWeekMap");
                 });
@@ -407,7 +407,7 @@ namespace WeekMap.Migrations
                 {
                     b.HasOne("WeekMap.Models.PlannedWeekMap", "PlannedWeekMap")
                         .WithMany("RealisedWeekMaps")
-                        .HasForeignKey("PlannedWeekMapID")
+                        .HasForeignKey("WeekMapID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -416,9 +416,9 @@ namespace WeekMap.Migrations
 
             modelBuilder.Entity("WeekMap.Models.RealisedWeekMapActivity", b =>
                 {
-                    b.HasOne("WeekMap.Models.Activity", "Activity")
+                    b.HasOne("WeekMap.Models.ActivityTemplate", "ActivityTemplate")
                         .WithMany()
-                        .HasForeignKey("ActivityID")
+                        .HasForeignKey("ActivityTemplateID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -428,7 +428,7 @@ namespace WeekMap.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Activity");
+                    b.Navigation("ActivityTemplate");
 
                     b.Navigation("RealisedWeekMap");
                 });
@@ -462,7 +462,7 @@ namespace WeekMap.Migrations
 
             modelBuilder.Entity("WeekMap.Models.User", b =>
                 {
-                    b.Navigation("Activities");
+                    b.Navigation("ActivityTemplates");
 
                     b.Navigation("ActivityCategories");
 

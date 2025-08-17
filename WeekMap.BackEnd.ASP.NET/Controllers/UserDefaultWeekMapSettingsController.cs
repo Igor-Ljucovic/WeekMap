@@ -51,7 +51,7 @@ namespace WeekMap.Controllers
 
             _context.SaveChanges();
 
-            return Ok(new { message = "UserDefaultWeekMapSettings updated successfully!" });
+            return Ok(new { message = "Default Week map settings updated successfully!" });
         }
     }
 }

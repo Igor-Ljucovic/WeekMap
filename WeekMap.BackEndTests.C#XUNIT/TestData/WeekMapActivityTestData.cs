@@ -1,14 +1,14 @@
 ﻿using WeekMap.DTOs;
 using XUnitTests.TestData;
 
-public class PlannedWeekMapActivityTestData : ITestData<PlannedWeekMapActivityDTO>
+public class WeekMapActivityTestData : ITestData<WeekMapActivityDTO>
 {
-    public IEnumerable<PlannedWeekMapActivityDTO> Valid =>
-    new List<PlannedWeekMapActivityDTO>
+    public IEnumerable<WeekMapActivityDTO> Valid =>
+    new List<WeekMapActivityDTO>
     {
-        new PlannedWeekMapActivityDTO {
-            ActivityID = 1,
-            PlannedWeekMapID = 1,
+        new WeekMapActivityDTO {
+            ActivityTemplateID = 1,
+            WeekMapID = 1,
             StartTime = new TimeSpan(0, 0, 0),
             EndTime = new TimeSpan(1, 30, 0),
             OnMonday = true,
@@ -19,9 +19,9 @@ public class PlannedWeekMapActivityTestData : ITestData<PlannedWeekMapActivityDT
             OnSaturday = true,
             OnSunday = true
         },
-        new PlannedWeekMapActivityDTO {
-            ActivityID = 1,
-            PlannedWeekMapID = 1,
+        new WeekMapActivityDTO {
+            ActivityTemplateID = 1,
+            WeekMapID = 1,
             StartTime = new TimeSpan(0, 0, 0),
             EndTime = new TimeSpan(23, 0, 0),
             OnMonday = false,
@@ -32,9 +32,9 @@ public class PlannedWeekMapActivityTestData : ITestData<PlannedWeekMapActivityDT
             OnSaturday = false,
             OnSunday = false
         },
-        new PlannedWeekMapActivityDTO {
-            ActivityID = 1,
-            PlannedWeekMapID = 1,
+        new WeekMapActivityDTO {
+            ActivityTemplateID = 1,
+            WeekMapID = 1,
             StartTime = new TimeSpan(3, 30, 0),
             EndTime = new TimeSpan(4, 0, 0),
             OnMonday = false,
@@ -45,9 +45,9 @@ public class PlannedWeekMapActivityTestData : ITestData<PlannedWeekMapActivityDT
             OnSaturday = true,
             OnSunday = true
         },
-        new PlannedWeekMapActivityDTO {
-            ActivityID = 1,
-            PlannedWeekMapID = 1,
+        new WeekMapActivityDTO {
+            ActivityTemplateID = 1,
+            WeekMapID = 1,
             StartTime = new TimeSpan(0, 0, 0),
             EndTime = new TimeSpan(1, 0, 0),
             OnMonday = false,
@@ -60,12 +60,12 @@ public class PlannedWeekMapActivityTestData : ITestData<PlannedWeekMapActivityDT
         },
     };
 
-    public IEnumerable<PlannedWeekMapActivityDTO> Invalid =>
-    new List<PlannedWeekMapActivityDTO>
+    public IEnumerable<WeekMapActivityDTO> Invalid =>
+    new List<WeekMapActivityDTO>
     {
-        new PlannedWeekMapActivityDTO {
-            ActivityID = 1,
-            PlannedWeekMapID = 1,
+        new WeekMapActivityDTO {
+            ActivityTemplateID = 1,
+            WeekMapID = 1,
             StartTime = new TimeSpan(0, 0, 0),
             EndTime = new TimeSpan(-1, 0, 0),
             OnMonday = true,
@@ -76,9 +76,9 @@ public class PlannedWeekMapActivityTestData : ITestData<PlannedWeekMapActivityDT
             OnSaturday = true,
             OnSunday = true
         },
-        new PlannedWeekMapActivityDTO {
-            ActivityID = 1,
-            PlannedWeekMapID = 1,
+        new WeekMapActivityDTO {
+            ActivityTemplateID = 1,
+            WeekMapID = 1,
             StartTime = new TimeSpan(0, 0, 0),
             EndTime = new TimeSpan(24, 0, 0),
             OnMonday = true,
@@ -89,9 +89,9 @@ public class PlannedWeekMapActivityTestData : ITestData<PlannedWeekMapActivityDT
             OnSaturday = true,
             OnSunday = true
         },
-        new PlannedWeekMapActivityDTO {
-            ActivityID = 1,
-            PlannedWeekMapID = 1,
+        new WeekMapActivityDTO {
+            ActivityTemplateID = 1,
+            WeekMapID = 1,
             StartTime = new TimeSpan(10, 0, 0),
             EndTime = new TimeSpan(5, 0, 0),
             OnMonday = true,

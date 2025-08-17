@@ -10,16 +10,9 @@ using WeekMap.Models;
 namespace XUnitTests.Controllers
 {
 
-    public class UserDefaultWeekMapSettingsControllerTests : IClassFixture<CustomWebApplicationFactory>
+    public class UserDefaultWeekMapSettingsControllerTests
     {
-        private readonly WebApplicationFactory<Program> _factory;
-        private readonly UserDefaultWeekMapSettingsTestData _userDefaultWeekMapSettingsTestData;
-
-        public UserDefaultWeekMapSettingsControllerTests(CustomWebApplicationFactory factory)
-        {
-            _factory = factory;
-            _userDefaultWeekMapSettingsTestData = new UserDefaultWeekMapSettingsTestData();
-        }
+        private readonly UserDefaultWeekMapSettingsTestData _userDefaultWeekMapSettingsTestData = new UserDefaultWeekMapSettingsTestData();
 
         [Fact]
         public async Task GetUserDefaultWeekMapSettings()

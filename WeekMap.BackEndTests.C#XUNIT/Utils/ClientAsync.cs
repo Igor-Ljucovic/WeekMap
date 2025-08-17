@@ -5,9 +5,6 @@ namespace XUnitTests.TestData
 {
     internal static class ClientAsync
     {
-        private static readonly WebApplicationFactory<Program> _factory;
-        private static readonly ActivityCategoryTestData _activityCategoryTestData;
-
         private static WebApplicationFactory<Program> CreateFactory()
         {
             return new CustomWebApplicationFactory();

@@ -14,7 +14,7 @@ function ActivitiesPage() {
   const userID = window.sessionStorage.getItem("id");
 
   const getBlankActivity = () => ({
-    activityID: 0,
+    activityTemplateID: 0,
     name: '',
     description: '',
     location: '',
@@ -41,7 +41,7 @@ function ActivitiesPage() {
 
   const fetchActivities = async () => {
     try {
-      const response = await fetch(`api/Activity`, { credentials: 'include' });
+      const response = await fetch(`api/ActivityTemplate`, { credentials: 'include' });
       if (!response.ok) throw new Error("Failed to fetch activity templates.");
       const data = await response.json();
       setActivities(data);
@@ -65,7 +65,7 @@ function ActivitiesPage() {
 
   const handleAddActivity = async (activity) => {
     try {
-      const response = await fetch('api/Activity', {
+      const response = await fetch('api/ActivityTemplate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -82,7 +82,7 @@ function ActivitiesPage() {
 
   const handleUpdateActivity = async (activity) => {
     try {
-      const response = await fetch(`api/Activity/${activity.activityID}`, {
+      const response = await fetch(`api/ActivityTemplate/${activity.activityTemplateID}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -100,7 +100,7 @@ function ActivitiesPage() {
   const handleDeleteActivity = async (id) => {
     if (!window.confirm("Are you sure you want to delete this activity template?")) return;
     try {
-      const response = await fetch(`api/Activity/${id}`, {
+      const response = await fetch(`api/ActivityTemplate/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -258,7 +258,7 @@ function ActivitiesPage() {
       {activities.length > 0 ? (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {activities.map(act => (
-            <li key={act.activityID} style={{
+            <li key={act.activityTemplateID} style={{
               display: 'flex',
               alignItems: 'flex-start',
               justifyContent: 'space-between',
@@ -292,7 +292,7 @@ function ActivitiesPage() {
               </div>
               <div>
                 <button onClick={() => handleEditClick(act)} style={editButtonStyle}>Edit</button>
-                <button onClick={() => handleDeleteActivity(act.activityID)} style={deleteButtonStyle}>Delete</button>
+                <button onClick={() => handleDeleteActivity(act.activityTemplateID)} style={deleteButtonStyle}>Delete</button>
               </div>
             </li>
           ))}

@@ -3,19 +3,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WeekMap.Data;
 using WeekMap.DTOs;
-using WeekMap.Models;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WeekMap.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class PlannedWeekMapController : ControllerBase
+    public class WeekMapController : ControllerBase
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
 
-        public PlannedWeekMapController(AppDbContext context, IMapper mapper)
+        public WeekMapController(AppDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
@@ -27,45 +25,45 @@ namespace WeekMap.Controllers
             if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var maps = _context.PlannedWeekMaps.Where(p => p.UserID == userId).ToList();
+            var maps = _context.WeekMaps.Where(p => p.UserID == userId).ToList();
             return Ok(maps);
         }
 
-        [HttpGet("{id}")] // 'id' matches parameter name
-        // new method!
+        [HttpGet("{id}")] 
+
         public IActionResult GetById(long id)
         {
             if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long sessionUserID) || sessionUserID != id)
                 return Unauthorized(new { message = "Unauthorized access." });
 
-            var map = _context.PlannedWeekMaps
+            var map = _context.WeekMaps
                 .Where(p => p.UserID == id)
                 .OrderByDescending(p => p.DateCreated)
                 .FirstOrDefault();
 
             if (map == null)
-                return NotFound(new { message = "No PlannedWeekMap found for user." });
+                return NotFound(new { message = "No week maps found for user." });
 
             return Ok(map);
         }
 
-        [HttpGet("{id}/activities")] // idk whether or not to put it in PlannedWeekMapActivity or here in PlannedWeekMap controller
-        public IActionResult GetPlannedWeekMapActivities(long id)
+        [HttpGet("{id}/activityTemplates")] // idk whether or not to put it in WeekMapActivity or here in PlannedWeekMap controller
+        public IActionResult GetWeekMapActivities(long id)
         {
             if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long sessionUserID))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var activities = _context.PlannedWeekMapActivities
-            .Include(pwma => pwma.Activity)
+            var activities = _context.WeekMapActivities
+            .Include(pwma => pwma.ActivityTemplate)
                 .ThenInclude(a => a.ActivityCategory)
-            .Where(a => a.PlannedWeekMapID == id)
+            .Where(a => a.WeekMapID == id)
             .ToList();
 
             return Ok(activities);
         }
 
         [HttpPost]
-        public IActionResult Add([FromBody] PlannedWeekMapDTO map)
+        public IActionResult Add([FromBody] WeekMapDTO map)
         {
             if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
                 return Unauthorized(new { message = "User not logged in." });
@@ -75,28 +73,28 @@ namespace WeekMap.Controllers
 
             map.UserID = userId;
 
-            var entity = _mapper.Map<PlannedWeekMap>(map);
+            var entity = _mapper.Map<Models.WeekMap>(map);
             entity.UserID = userId;
-            _context.PlannedWeekMaps.Add(entity);
+            _context.WeekMaps.Add(entity);
             _context.SaveChanges();
 
-            return Ok(new { message = "PlannedWeekMap added successfully!" });
+            return Ok(new { message = "Week map added successfully!" });
         }
 
         [HttpPut("{id}")]
-        public IActionResult Edit(long id, [FromBody] PlannedWeekMapDTO updatedMap)
+        public IActionResult Edit(long id, [FromBody] WeekMapDTO updatedMap)
         {
             if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var map = _context.PlannedWeekMaps.FirstOrDefault(p => p.PlannedWeekMapID == id);
+            var map = _context.WeekMaps.FirstOrDefault(p => p.WeekMapID == id);
             if (map == null)
                 return NotFound();
 
             _mapper.Map(updatedMap, map);
 
             _context.SaveChanges();
-            return Ok(new { message = "PlannedWeekMap updated successfully!" });
+            return Ok(new { message = "Week map updated successfully!" });
         }
 
         [HttpDelete("{id}")]
@@ -105,13 +103,13 @@ namespace WeekMap.Controllers
             if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var map = _context.PlannedWeekMaps.FirstOrDefault(p => p.PlannedWeekMapID == id);
+            var map = _context.WeekMaps.FirstOrDefault(p => p.WeekMapID == id);
             if (map == null)
                 return NotFound();
 
-            _context.PlannedWeekMaps.Remove(map);
+            _context.WeekMaps.Remove(map);
             _context.SaveChanges();
-            return Ok(new { message = "PlannedWeekMap deleted successfully!" });
+            return Ok(new { message = "Week map deleted successfully!" });
         }
     }
 }

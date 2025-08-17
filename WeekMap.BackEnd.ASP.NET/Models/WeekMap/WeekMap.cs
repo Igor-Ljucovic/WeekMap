@@ -5,10 +5,10 @@ using WeekMap.Attributes;
 namespace WeekMap.Models
 {
     [ValidWeekMapTimeRange(ErrorMessage = "Day start time must be before or equal to day end time.")]
-    public class PlannedWeekMap
+    public class WeekMap
     {
-        public long PlannedWeekMapID { get; set; }
-
+        public long WeekMapID { get; set; }
+        
         [Required(ErrorMessage = "Name is required.")]
         [StringLength(50, ErrorMessage = "Name must be at most 50 characters.")]
         public string Name { get; set; }

@@ -12,16 +12,9 @@ namespace XUnitTests.Controllers
     // so the tests are independent of each other
     // (the database is created and destroyed for each test)
 
-    public class ActivityCategoryControllerTests : IClassFixture<CustomWebApplicationFactory>
+    public class ActivityCategoryControllerTests
     {
-        private readonly WebApplicationFactory<Program> _factory;
-        private readonly ActivityCategoryTestData _activityCategoryTestData;
-
-        public ActivityCategoryControllerTests(CustomWebApplicationFactory factory)
-        {
-            _factory = factory;
-            _activityCategoryTestData = new ActivityCategoryTestData();
-        }
+        private readonly ActivityCategoryTestData _activityCategoryTestData = new ActivityCategoryTestData();
 
         [Fact]
         public async Task GetActivityCategory()

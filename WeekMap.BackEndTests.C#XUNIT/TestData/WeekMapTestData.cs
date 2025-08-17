@@ -1,12 +1,12 @@
 ﻿using WeekMap.DTOs;
 using XUnitTests.TestData;
 
-public class PlannedWeekMapTestData : ITestData<PlannedWeekMapDTO>
+public class WeekMapTestData : ITestData<WeekMapDTO>
 {
-    public IEnumerable<PlannedWeekMapDTO> Valid =>
-    new List<PlannedWeekMapDTO>()
+    public IEnumerable<WeekMapDTO> Valid =>
+    new List<WeekMapDTO>()
     {
-        new PlannedWeekMapDTO
+        new WeekMapDTO
         {
             Name = "name1",
             DayStartTime = new TimeSpan(8, 0, 0),
@@ -15,7 +15,7 @@ public class PlannedWeekMapTestData : ITestData<PlannedWeekMapDTO>
             ShowDescriptionInPreview = true,
             UserID = 1
         },
-        new PlannedWeekMapDTO
+        new WeekMapDTO
         {
             Name = "name2",
             DayStartTime = new TimeSpan(0, 0, 0),
@@ -24,7 +24,7 @@ public class PlannedWeekMapTestData : ITestData<PlannedWeekMapDTO>
             ShowDescriptionInPreview = false,
             UserID = 1
         },
-        new PlannedWeekMapDTO
+        new WeekMapDTO
         {
             Name = "name2",
             DayStartTime = new TimeSpan(0, 0, 0),
@@ -35,10 +35,10 @@ public class PlannedWeekMapTestData : ITestData<PlannedWeekMapDTO>
         }
     };
 
-    public IEnumerable<PlannedWeekMapDTO> Invalid =>
-    new List<PlannedWeekMapDTO>()
+    public IEnumerable<WeekMapDTO> Invalid =>
+    new List<WeekMapDTO>()
     {
-        new PlannedWeekMapDTO
+        new WeekMapDTO
         {
             Name = "name3",
             DayStartTime = new TimeSpan(0, 0, 0),
@@ -47,7 +47,7 @@ public class PlannedWeekMapTestData : ITestData<PlannedWeekMapDTO>
             ShowDescriptionInPreview = false,
             UserID = 1
         },
-        new PlannedWeekMapDTO
+        new WeekMapDTO
         {
             Name = "name4",
             DayStartTime = new TimeSpan(-8, 0, 0),
@@ -56,7 +56,7 @@ public class PlannedWeekMapTestData : ITestData<PlannedWeekMapDTO>
             ShowDescriptionInPreview = true,
             UserID = 1
         },
-        new PlannedWeekMapDTO
+        new WeekMapDTO
         {
             Name = "name6",
             DayStartTime = new TimeSpan(16, 0, 0),
@@ -65,7 +65,7 @@ public class PlannedWeekMapTestData : ITestData<PlannedWeekMapDTO>
             ShowDescriptionInPreview = true,
             UserID = 1
         },
-        new PlannedWeekMapDTO
+        new WeekMapDTO
         {
             Name = "name7",
             DayStartTime = new TimeSpan(0, 0, 0),
@@ -74,7 +74,7 @@ public class PlannedWeekMapTestData : ITestData<PlannedWeekMapDTO>
             ShowDescriptionInPreview = true,
             UserID = 1
         },
-        new PlannedWeekMapDTO
+        new WeekMapDTO
         {
             Name = "name8",
             DayStartTime = new TimeSpan(0, 0, 0),

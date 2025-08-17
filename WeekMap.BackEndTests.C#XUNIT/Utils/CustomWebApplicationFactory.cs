@@ -9,6 +9,7 @@ using WeekMap.Data;
 
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
+    // not used in tests, but could be used if we only want one database setup for all tests, it's also faster
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Test");

@@ -23,11 +23,11 @@ namespace WeekMap.Controllers
                 return Forbid("CleanupAllTables can only run in the Test environment.");
 
             // The order MATTERS - delete child tables first
-            _context.PlannedWeekMapActivities.RemoveRange(_context.PlannedWeekMapActivities);
+            _context.WeekMapActivities.RemoveRange(_context.WeekMapActivities);
 
-            _context.PlannedWeekMaps.RemoveRange(_context.PlannedWeekMaps);
+            _context.WeekMaps.RemoveRange(_context.WeekMaps);
 
-            _context.Activities.RemoveRange(_context.Activities);
+            _context.ActivityTemplates.RemoveRange(_context.ActivityTemplates);
             _context.ActivityCategories.RemoveRange(_context.ActivityCategories);
 
             _context.UserDefaultWeekMapSettings.RemoveRange(_context.UserDefaultWeekMapSettings);
@@ -37,7 +37,7 @@ namespace WeekMap.Controllers
 
             _context.SaveChanges();
 
-            return Ok(new { message = "All data wiped from database." });
+            return Ok(new { message = "All data deleted from database." });
         }
     }
 }

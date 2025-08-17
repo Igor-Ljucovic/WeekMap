@@ -32,7 +32,7 @@ namespace WeekMap.Models
         public DateTime? EmailConfirmationTokenExpiresAt { get; set; }
 
         [ValidateNever]
-        public ICollection<Activity> Activities { get; set; } = new List<Activity>();
+        public ICollection<ActivityTemplate> ActivityTemplates { get; set; } = new List<ActivityTemplate>();
         [ValidateNever]
         public ICollection<ActivityCategory> ActivityCategories { get; set; } = new List<ActivityCategory>();
         [ValidateNever]

@@ -1,40 +1,40 @@
 ﻿using WeekMap.DTOs;
 using XUnitTests.TestData;
 
-public class ActivityTestData : ITestData<ActivityDTO>
+public class ActivityTemplateTestData : ITestData<ActivityTemplateDTO>
 {
-    public IEnumerable<ActivityDTO> Valid =>
-    new List<ActivityDTO>
+    public IEnumerable<ActivityTemplateDTO> Valid =>
+    new List<ActivityTemplateDTO>
     {
-        new ActivityDTO
+        new ActivityTemplateDTO
         {
             Name = "activity1",
             Description = "description1",
             ActivityCategoryID = null,
             UserID = 1
         },
-        new ActivityDTO
+        new ActivityTemplateDTO
         {
             Name = "activity2",
             Description = "description1",
             ActivityCategoryID = 1,
             UserID = 1
         },
-        new ActivityDTO
+        new ActivityTemplateDTO
         {
             Name = "empty description",
             Description = "",
             ActivityCategoryID = 1,
             UserID = 1
         },
-        new ActivityDTO
+        new ActivityTemplateDTO
         {
             Name = "null description",
             Description = null,
             ActivityCategoryID = 1,
             UserID = 1
         },
-        new ActivityDTO
+        new ActivityTemplateDTO
         {
             Name = "no description attribute",
             ActivityCategoryID = 1,
@@ -42,17 +42,17 @@ public class ActivityTestData : ITestData<ActivityDTO>
         },
     };
 
-    public IEnumerable<ActivityDTO> Invalid =>
-    new List<ActivityDTO>
+    public IEnumerable<ActivityTemplateDTO> Invalid =>
+    new List<ActivityTemplateDTO>
     {
-        new ActivityDTO
+        new ActivityTemplateDTO
         {
             Name = "",
             Description = "empty name",
             ActivityCategoryID = 1,
             UserID = 1
         },
-        new ActivityDTO
+        new ActivityTemplateDTO
         {
             Name = null,
             Description = "null name",
@@ -60,13 +60,13 @@ public class ActivityTestData : ITestData<ActivityDTO>
             UserID = 1
         },
 
-        new ActivityDTO
+        new ActivityTemplateDTO
         {
             Description = "no name attribute",
             ActivityCategoryID = 1,
             UserID = 1
         },
-        new ActivityDTO
+        new ActivityTemplateDTO
         {
 
         },
