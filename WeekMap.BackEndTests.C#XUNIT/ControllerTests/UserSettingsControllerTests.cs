@@ -44,9 +44,6 @@ namespace XUnitTests.Controllers
             UserSettings userSettingsSample = new UserSettings();
 
             userSettings!.Theme.Should().Be(userSettingsSample.Theme);
-            userSettings.EmailUpdates.Should().Be(userSettingsSample.EmailUpdates);
-            userSettings.Notification.Should().Be(userSettingsSample.Notification);
-            userSettings.NotificationTime.Should().Be(userSettingsSample.NotificationTime);
         }
 
         [Fact]
@@ -60,9 +57,6 @@ namespace XUnitTests.Controllers
 
             UserSettingsDTO activityDTO = new UserSettingsDTO {
                 Theme = "dark",
-                Notification = true,
-                NotificationTime = new TimeSpan(0, 0, 0),
-                EmailUpdates = true
             };
 
             response = await client.GetAsync("api/users");
@@ -83,9 +77,6 @@ namespace XUnitTests.Controllers
                 response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
                 afterEditSettings!.Theme.Should().Be(updatedSettings.Theme);
-                afterEditSettings.Notification.Should().Be(updatedSettings.Notification);
-                afterEditSettings.NotificationTime.Should().Be(updatedSettings.NotificationTime);
-                afterEditSettings.EmailUpdates.Should().Be(updatedSettings.EmailUpdates);
             }
 
             foreach (var settings in _userSettingsTestData.Invalid)

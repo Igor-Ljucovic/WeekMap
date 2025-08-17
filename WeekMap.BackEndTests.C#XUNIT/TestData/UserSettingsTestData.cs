@@ -5,15 +5,19 @@ public class UserSettingsTestData : ITestData<UserSettingsDTO>
 {
     public IEnumerable<UserSettingsDTO> Valid => new List<UserSettingsDTO>
     {
-        new UserSettingsDTO { UserID = 1, Theme = "dark", Notification = true, NotificationTime = new TimeSpan(0, 0, 0), EmailUpdates = true },
-        new UserSettingsDTO { UserID = 1, Theme = "light", Notification = false, NotificationTime = new TimeSpan(21, 30, 0), EmailUpdates = false }
+        new UserSettingsDTO { UserID = 1, Theme = "dark" },
+        new UserSettingsDTO { UserID = 1, Theme = "light"}
     };
 
     public IEnumerable<UserSettingsDTO> Invalid => new List<UserSettingsDTO>
     {
-        new UserSettingsDTO { UserID = 1, Theme = "light", Notification = false, NotificationTime = new TimeSpan(25, 0, 0), EmailUpdates = true },
-        new UserSettingsDTO { UserID = 1, Theme = "light", Notification = false, NotificationTime = new TimeSpan(-2, 0, 0), EmailUpdates = true },
-        new UserSettingsDTO { UserID = 1, Theme = "asdf", Notification = true, NotificationTime = new TimeSpan(9, 0, 0), EmailUpdates = false },
-        new UserSettingsDTO { UserID = 1, Theme = "Dark", Notification = true, NotificationTime = new TimeSpan(9, 0, 0), EmailUpdates = false }
+        new UserSettingsDTO { UserID = 1, Theme = "", },
+        new UserSettingsDTO { UserID = 1, Theme = "ligh", },
+        new UserSettingsDTO { UserID = 1, Theme = "ight", },
+        new UserSettingsDTO { UserID = 1, Theme = "dark ", },
+        new UserSettingsDTO { UserID = 1, Theme = " dark", },
+        new UserSettingsDTO { UserID = 1, Theme = "Light" },
+        new UserSettingsDTO { UserID = 1, Theme = "asdf", },
+        new UserSettingsDTO { UserID = 1, Theme = "Dark", }
     };
 }

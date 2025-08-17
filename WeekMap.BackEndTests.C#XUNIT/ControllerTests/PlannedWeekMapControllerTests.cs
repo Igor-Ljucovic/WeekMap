@@ -34,11 +34,8 @@ namespace XUnitTests.Controllers
             var plannedWeekMaps = await client.GetFromJsonAsync<List<PlannedWeekMapDTO>>("api/PlannedWeekMap");
             plannedWeekMaps.Should().ContainSingle(m =>
                 m.Name == plannedWeekMap.Name &&
-                m.WeekStartDay == plannedWeekMap.WeekStartDay &&
                 m.DayStartTime == plannedWeekMap.DayStartTime &&
                 m.DayEndTime == plannedWeekMap.DayEndTime &&
-                m.ShowSaturday == plannedWeekMap.ShowSaturday &&
-                m.ShowSunday == plannedWeekMap.ShowSunday &&
                 m.ShowPlaceInPreview == plannedWeekMap.ShowPlaceInPreview &&
                 m.ShowDescriptionInPreview == plannedWeekMap.ShowDescriptionInPreview &&
                 m.UserID == plannedWeekMap.UserID
@@ -64,11 +61,8 @@ namespace XUnitTests.Controllers
 
                 plannedWeekMaps.Should().ContainSingle(m =>
                     m.Name == plannedWeekMap.Name &&
-                    m.WeekStartDay == plannedWeekMap.WeekStartDay &&
                     m.DayStartTime == plannedWeekMap.DayStartTime &&
                     m.DayEndTime == plannedWeekMap.DayEndTime &&
-                    m.ShowSaturday == plannedWeekMap.ShowSaturday &&
-                    m.ShowSunday == plannedWeekMap.ShowSunday &&
                     m.ShowPlaceInPreview == plannedWeekMap.ShowPlaceInPreview &&
                     m.ShowDescriptionInPreview == plannedWeekMap.ShowDescriptionInPreview &&
                     m.UserID == plannedWeekMap.UserID
@@ -101,11 +95,8 @@ namespace XUnitTests.Controllers
             PlannedWeekMapDTO plannedWeekMapDTO = new PlannedWeekMapDTO
             {
                 Name = "name1",
-                WeekStartDay = "Monday",
                 DayStartTime = new TimeSpan(8, 0, 0),
                 DayEndTime = new TimeSpan(16, 0, 0),
-                ShowSaturday = false,
-                ShowSunday = false,
                 ShowPlaceInPreview = true,
                 ShowDescriptionInPreview = true,
                 UserID = 1
@@ -127,11 +118,8 @@ namespace XUnitTests.Controllers
                 var editedMap = afterEditPlannedWeekMap?.FirstOrDefault(m => m.PlannedWeekMapID == id);
 
                 editedMap?.Name.Should().Be(updatedPlannedWeekMap.Name);
-                editedMap?.WeekStartDay.Should().Be(updatedPlannedWeekMap.WeekStartDay);
                 editedMap?.DayStartTime.Should().Be(updatedPlannedWeekMap.DayStartTime);
                 editedMap?.DayEndTime.Should().Be(updatedPlannedWeekMap.DayEndTime);
-                editedMap?.ShowSaturday.Should().Be(updatedPlannedWeekMap.ShowSaturday);
-                editedMap?.ShowSunday.Should().Be(updatedPlannedWeekMap.ShowSunday);
                 editedMap?.ShowPlaceInPreview.Should().Be(updatedPlannedWeekMap.ShowPlaceInPreview);
                 editedMap?.ShowDescriptionInPreview.Should().Be(updatedPlannedWeekMap.ShowDescriptionInPreview);
                 editedMap?.UserID.Should().Be(updatedPlannedWeekMap.UserID);
@@ -150,11 +138,8 @@ namespace XUnitTests.Controllers
                 plannedWeekMaps.Should().ContainSingle(m =>
                     m.PlannedWeekMapID == id &&
                     m.Name == plannedWeekMapDTO.Name &&
-                    m.WeekStartDay == plannedWeekMapDTO.WeekStartDay &&
                     m.DayStartTime == plannedWeekMapDTO.DayStartTime &&
                     m.DayEndTime == plannedWeekMapDTO.DayEndTime &&
-                    m.ShowSaturday == plannedWeekMapDTO.ShowSaturday &&
-                    m.ShowSunday == plannedWeekMapDTO.ShowSunday &&
                     m.ShowPlaceInPreview == plannedWeekMapDTO.ShowPlaceInPreview &&
                     m.ShowDescriptionInPreview == plannedWeekMapDTO.ShowDescriptionInPreview &&
                     m.UserID == plannedWeekMapDTO.UserID

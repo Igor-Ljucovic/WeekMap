@@ -9,9 +9,6 @@ public class UserDefaultWeekMapSettingsTestData : ITestData<UserDefaultWeekMapSe
         new UserDefaultWeekMapSettingsDTO
         {   
             UserID = 1,
-            SkipSaturday = false,
-            SkipSunday = false,
-            WeekStartDay = "Monday",
             DayStartTime = new TimeSpan(0, 0, 0),
             DayEndTime = new TimeSpan(23, 59, 59),
             ShowPlaceInPreview = false,
@@ -20,22 +17,16 @@ public class UserDefaultWeekMapSettingsTestData : ITestData<UserDefaultWeekMapSe
         new UserDefaultWeekMapSettingsDTO
         {   
             UserID = 1,
-            SkipSaturday = true,
-            SkipSunday = false,
-            WeekStartDay = "Sunday",
             DayStartTime = new TimeSpan(0, 0, 0),
-            DayEndTime = new TimeSpan(23, 59, 59),
+            DayEndTime = new TimeSpan(23, 59, 0),
             ShowPlaceInPreview = false,
             ShowDescriptionInPreview = true
         },
         new UserDefaultWeekMapSettingsDTO
         {   
             UserID = 1,
-            SkipSaturday = true,
-            SkipSunday = true,
-            WeekStartDay = "Tuesday",
             DayStartTime = new TimeSpan(0, 0, 0),
-            DayEndTime = new TimeSpan(6, 30, 0),
+            DayEndTime = new TimeSpan(6, 0, 0),
             ShowPlaceInPreview = true,
             ShowDescriptionInPreview = true
         },
@@ -46,31 +37,14 @@ public class UserDefaultWeekMapSettingsTestData : ITestData<UserDefaultWeekMapSe
         new UserDefaultWeekMapSettingsDTO
         {
             UserID = 1,
-            SkipSaturday = true,
-            SkipSunday = true,
-            WeekStartDay = "monday",
-            DayStartTime = new TimeSpan(0, 0, 0),
-            DayEndTime = new TimeSpan(23, 0, 0),
+            DayStartTime = new TimeSpan(14, 0, 0),
+            DayEndTime = new TimeSpan(3, 0, 0),
             ShowPlaceInPreview = true,
             ShowDescriptionInPreview = true
         },
         new UserDefaultWeekMapSettingsDTO
         {
             UserID = 1,
-            SkipSaturday = true,
-            SkipSunday = true,
-            WeekStartDay = "anydayafsafasd",
-            DayStartTime = new TimeSpan(0, 0, 0),
-            DayEndTime = new TimeSpan(23, 0, 0),
-            ShowPlaceInPreview = true,
-            ShowDescriptionInPreview = true
-        },
-        new UserDefaultWeekMapSettingsDTO
-        {
-            UserID = 1,
-            SkipSaturday = true,
-            SkipSunday = true,
-            WeekStartDay = "tuesday",
             DayStartTime = new TimeSpan(0, 0, 0),
             DayEndTime = new TimeSpan(24, 0, 0),
             ShowPlaceInPreview = true,
@@ -79,22 +53,32 @@ public class UserDefaultWeekMapSettingsTestData : ITestData<UserDefaultWeekMapSe
         new UserDefaultWeekMapSettingsDTO
         {
             UserID = 1,
-            SkipSaturday = true,
-            SkipSunday = true,
-            WeekStartDay = "tuesday",
-            DayStartTime = new TimeSpan(0, 0, 0),
-            DayEndTime = new TimeSpan(23, 0, 0),
+            DayStartTime = new TimeSpan(23, 0, 0),
+            DayEndTime = new TimeSpan(0, 0, 0),
             ShowPlaceInPreview = true,
             ShowDescriptionInPreview = true
         },
         new UserDefaultWeekMapSettingsDTO
         {
             UserID = 1,
-            SkipSaturday = true,
-            SkipSunday = true,
-            WeekStartDay = "tuesday",
             DayStartTime = new TimeSpan(0, 0, 0),
             DayEndTime = new TimeSpan(-1, 0, 0),
+            ShowPlaceInPreview = true,
+            ShowDescriptionInPreview = true
+        },
+        new UserDefaultWeekMapSettingsDTO
+        {
+            UserID = 1,
+            DayStartTime = new TimeSpan(0, 0, 0),
+            DayEndTime = new TimeSpan(12, 30, 0),
+            ShowPlaceInPreview = true,
+            ShowDescriptionInPreview = true
+        },
+        new UserDefaultWeekMapSettingsDTO
+        {
+            UserID = 1,
+            DayStartTime = new TimeSpan(-1, 0, 0),
+            DayEndTime = new TimeSpan(8, 0, 0),
             ShowPlaceInPreview = true,
             ShowDescriptionInPreview = true
         },

@@ -82,9 +82,9 @@ function NavBar() {
 
         <div className="collapse navbar-collapse show" id="navbarNavAltMarkup">
           <div className="navbar-nav">
-            <Link className="nav-link" to="/weekmaps">Week maps</Link>
-            <Link className="nav-link" to="/activity-categories">Activity categories</Link>
-            <Link className="nav-link" to="/activities">Activity templates</Link>
+            <Link className="nav-link" to="/weekmaps">Week Maps</Link>
+            <Link className="nav-link" to="/activity-categories">Activity Categories</Link>
+            <Link className="nav-link" to="/activities">Activity Templates</Link>
           </div>
           <div className="navbar-nav ms-auto">
             

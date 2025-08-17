@@ -12,14 +12,6 @@ namespace WeekMap.Models
         [Required(ErrorMessage = "Name is required.")]
         [StringLength(50, ErrorMessage = "Name must be at most 50 characters.")]
         public string Name { get; set; }
-        [Required(ErrorMessage = "Show Saturday is required.")]
-        public bool ShowSaturday { get; set; }
-        [Required(ErrorMessage = "Show Sunday is required.")]
-        public bool ShowSunday { get; set; }
-
-        [Required(ErrorMessage = "Week start day is required.")]
-        [ValidWeekDay]
-        public string WeekStartDay { get; set; }
 
         [Required(ErrorMessage = "Day start time is required.")]
         public TimeSpan DayStartTime { get; set; }
@@ -37,7 +29,5 @@ namespace WeekMap.Models
 
         [ValidateNever]
         public User User { get; set; }
-        [ValidateNever]
-        public ICollection<RealisedWeekMap> RealisedWeekMaps { get; set; } = new List<RealisedWeekMap>();
     }
 }

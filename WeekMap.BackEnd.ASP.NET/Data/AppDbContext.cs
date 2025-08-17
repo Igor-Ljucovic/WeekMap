@@ -12,8 +12,6 @@ namespace WeekMap.Data
         public DbSet<Activity> Activities { get; set; }
         public DbSet<PlannedWeekMap> PlannedWeekMaps { get; set; }
         public DbSet<PlannedWeekMapActivity> PlannedWeekMapActivities { get; set; }
-        public DbSet<RealisedWeekMap> RealisedWeekMaps { get; set; }
-        public DbSet<RealisedWeekMapActivity> RealisedWeekMapActivities { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -22,16 +20,6 @@ namespace WeekMap.Data
             modelBuilder.Entity<User>().HasIndex(u => u.Username).IsUnique();
             modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
 
-            // composite keys
-            modelBuilder.Entity<PlannedWeekMapActivity>().HasKey(p => new 
-            {
-                p.PlannedWeekMapActivityID
-            });
-            modelBuilder.Entity<RealisedWeekMapActivity>().HasKey(p => new
-            {
-                p.RealisedWeekMapActivityID
-            });
-
             //modelBuilder.Entity<RealisedWeekMap>().HasOne(r => r.PlannedWeekMap)
             //.WithMany(p => p.RealisedWeekMaps)
             //.HasForeignKey(r => r.PlannedWeekMapID);
@@ -39,11 +27,6 @@ namespace WeekMap.Data
             // constraints:
             // when the HasForeignKey ROW gets deleted, what happens to one in the Entity ROW (look from bottom up)
             // when PlannedWeekMap is deleted, it deletes all the RealisedWeekMap rows with that PlannedWeekMapID (not the other way around!)
-            modelBuilder.Entity<RealisedWeekMap>()
-                .HasOne(r => r.PlannedWeekMap)
-                .WithMany(p => p.RealisedWeekMaps)
-                .HasForeignKey(r => r.PlannedWeekMapID)
-                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ActivityCategory>()
                 .HasOne(ac => ac.User)
@@ -97,17 +80,8 @@ namespace WeekMap.Data
                 .HasForeignKey(p => p.ActivityID)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<RealisedWeekMapActivity>()
-                .HasOne(r => r.RealisedWeekMap)
-                .WithMany()
-                .HasForeignKey(r => r.RealisedWeekMapID)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<RealisedWeekMapActivity>()
-                .HasOne(r => r.Activity)
-                .WithMany()
-                .HasForeignKey(r => r.ActivityID)
-                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<PlannedWeekMapActivity>()
+                .HasKey(p => new { p.PlannedWeekMapActivityID} );
 
             // class to database table mapping
             modelBuilder.Entity<User>().ToTable("Users");
@@ -117,8 +91,6 @@ namespace WeekMap.Data
             modelBuilder.Entity<Activity>().ToTable("Activities");
             modelBuilder.Entity<PlannedWeekMap>().ToTable("PlannedWeekMaps");
             modelBuilder.Entity<PlannedWeekMapActivity>().ToTable("PlannedWeekMapActivities");
-            modelBuilder.Entity<RealisedWeekMap>().ToTable("RealisedWeekMaps");
-            modelBuilder.Entity<RealisedWeekMapActivity>().ToTable("RealisedWeekMapActivities");
             
             base.OnModelCreating(modelBuilder);
         }

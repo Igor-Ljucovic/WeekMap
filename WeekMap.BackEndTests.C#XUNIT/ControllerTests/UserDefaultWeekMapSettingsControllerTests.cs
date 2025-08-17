@@ -43,10 +43,7 @@ namespace XUnitTests.Controllers
             // because we want to get the default settings
             UserDefaultWeekMapSettings userSettingsSample = new UserDefaultWeekMapSettings();
 
-            userSettings!.WeekStartDay.Should().Be(userSettingsSample.WeekStartDay);
-            userSettings.SkipSaturday.Should().Be(userSettingsSample.SkipSaturday);
-            userSettings.SkipSunday.Should().Be(userSettingsSample.SkipSunday);
-            userSettings.DayStartTime.Should().Be(userSettingsSample.DayStartTime);
+            userSettings!.DayStartTime.Should().Be(userSettingsSample.DayStartTime);
             userSettings.DayEndTime.Should().Be(userSettingsSample.DayEndTime);
             userSettings.ShowPlaceInPreview.Should().Be(userSettingsSample.ShowPlaceInPreview);
             userSettings.ShowDescriptionInPreview.Should().Be(userSettingsSample.ShowDescriptionInPreview);
@@ -67,9 +64,6 @@ namespace XUnitTests.Controllers
 
             UserDefaultWeekMapSettingsDTO updatedSettings = new UserDefaultWeekMapSettingsDTO
             {
-                SkipSaturday = false,
-                SkipSunday = true,
-                WeekStartDay = "Monday",
                 DayStartTime = new TimeSpan(0, 0, 0),
                 DayEndTime = new TimeSpan(11, 0, 0),
                 ShowPlaceInPreview = false,
@@ -86,10 +80,7 @@ namespace XUnitTests.Controllers
                 var afterEditSettings = await response.Content.ReadFromJsonAsync<UserDefaultWeekMapSettings>();
                 response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
-                afterEditSettings!.WeekStartDay.Should().Be(updatedSettings.WeekStartDay);
-                afterEditSettings.SkipSaturday.Should().Be(updatedSettings.SkipSaturday);
-                afterEditSettings.SkipSunday.Should().Be(updatedSettings.SkipSunday);
-                afterEditSettings.ShowPlaceInPreview.Should().Be(updatedSettings.ShowPlaceInPreview);
+                afterEditSettings!.ShowPlaceInPreview.Should().Be(updatedSettings.ShowPlaceInPreview);
                 afterEditSettings.ShowDescriptionInPreview.Should().Be(updatedSettings.ShowDescriptionInPreview);
             }
 

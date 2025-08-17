@@ -3,20 +3,13 @@ using WeekMap.Attributes;
 
 namespace WeekMap.Models
 {
+    [ValidWeekMapTimeRange(ErrorMessage = "Day start time must be before or equal to day end time.")]
     public class UserDefaultWeekMapSettings
     {
         [Key]
         public long UserID { get; set; } 
 
         public User? User { get; set; }
-        [Required(ErrorMessage = "Skip sunday is required.")]
-        public bool SkipSaturday { get; set; } = false;
-        [Required(ErrorMessage = "Skip sunday is required.")]
-        public bool SkipSunday { get; set; } = false;
-
-        [Required(ErrorMessage = "Week start day is required.")]
-        [ValidWeekDay]
-        public string WeekStartDay { get; set; } = "Monday";
 
         [Required(ErrorMessage = "Day start time is required.")]
         public TimeSpan DayStartTime { get; set; } = new TimeSpan(0, 0, 0);

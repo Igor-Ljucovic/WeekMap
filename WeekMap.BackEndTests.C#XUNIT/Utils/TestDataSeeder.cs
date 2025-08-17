@@ -13,7 +13,7 @@ namespace XUnitTests.Utils
         {
             var plannedWeekMapDTO = _plannedWeekMapTestData.Valid.ElementAt(0);
             plannedWeekMapDTO.DayStartTime = new TimeSpan(0, 0, 0);
-            plannedWeekMapDTO.DayEndTime = new TimeSpan(24, 0, 0);
+            plannedWeekMapDTO.DayEndTime = new TimeSpan(23, 59, 0);
 
             var response = await client.PostAsJsonAsync("api/PlannedWeekMap", plannedWeekMapDTO);
             response.EnsureSuccessStatusCode();

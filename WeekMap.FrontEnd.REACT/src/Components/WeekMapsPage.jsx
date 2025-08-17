@@ -535,7 +535,7 @@ function WeekMapsPage() {
         </div>
       )}
       <div style={{ marginBottom: "10px" }}>
-        <label>Current Week Map:{" "}<select value={plannedMap.plannedWeekMapID} onChange={(e) => { const selectedMap = allWeekMaps.find(m => m.plannedWeekMapID === parseInt(e.target.value)); setPlannedMap(selectedMap); }}>{allWeekMaps.map((map) => (<option key={map.plannedWeekMapID} value={map.plannedWeekMapID}>{map.name}</option>))}</select></label>
+        <label>Current week map:{" "}<select value={plannedMap.plannedWeekMapID} onChange={(e) => { const selectedMap = allWeekMaps.find(m => m.plannedWeekMapID === parseInt(e.target.value)); setPlannedMap(selectedMap); }}>{allWeekMaps.map((map) => (<option key={map.plannedWeekMapID} value={map.plannedWeekMapID}>{map.name}</option>))}</select></label>
       </div>
 
       <div style={gridContainerStyle}>
@@ -654,10 +654,9 @@ function WeekMapsPage() {
                 required
               />
             </div>
-            <div style={{ marginBottom: "10px" }}><label>Week Start Day:</label><select value={newMap.weekStartDay} onChange={(e) => setNewMap({ ...newMap, weekStartDay: e.target.value })} style={{ width: "100%", height: "32px" }}>{WEEKDAYS.map(day => (<option key={`modal-weekday-${day}`} value={day}>{day}</option>))}</select></div>
             <div style={{ marginBottom: "10px" }}><label>Day Start Time:</label><select value={newMap.dayStartTime} onChange={(e) => setNewMap({ ...newMap, dayStartTime: e.target.value })} style={{ width: "100%", height: "32px" }}>{Array.from({ length: 24 }, (_, i) => (<option key={`modal-start-hour-${i}`} value={`${i.toString().padStart(2, "0")}:00`}>{`${i.toString().padStart(2, "0")}:00`}</option>))}</select></div>
             <div style={{ marginBottom: "10px" }}><label>Day End Time:</label><select value={newMap.dayEndTime === "23:59" || newMap.dayEndTime === "23:59:00" ? "24:00" : newMap.dayEndTime} onChange={(e) => { const v = e.target.value; setNewMap({ ...newMap, dayEndTime: v === "24:00" ? "23:59" : v }); }} style={{ width: "100%", height: "32px" }}>{Array.from({ length: 24 }, (_, i) => (<option key={`modal-end-hour-${i}`} value={`${i.toString().padStart(2, "0")}:00`}>{`${i.toString().padStart(2, "0")}:00`}</option>))}<option value="24:00">24:00</option></select></div>
-            {[{ label: "Show Saturday", key: "showSaturday" }, { label: "Show Sunday", key: "showSunday" }, { label: "Show Place In Preview", key: "showPlaceInPreview" }, { label: "Show Description In Preview", key: "showDescriptionInPreview" }].map(({ label, key }) => (<div key={`modal-checkbox-${key}`} style={{ marginBottom: "10px" }}><label><input type="checkbox" checked={newMap[key]} onChange={(e) => setNewMap({ ...newMap, [key]: e.target.checked })} /> {label}</label></div>))}
+            {[{ label: "Show Place In Preview", key: "showPlaceInPreview" }, { label: "Show Description In Preview", key: "showDescriptionInPreview" }].map(({ label, key }) => (<div key={`modal-checkbox-${key}`} style={{ marginBottom: "10px" }}><label><input type="checkbox" checked={newMap[key]} onChange={(e) => setNewMap({ ...newMap, [key]: e.target.checked })} /> {label}</label></div>))}
             <button onClick={handleAddNewMap} style={addButtonStyle}>Add</button>
             <button onClick={() => setShowModal(false)} style={cancelButtonStyle}>Cancel</button>
           </div>

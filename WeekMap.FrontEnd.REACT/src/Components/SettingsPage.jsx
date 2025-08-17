@@ -5,7 +5,7 @@ import { notify, WEEKDAYS, useTheme } from '../Utils/utils';
 
 function SettingsPage() {
   const [userSettings, setUserSettings] = useState(null);
-  const { isDarkMode, setIsDarkMode } = useTheme();
+  const { setIsDarkMode } = useTheme();
   const [defaultMapSettings, setDefaultMapSettings] = useState(null);
   const userID = window.sessionStorage.getItem("id");
 
@@ -92,7 +92,7 @@ function SettingsPage() {
 
   const rowStyle = { marginBottom: '10px' };
 
-  const HourSelect = ({ name, value, onChange, startingHour, totaHours }) => (
+  const HourSelect = ({ name, value, onChange, startingHour, totalHours }) => (
   <select
     name={name}
     value={value.slice(0, 5)}
@@ -105,7 +105,7 @@ function SettingsPage() {
       width: "90px"
     }}
   >
-    {Array.from({ length: totaHours + 1 }, (_, i) => {
+    {Array.from({ length: totalHours + 1 }, (_, i) => {
       const hour = (startingHour + i).toString().padStart(2, "0");
       return (
         <option key={hour} value={`${hour}:00`}>
@@ -138,86 +138,8 @@ function SettingsPage() {
         </label>
       </div>
 
-      <div style={rowStyle}>
-        <label>
-          Email Updates:{" "}
-          <input
-            type="checkbox"
-            name="emailUpdates"
-            checked={userSettings.emailUpdates}
-            onChange={handleUserSettingsChange}
-          />
-        </label>
-      </div>
-
-      <div style={rowStyle}>
-        <label>
-          Notifications Enabled:{" "}
-          <input
-            type="checkbox"
-            name="notification"
-            checked={userSettings.notification}
-            onChange={handleUserSettingsChange}
-          />
-        </label>
-      </div>
-
-      <div style={rowStyle}>
-        <label>
-          Notification Time:{" "}
-          <HourSelect
-            name="notificationTime"
-            value={userSettings.notificationTime}
-            startingHour={0}
-            totaHours={23}
-            onChange={(e) => {
-            const updated = {
-              ...userSettings,
-              notificationTime: e.target.value + ":00"
-            };
-            updateUserSettingsBackend(updated);
-            } }
-          />
-        </label>
-      </div>
-
       <hr style={rowStyle} />
       <h2 style={rowStyle}>Default Week Map Settings</h2>
-
-      <div style={rowStyle}>
-        <label>
-          Skip Saturday:{" "}
-          <input
-            type="checkbox"
-            name="skipSaturday"
-            checked={defaultMapSettings.skipSaturday}
-            onChange={handleMapSettingsChange}
-          />
-        </label>
-      </div>
-
-      <div style={rowStyle}>
-        <label>
-          Skip Sunday:{" "}
-          <input
-            type="checkbox"
-            name="skipSunday"
-            checked={defaultMapSettings.skipSunday}
-            onChange={handleMapSettingsChange}
-          />
-        </label>
-      </div>
-
-      <div style={rowStyle}>
-        <label>
-          Week Start Day:{" "}
-          <select name="weekStartDay" value={defaultMapSettings.weekStartDay} onChange={handleMapSettingsChange}>
-            {WEEKDAYS.map(day => (
-              <option key={day} value={day}>{day}</option>
-            ))}
-          </select>
-        </label>
-      </div>
 
       <div style={rowStyle}>
         <label>
@@ -226,7 +148,7 @@ function SettingsPage() {
             name="dayStartTime"
             value={defaultMapSettings.dayStartTime}
             startingHour={0}
-            totaHours={23}
+            totalHours={23}
             onChange={(e) => {
               const newTime = e.target.value + ":00";
             if (newTime >= defaultMapSettings.dayEndTime) {
@@ -269,7 +191,7 @@ function SettingsPage() {
       .padStart(2, "0")}`;
   })()}
   startingHour={1}
-  totaHours={23}
+  totalHours={23}
   onChange={(e) => {
     const selected = e.target.value;
 
@@ -280,7 +202,7 @@ function SettingsPage() {
     date.setSeconds(0);
     date.setMilliseconds(0);
 
-    // Subtract 1 minute before sending to backend
+    // Subtract 1 minute before sending to backend if the endtime is 24:00
     date.setMinutes(date.getMinutes() - 1);
 
     const adjusted =
@@ -301,8 +223,7 @@ function SettingsPage() {
     updateMapSettingsBackend(updated);
   }}
 />
-
-        </label>
+      </label>
       </div>
 
       <div style={rowStyle}>

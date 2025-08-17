@@ -199,11 +199,11 @@ function ActivitiesPage() {
 
   return (
     <div style={containerStyle}>
-      <h2>Manage activity templates</h2>
+      <h2>Manage Activity Templates</h2>
       <hr style={{ border: `1px solid ${isDarkMode ? '#666' : '#bbb'}` }} />
 
       <form onSubmit={handleSubmit} style={{ marginBottom: '10px' }}>
-        <h3>{isEditing ? 'Edit activity template' : 'Add new activity template'}</h3>
+        <h3>{isEditing ? 'Edit Activity Template' : 'Add New Activity Template'}</h3>
 
         <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
           <label style={{ width: '165px' }}>Name:</label>
@@ -254,7 +254,7 @@ function ActivitiesPage() {
 
       <hr style={{ border: `1px solid ${isDarkMode ? '#666' : '#bbb'}` }} />
 
-      <h3>Existing Activity categories</h3>
+      <h3>Existing Activity Templates</h3>
       {activities.length > 0 ? (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {activities.map(act => (

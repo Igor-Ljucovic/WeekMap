@@ -35,6 +35,9 @@ namespace WeekMap.Attributes
             if (start.Hours >= 24 || end.Hours >= 24)
                 return new ValidationResult("Start and end hours must be less than 24.");
 
+            if (start.Days > 0 || end.Days > 0)
+                return new ValidationResult("Start and end hours must be less than 24.");
+
             return ValidationResult.Success;
         }
     }

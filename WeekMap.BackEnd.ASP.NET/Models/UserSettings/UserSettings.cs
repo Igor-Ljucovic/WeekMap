@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 using WeekMap.Attributes;
 
 namespace WeekMap.Models
@@ -12,13 +13,5 @@ namespace WeekMap.Models
 
         [ThemeValidation(ErrorMessage = "Theme must be either 'light' or 'dark'.")]
         public string Theme { get; set; } = "light";
-
-        public bool Notification { get; set; } = false;
-
-        [ValidNotificationTime(ErrorMessage = "Time must be positive and less than 23:00:00.")]
-        [Required(ErrorMessage = "Notification time is required.")]
-        public TimeSpan NotificationTime { get; set; } = new TimeSpan(21, 0, 0);
-
-        public bool EmailUpdates { get; set; } = false;
     }
 }

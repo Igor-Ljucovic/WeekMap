@@ -65,7 +65,6 @@ namespace WeekMap.Controllers
             //var confirmationLink = Url.Action("ConfirmEmail", "Account", new { token = user.EmailConfirmationToken, userId = user.UserID }, protocol: Request.Scheme);
 
             //new EmailConfirmationService().SendConfirmationEmail(user, confirmationLink);
-            // Check your email to confirm. - at the end of the message below
 
             return Ok(new { message = "User registered successfully." });
         }
