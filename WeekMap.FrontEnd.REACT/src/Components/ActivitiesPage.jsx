@@ -42,7 +42,7 @@ function ActivitiesPage() {
   const fetchActivities = async () => {
     try {
       const response = await fetch(`api/Activity`, { credentials: 'include' });
-      if (!response.ok) throw new Error("Failed to fetch activities.");
+      if (!response.ok) throw new Error("Failed to fetch activity templates.");
       const data = await response.json();
       setActivities(data);
     } catch (error) {
@@ -71,8 +71,8 @@ function ActivitiesPage() {
         credentials: 'include',
         body: JSON.stringify(activity)
       });
-      if (!response.ok) throw new Error('Failed to add activity.');
-      notify.success("Activity added successfully!");
+      if (!response.ok) throw new Error('Failed to add activity template.');
+      notify.success("Activity template added successfully!");
       resetForm();
       await fetchActivities();
     } catch (error) {
@@ -88,8 +88,8 @@ function ActivitiesPage() {
         credentials: 'include',
         body: JSON.stringify(activity)
       });
-      if (!response.ok) throw new Error('Failed to update activity.');
-      notify.success("Activity updated successfully!");
+      if (!response.ok) throw new Error('Failed to update activity template.');
+      notify.success("Activity template updated successfully!");
       resetForm();
       await fetchActivities();
     } catch (error) {
@@ -98,14 +98,14 @@ function ActivitiesPage() {
   };
 
   const handleDeleteActivity = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this activity?")) return;
+    if (!window.confirm("Are you sure you want to delete this activity template?")) return;
     try {
       const response = await fetch(`api/Activity/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       });
-      if (!response.ok) throw new Error("Failed to delete activity.");
-      notify.success("Activity deleted.");
+      if (!response.ok) throw new Error("Failed to delete activity template.");
+      notify.success("Activity template deleted.");
       await fetchActivities();
     } catch (error) {
       notify.error(error.message);
@@ -199,11 +199,11 @@ function ActivitiesPage() {
 
   return (
     <div style={containerStyle}>
-      <h2>Manage Activities</h2>
+      <h2>Manage activity templates</h2>
       <hr style={{ border: `1px solid ${isDarkMode ? '#666' : '#bbb'}` }} />
 
       <form onSubmit={handleSubmit} style={{ marginBottom: '10px' }}>
-        <h3>{isEditing ? 'Edit Activity' : 'Add New Activity'}</h3>
+        <h3>{isEditing ? 'Edit activity template' : 'Add new activity template'}</h3>
 
         <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
           <label style={{ width: '165px' }}>Name:</label>
@@ -254,7 +254,7 @@ function ActivitiesPage() {
 
       <hr style={{ border: `1px solid ${isDarkMode ? '#666' : '#bbb'}` }} />
 
-      <h3>Existing Activities</h3>
+      <h3>Existing Activity categories</h3>
       {activities.length > 0 ? (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {activities.map(act => (
@@ -298,7 +298,7 @@ function ActivitiesPage() {
           ))}
         </ul>
       ) : (
-        <p>No activities found. Add one using the form above!</p>
+        <p>No activity categories found. Add one using the form above!</p>
       )}
 
       <ToastContainer limit={1} theme={isDarkMode ? 'dark' : 'light'} />

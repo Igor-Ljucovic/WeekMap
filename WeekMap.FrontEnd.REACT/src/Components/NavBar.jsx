@@ -84,7 +84,7 @@ function NavBar() {
           <div className="navbar-nav">
             <Link className="nav-link" to="/weekmaps">Week maps</Link>
             <Link className="nav-link" to="/activity-categories">Activity categories</Link>
-            <Link className="nav-link" to="/activities">Activities</Link>
+            <Link className="nav-link" to="/activities">Activity templates</Link>
           </div>
           <div className="navbar-nav ms-auto">
             
