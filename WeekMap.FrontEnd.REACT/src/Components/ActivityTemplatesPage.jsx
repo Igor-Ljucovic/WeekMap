@@ -3,7 +3,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { notify, useTheme } from '../Utils/utils';
 
-function ActivitiesPage() {
+function ActivityTemplatesPage() {
   const [activities, setActivities] = useState([]);
   const [categories, setCategories] = useState([]);
   const [currentActivity, setCurrentActivity] = useState(null);
@@ -306,4 +306,4 @@ function ActivitiesPage() {
   );
 }
 
-export default ActivitiesPage;
+export default ActivityTemplatesPage;
