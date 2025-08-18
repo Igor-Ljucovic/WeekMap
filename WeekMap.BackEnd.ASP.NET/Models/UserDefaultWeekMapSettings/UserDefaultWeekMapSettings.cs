@@ -17,7 +17,7 @@ namespace WeekMap.Models
         [Required(ErrorMessage = "Day end time is required.")]
         public TimeSpan DayEndTime { get; set; } = new TimeSpan(23, 59, 59);
         [Required(ErrorMessage = "Show place in preview is required.")]
-        public bool ShowPlaceInPreview { get; set; } = false;
+        public bool ShowLocationInPreview { get; set; } = false;
         [Required(ErrorMessage = "Show description in preview is required.")]
         public bool ShowDescriptionInPreview { get; set; } = false;
     }

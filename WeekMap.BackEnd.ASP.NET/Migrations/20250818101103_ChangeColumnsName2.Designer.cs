@@ -12,8 +12,8 @@ using WeekMap.Data;
 namespace WeekMap.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250817195145_ProbaMigracija")]
-    partial class ProbaMigracija
+    [Migration("20250818101103_ChangeColumnsName2")]
+    partial class ChangeColumnsName2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -146,7 +146,7 @@ namespace WeekMap.Migrations
                     b.Property<bool>("ShowDescriptionInPreview")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("ShowPlaceInPreview")
+                    b.Property<bool>("ShowLocationInPreview")
                         .HasColumnType("bit");
 
                     b.HasKey("UserID");
@@ -193,7 +193,7 @@ namespace WeekMap.Migrations
                     b.Property<bool>("ShowDescriptionInPreview")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("ShowPlaceInPreview")
+                    b.Property<bool>("ShowLocationInPreview")
                         .HasColumnType("bit");
 
                     b.Property<long>("UserID")
@@ -203,7 +203,7 @@ namespace WeekMap.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("PlannedWeekMaps", (string)null);
+                    b.ToTable("WeekMaps", (string)null);
                 });
 
             modelBuilder.Entity("WeekMap.Models.WeekMapActivity", b =>

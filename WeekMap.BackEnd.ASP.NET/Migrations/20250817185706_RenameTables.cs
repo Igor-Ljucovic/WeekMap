@@ -53,6 +53,12 @@ namespace WeekMap.Migrations
                 table: "WeekMapActivities",
                 newName: "WeekMapActivityID"
             );
+
+            migrationBuilder.RenameColumn(
+                name: "PlannedWeekMapActivityID",
+                table: "WeekMapActivities",
+                newName: "WeekMapActivityID"
+            );
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

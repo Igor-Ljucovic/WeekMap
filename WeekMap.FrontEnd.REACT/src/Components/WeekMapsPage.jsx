@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme, notify, WEEKDAYS } from "../Utils/utils";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSearchParams } from "react-router-dom";
 
 function WeekMapsPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -32,7 +33,7 @@ function WeekMapsPage() {
   });
   const [showEditModal, setShowEditModal] = useState(false);
   const [editMapSettings, setEditMapSettings] = useState({
-    showPlaceInPreview: true,
+    showLocationInPreview: true,
     showDescriptionInPreview: true,
   });
 
@@ -98,6 +99,8 @@ function WeekMapsPage() {
   const navigate = useNavigate();
   const { isDarkMode, setIsDarkMode } = useTheme();
   const userID = window.sessionStorage.getItem("id");
+  const STORAGE_KEY = `weekmap:lastSelected:${userID ?? "anon"}`;
+  const [selectedWeekMapID, setSelectedWeekMapID] = useState(null);
 
   const getWeekStartDate = () => {
     if (!plannedMap) return null;
@@ -113,7 +116,39 @@ function WeekMapsPage() {
     return startDate;
   };
 
-  // --- Data Fetching and Effects ---
+  const handleSelectWeekMap = (id) => {
+    const selectedMap = allWeekMaps.find(m => m.weekMapID === Number(id));
+    if (!selectedMap) return;
+    setPlannedMap(selectedMap);
+    setSelectedWeekMapID(selectedMap.weekMapID);
+    window.localStorage.setItem(STORAGE_KEY, String(selectedMap.weekMapID));
+  };
+
+  useEffect(() => {
+    if (!userID) return;
+
+    fetch("api/WeekMap", { credentials: "include" })
+      .then(res => res.json())
+      .then(data => {
+        setAllWeekMaps(data);
+
+        const stored = window.localStorage.getItem(STORAGE_KEY);
+        const storedId = stored ? Number(stored) : null;
+        const storedMatch = storedId ? data.find(m => m.weekMapID === storedId) : null;
+
+        const toUse = storedMatch ?? data[0] ?? null;
+        if (toUse) {
+          setPlannedMap(toUse);
+          setSelectedWeekMapID(toUse.weekMapID);
+          window.localStorage.setItem(STORAGE_KEY, String(toUse.weekMapID));
+        } else {
+          setPlannedMap(null);
+          setSelectedWeekMapID(null);
+        }
+      })
+      .catch(() => notify.error("Failed to load your week maps."));
+  }, [userID]);
+
   useEffect(() => {
     fetch("api/ActivityTemplate", { credentials: "include" })
       .then(res => res.json())
@@ -131,19 +166,6 @@ function WeekMapsPage() {
       navigate("/login");
     }
   }, [navigate]);
-
-  useEffect(() => {
-    if (!userID) return;
-    fetch("api/WeekMap", { credentials: "include" })
-      .then(res => res.json())
-      .then(data => {
-        setAllWeekMaps(data);
-        if (data.length > 0) {
-          setPlannedMap(data[0]);
-        }
-      })
-      .catch(() => notify.error("Failed to load your week maps."));
-  }, [userID]);
 
   useEffect(() => {
     if (plannedMap) {
@@ -165,7 +187,6 @@ function WeekMapsPage() {
     }
   }, [plannedMap, setIsDarkMode]);
 
-  // --- Handler Functions ---
   const loadDefaults = () => {
     fetch(`api/UserDefaultWeekMapSettings/${userID}`, { credentials: "include" })
       .then(res => {
@@ -188,18 +209,17 @@ function WeekMapsPage() {
           ...data,
           dayStartTime: cleanStartTime,
           dayEndTime: cleanEndTime,
-          showPlaceInPreview: data.showPlaceInPreview ?? true,
+          showLocationInPreview: data.showLocationInPreview ?? true,
           showDescriptionInPreview: data.showDescriptionInPreview ?? true,
         });
         setShowModal(true);
       })
       .catch(() => {
-        // Fallback if defaults fail to load
         setNewMap({
           name: "map",
           dayStartTime: "08:00",
           dayEndTime: "24:00",
-          showPlaceInPreview: true,
+          showLocationInPreview: true,
           showDescriptionInPreview: true,
         });
         setShowModal(true);
@@ -224,7 +244,7 @@ function WeekMapsPage() {
       name: newMap.name,
       dayStartTime: startTime, 
       dayEndTime: endTime,
-      showPlaceInPreview: newMap.showPlaceInPreview, 
+      showLocationInPreview: newMap.showLocationInPreview, 
       showDescriptionInPreview: newMap.showDescriptionInPreview
     };
 
@@ -342,14 +362,36 @@ function WeekMapsPage() {
 
   const handleDeleteMap = () => {
     if (!plannedMap || !window.confirm("Are you sure you want to delete this week map?")) return;
+
     fetch(`api/WeekMap/${plannedMap.weekMapID}`, { method: "DELETE", credentials: "include" })
       .then(res => {
         if (!res.ok) throw new Error();
         notify.success("Week map deleted.");
-        window.location.reload();
+
+        // Clear stored selection if it pointed to the deleted map
+        const stored = window.localStorage.getItem(STORAGE_KEY);
+        if (stored && Number(stored) === plannedMap.weekMapID) {
+          window.localStorage.removeItem(STORAGE_KEY);
+        }
+
+        // Refresh maps list
+        return fetch("api/WeekMap", { credentials: "include" });
+      })
+      .then(res => res.json())
+      .then(data => {
+        setAllWeekMaps(data);
+        if (data.length > 0) {
+          setPlannedMap(data[0]);
+          setSelectedWeekMapID(data[0].weekMapID);
+          window.localStorage.setItem(STORAGE_KEY, String(data[0].weekMapID));
+        } else {
+          setPlannedMap(null);
+          setSelectedWeekMapID(null);
+        }
       })
       .catch(() => notify.error("Failed to delete map."));
   };
+
 
   if (!plannedMap) {
     return (
@@ -379,12 +421,6 @@ function WeekMapsPage() {
                     required
                   />
                 </div>
-                <label>Week Start Day:</label>
-                <select value={newMap.weekStartDay} onChange={(e) => setNewMap({ ...newMap, weekStartDay: e.target.value })} style={{ width: "100%", height: "32px" }}>
-                  {WEEKDAYS.map(day => (
-                    <option key={`modal-weekday-${day}`} value={day}>{day}</option>
-                  ))}
-                </select>
               </div>
                   
               <div style={{ marginBottom: "10px" }}>
@@ -416,7 +452,7 @@ function WeekMapsPage() {
                 </select>
               </div>
 
-              {[{ label: "Show Place In Preview", key: "showPlaceInPreview" }, { label: "Show Description In Preview", key: "showDescriptionInPreview" }].map(({ label, key }) => (
+              {[{ label: "Show Location In Preview", key: "showLocationInPreview" }, { label: "Show Description In Preview", key: "showDescriptionInPreview" }].map(({ label, key }) => (
                 <div key={`modal-checkbox-${key}`} style={{ marginBottom: "10px" }}>
                   <label>
                     <input type="checkbox" checked={newMap[key]} onChange={(e) => setNewMap({ ...newMap, [key]: e.target.checked })} /> {label}
@@ -437,7 +473,7 @@ function WeekMapsPage() {
     );
   }
 
-  const { dayStartTime, dayEndTime, showPlaceInPreview, showDescriptionInPreview } = plannedMap;
+  const { dayStartTime, dayEndTime, showLocationInPreview, showDescriptionInPreview } = plannedMap;
   const parseHour = (time) => parseInt(time.split(":")[0], 10);
   const timeToMinutes = (timeString) => {
     if(!timeString) return 0;
@@ -484,7 +520,7 @@ function WeekMapsPage() {
           onClick={() => {
             if (plannedMap) {
               setEditMapSettings({
-                showPlaceInPreview: plannedMap.showPlaceInPreview,
+                showLocationInPreview: plannedMap.showLocationInPreview,
                 showDescriptionInPreview: plannedMap.showDescriptionInPreview
               });
               setShowEditModal(true);
@@ -536,7 +572,19 @@ function WeekMapsPage() {
         </div>
       )}
       <div style={{ marginBottom: "10px" }}>
-        <label>Current week map:{" "}<select value={plannedMap.weekMapID} onChange={(e) => { const selectedMap = allWeekMaps.find(m => m.weekMapID === parseInt(e.target.value)); setPlannedMap(selectedMap); }}>{allWeekMaps.map((map) => (<option key={map.weekMapID} value={map.weekMapID}>{map.name}</option>))}</select></label>
+        <label>
+          Current week map:{" "}
+          <select
+            value={selectedWeekMapID ?? ""}
+            onChange={(e) => handleSelectWeekMap(e.target.value)}
+          >
+            {allWeekMaps.map((map) => (
+              <option key={map.weekMapID} value={map.weekMapID}>
+                {map.name}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
       <div style={gridContainerStyle}>
@@ -613,7 +661,7 @@ function WeekMapsPage() {
                   >
                     <div style={{ fontWeight: "bold" }}>{act.activityTemplate?.name || "Unnamed"}</div>
 
-                    {plannedMap.showPlaceInPreview && act.activityTemplate?.location && (
+                    {plannedMap.showLocationInPreview && act.activityTemplate?.location && (
                       <div style={{ fontSize: "11px", marginTop: "2px" }}>
                         📍 {act.activityTemplate.location}
                       </div>
@@ -657,7 +705,7 @@ function WeekMapsPage() {
             </div>
             <div style={{ marginBottom: "10px" }}><label>Day Start Time:</label><select value={newMap.dayStartTime} onChange={(e) => setNewMap({ ...newMap, dayStartTime: e.target.value })} style={{ width: "100%", height: "32px" }}>{Array.from({ length: 24 }, (_, i) => (<option key={`modal-start-hour-${i}`} value={`${i.toString().padStart(2, "0")}:00`}>{`${i.toString().padStart(2, "0")}:00`}</option>))}</select></div>
             <div style={{ marginBottom: "10px" }}><label>Day End Time:</label><select value={newMap.dayEndTime === "23:59" || newMap.dayEndTime === "23:59:00" ? "24:00" : newMap.dayEndTime} onChange={(e) => { const v = e.target.value; setNewMap({ ...newMap, dayEndTime: v === "24:00" ? "23:59" : v }); }} style={{ width: "100%", height: "32px" }}>{Array.from({ length: 24 }, (_, i) => (<option key={`modal-end-hour-${i}`} value={`${i.toString().padStart(2, "0")}:00`}>{`${i.toString().padStart(2, "0")}:00`}</option>))}<option value="24:00">24:00</option></select></div>
-            {[{ label: "Show Place In Preview", key: "showPlaceInPreview" }, { label: "Show Description In Preview", key: "showDescriptionInPreview" }].map(({ label, key }) => (<div key={`modal-checkbox-${key}`} style={{ marginBottom: "10px" }}><label><input type="checkbox" checked={newMap[key]} onChange={(e) => setNewMap({ ...newMap, [key]: e.target.checked })} /> {label}</label></div>))}
+            {[{ label: "Show Location In Preview", key: "showLocationInPreview" }, { label: "Show Description In Preview", key: "showDescriptionInPreview" }].map(({ label, key }) => (<div key={`modal-checkbox-${key}`} style={{ marginBottom: "10px" }}><label><input type="checkbox" checked={newMap[key]} onChange={(e) => setNewMap({ ...newMap, [key]: e.target.checked })} /> {label}</label></div>))}
             <button onClick={handleAddNewMap} style={addButtonStyle}>Add</button>
             <button onClick={() => setShowModal(false)} style={cancelButtonStyle}>Cancel</button>
           </div>
@@ -680,12 +728,12 @@ function WeekMapsPage() {
               <label>
                 <input
                   type="checkbox"
-                  checked={editMapSettings.showPlaceInPreview}
+                  checked={editMapSettings.showLocationInPreview}
                   onChange={(e) =>
-                    setEditMapSettings(prev => ({ ...prev, showPlaceInPreview: e.target.checked }))
+                    setEditMapSettings(prev => ({ ...prev, showLocationInPreview: e.target.checked }))
                   }
                 />{" "}
-                Show Place In Preview
+                Show Location In Preview
               </label>
             </div>
 
@@ -712,7 +760,7 @@ function WeekMapsPage() {
                       credentials: "include",
                       body: JSON.stringify({
                         ...plannedMap,
-                        showPlaceInPreview: editMapSettings.showPlaceInPreview,
+                        showLocationInPreview: editMapSettings.showLocationInPreview,
                         showDescriptionInPreview: editMapSettings.showDescriptionInPreview
                       })
                     });

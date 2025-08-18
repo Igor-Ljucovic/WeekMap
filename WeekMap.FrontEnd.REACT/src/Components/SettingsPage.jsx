@@ -228,11 +228,11 @@ function SettingsPage() {
 
       <div style={rowStyle}>
         <label>
-          Show Place In Preview:{" "}
+          Show Location In Preview:{" "}
           <input
             type="checkbox"
-            name="showPlaceInPreview"
-            checked={defaultMapSettings.showPlaceInPreview}
+            name="showLocationInPreview"
+            checked={defaultMapSettings.showLocationInPreview}
             onChange={handleMapSettingsChange}
           />
         </label>
