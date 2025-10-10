@@ -15,7 +15,7 @@ namespace WeekMap.Migrations
 
             migrationBuilder.RenameColumn(
                name: "ShowPlaceInPreview",
-               table: "DefaultWeekMapSettings",
+               table: "UserDefaultWeekMapSettings",
                newName: "ShowLocationInPreview");
 
             migrationBuilder.RenameIndex(
@@ -30,6 +30,16 @@ namespace WeekMap.Migrations
                 name: "ShowLocationInPreview",
                 table: "WeekMaps",
                 newName: "ShowPlaceInPreview");
+
+            migrationBuilder.RenameColumn(
+               name: "ShowLocationInPreview",
+               table: "UserDefaultWeekMapSettings",
+               newName: "ShowPlaceInPreview");
+
+            migrationBuilder.RenameIndex(
+               name: "IX_PlannedWeekMaps_UserID", 
+               table: "WeekMaps",
+               newName: "IX_WeekMaps_UserID");
         }
     }
 }

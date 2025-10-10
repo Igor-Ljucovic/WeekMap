@@ -51,7 +51,7 @@ namespace WeekMap.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Edit(int id, [FromBody] ActivityCategoryDTO updatedCategory)
+        public IActionResult Edit(long id, [FromBody] ActivityCategoryDTO updatedCategory)
         {
             if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
                 return Unauthorized(new { message = "User not logged in." });
@@ -68,7 +68,7 @@ namespace WeekMap.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public IActionResult Delete(long id)
         {
             if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
                 return Unauthorized(new { message = "User not logged in." });
