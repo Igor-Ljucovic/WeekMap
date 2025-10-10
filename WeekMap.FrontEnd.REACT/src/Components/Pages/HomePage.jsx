@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTheme, notify } from '../Utils/utils';
-import WeekMapSample from "../Images/WeekMapSample.png";
+import { useTheme, notify } from '../../Utils/utils';
+import WeekMapSample from "../../Images/WeekMapSample.png";
 
 function HomePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

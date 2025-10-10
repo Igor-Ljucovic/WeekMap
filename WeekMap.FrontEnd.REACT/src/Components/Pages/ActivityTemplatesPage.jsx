@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { notify, useTheme } from '../Utils/utils';
+import { notify, useTheme } from '../../Utils/utils';
 
 function ActivityTemplatesPage() {
   const [activities, setActivities] = useState([]);

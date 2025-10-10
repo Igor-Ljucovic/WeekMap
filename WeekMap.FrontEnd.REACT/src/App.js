@@ -1,16 +1,16 @@
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Layout from "./Components/Layout";
-import HomePage from "./Components/HomePage";
-import RegisterPage from "./Components/RegisterPage";
-import LoginPage from "./Components/LoginPage";
-import SettingsPage from "./Components/SettingsPage";
-import ActivityTemplatesPage from "./Components/ActivityTemplatesPage";
-import ActivityCategoriesPage from "./Components/ActivityCategoriesPage";
-import WeekMapsPage from "./Components/WeekMapsPage";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Layout from "./Components/Layout/Layout";
+import HomePage from "./Components/Pages/HomePage";
+import RegisterPage from "./Components/Pages/RegisterPage";
+import LoginPage from "./Components/Pages/LoginPage";
+import SettingsPage from "./Components/Pages/SettingsPage";
+import ActivityTemplatesPage from "./Components/Pages/ActivityTemplatesPage";
+import ActivityCategoriesPage from "./Components/Pages/ActivityCategoriesPage";
+import WeekMapsPage from "./Components/Pages/WeekMapsPage";
 
 function App() {
     return (
-        <Router>
+        <BrowserRouter>
             <Routes>
                 <Route path="/" element={<Layout />}>
                     <Route path="" element={<HomePage />} />
@@ -23,7 +23,7 @@ function App() {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/login" element={<LoginPage />} />
             </Routes>
-        </Router>
+        </BrowserRouter>
     );
 }
 

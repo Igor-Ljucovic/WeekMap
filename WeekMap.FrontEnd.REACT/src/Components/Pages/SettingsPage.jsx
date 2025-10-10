@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { notify, WEEKDAYS, useTheme } from '../Utils/utils';
+import { notify, useTheme } from '../../Utils/utils';
 
 function SettingsPage() {
   const [userSettings, setUserSettings] = useState(null);

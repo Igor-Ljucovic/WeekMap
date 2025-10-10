@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { notify, useTheme } from '../Utils/utils';
+import { notify, useTheme } from '../../Utils/utils';
 
 function ActivityCategoriesPage() {
   
@@ -199,7 +199,6 @@ function ActivityCategoriesPage() {
     <div style={containerStyle}>
       <h2>Manage Activity Categories</h2>
       <hr style={{ border: `1px solid ${isDarkMode ? '#666' : '#bbb'}` }} />
-      {/* --- Add/Edit Form --- */}
       <form onSubmit={handleSubmit} style={{ marginBottom: '10px' }}>
         <h3>{isEditing ? 'Edit Category' : 'Add New Category'}</h3>
         <div style={{ marginBottom: '15px' }}>
@@ -234,7 +233,6 @@ function ActivityCategoriesPage() {
 
       <hr style={{ border: `1px solid ${isDarkMode ? '#666' : '#bbb'}` }} />
 
-      {/* --- Categories List --- */}
       <h3>Existing Categories</h3>
       {categories.length > 0 ? (
         <ul style={{ listStyle: 'none', padding: 0 }}>

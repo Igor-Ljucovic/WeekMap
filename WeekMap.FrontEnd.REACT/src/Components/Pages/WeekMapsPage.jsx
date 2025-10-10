@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTheme, notify, WEEKDAYS } from "../Utils/utils";
+import { useTheme, notify, WEEKDAYS } from "../../Utils/utils";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useSearchParams } from "react-router-dom";
 
 function WeekMapsPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
