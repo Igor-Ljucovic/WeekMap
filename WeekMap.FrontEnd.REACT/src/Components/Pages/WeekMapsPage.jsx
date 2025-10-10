@@ -3,10 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useTheme, notify, WEEKDAYS } from "../../Utils/utils";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { GeneralStyles } from "../../Styles/GeneralStyles";
 
 function WeekMapsPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState("");
   const [allWeekMaps, setAllWeekMaps] = useState([]);
   const [plannedMap, setPlannedMap] = useState(null);
   const [weekMapActivities, setWeekMapActivities] = useState([]);
@@ -60,44 +59,13 @@ function WeekMapsPage() {
     setShowActivityModal(true);
   };
 
-  const buttonStyle = {
-    padding: "6px 12px",
-    border: "none",
-    borderRadius: "5px",
-    fontSize: "14px",
-    marginRight: "10px"
-  };
-
-  const addButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: "#5cb85c",
-    color: "white"
-  };
-
-  const editButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: "#0275d8",
-    color: "white"
-  };
-
-  const deleteButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: "#d9534f",
-    color: "white"
-  };
-
-  const cancelButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: "#6c757d",
-    color: "white"
-  };
-
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [showViewActivityModal, setShowViewActivityModal] = useState(false);
 
   const navigate = useNavigate();
-  const { isDarkMode, setIsDarkMode } = useTheme();
+  const { isDarkMode } = useTheme();
   const userID = window.sessionStorage.getItem("id");
+  const styles = GeneralStyles(isDarkMode);
   const STORAGE_KEY = `weekmap:lastSelected:${userID ?? "anon"}`;
   const [selectedWeekMapID, setSelectedWeekMapID] = useState(null);
 
@@ -157,13 +125,9 @@ function WeekMapsPage() {
 
   useEffect(() => {
     const token = window.sessionStorage.getItem("auth_token");
-    const username = window.sessionStorage.getItem("username");
-    if (token) {
-      setIsLoggedIn(true);
-      setUsername(username);
-    } else {
+    if (!token) 
       navigate("/login");
-    }
+    
   }, [navigate]);
 
   useEffect(() => {
@@ -177,14 +141,6 @@ function WeekMapsPage() {
       setWeekMapActivities([]);
     }
   }, [plannedMap]);
-
-  useEffect(() => {
-    if (plannedMap?.user?.theme) {
-      const dark = plannedMap.user.theme === "dark";
-      setIsDarkMode(dark);
-      document.body.style.backgroundColor = dark ? "#1e1e1e" : "#ffffff";
-    }
-  }, [plannedMap, setIsDarkMode]);
 
   const loadDefaults = () => {
     fetch(`api/UserDefaultWeekMapSettings/${userID}`, { credentials: "include" })
@@ -397,7 +353,7 @@ function WeekMapsPage() {
       <div style={{ padding: '20px', color: isDarkMode ? '#fff' : '#000' }}>
         
         <h2>Your Week Maps</h2>
-        <button onClick={loadDefaults} style={addButtonStyle}>
+        <button onClick={loadDefaults} style={styles.addButtonStyle}>
           Add Week Map
         </button>
         <p style={{ marginTop: '20px' }}>Loading or no week maps found. Please add one.</p>
@@ -459,10 +415,10 @@ function WeekMapsPage() {
                 </div>
               ))}
 
-              <button onClick={handleAddNewMap} style={isEditingActivity ? editButtonStyle : addButtonStyle}>
+              <button onClick={handleAddNewMap} style={isEditingActivity ? styles.editButtonStyle : styles.addButtonStyle}>
                 {isEditingActivity ? "Edit" : "Add"}
               </button>
-              <button onClick={() => setShowModal(false)} style={cancelButtonStyle}>
+              <button onClick={() => setShowModal(false)} style={styles.cancelButtonStyle}>
                 Cancel
               </button>
             </div>
@@ -472,7 +428,7 @@ function WeekMapsPage() {
     );
   }
 
-  const { dayStartTime, dayEndTime, showLocationInPreview, showDescriptionInPreview } = plannedMap;
+  const { dayStartTime, dayEndTime } = plannedMap;
   const parseHour = (time) => parseInt(time.split(":")[0], 10);
   const timeToMinutes = (timeString) => {
     if(!timeString) return 0;
@@ -512,7 +468,7 @@ function WeekMapsPage() {
       <h2>Your Week Maps</h2>
       
       <div style={{ marginBottom: "10px" }}>
-        <button onClick={loadDefaults} style={addButtonStyle}>
+        <button onClick={loadDefaults} style={styles.addButtonStyle}>
           Add Week Map
         </button>
         <button
@@ -525,11 +481,11 @@ function WeekMapsPage() {
               setShowEditModal(true);
             }
           }}
-          style={editButtonStyle}
+          style={styles.editButtonStyle}
         >
           Week Map Settings
         </button>
-        <button onClick={handleDeleteMap} style={deleteButtonStyle}>
+        <button onClick={handleDeleteMap} style={styles.deleteButtonStyle}>
           Delete Current Week Map
         </button>
         <button
@@ -538,7 +494,7 @@ function WeekMapsPage() {
             setNewActivity(prev => ({ ...prev, activityDate: `${currentYear}-01-01` }));
             setShowActivityModal(true);
           }}
-          style={addButtonStyle}
+          style={styles.addButtonStyle}
         >
           Add Activity to Map
         </button>
@@ -705,8 +661,8 @@ function WeekMapsPage() {
             <div style={{ marginBottom: "10px" }}><label>Day Start Time:</label><select value={newMap.dayStartTime} onChange={(e) => setNewMap({ ...newMap, dayStartTime: e.target.value })} style={{ width: "100%", height: "32px" }}>{Array.from({ length: 24 }, (_, i) => (<option key={`modal-start-hour-${i}`} value={`${i.toString().padStart(2, "0")}:00`}>{`${i.toString().padStart(2, "0")}:00`}</option>))}</select></div>
             <div style={{ marginBottom: "10px" }}><label>Day End Time:</label><select value={newMap.dayEndTime === "23:59" || newMap.dayEndTime === "23:59:00" ? "24:00" : newMap.dayEndTime} onChange={(e) => { const v = e.target.value; setNewMap({ ...newMap, dayEndTime: v === "24:00" ? "23:59" : v }); }} style={{ width: "100%", height: "32px" }}>{Array.from({ length: 24 }, (_, i) => (<option key={`modal-end-hour-${i}`} value={`${i.toString().padStart(2, "0")}:00`}>{`${i.toString().padStart(2, "0")}:00`}</option>))}<option value="24:00">24:00</option></select></div>
             {[{ label: "Show Location In Preview", key: "showLocationInPreview" }, { label: "Show Description In Preview", key: "showDescriptionInPreview" }].map(({ label, key }) => (<div key={`modal-checkbox-${key}`} style={{ marginBottom: "10px" }}><label><input type="checkbox" checked={newMap[key]} onChange={(e) => setNewMap({ ...newMap, [key]: e.target.checked })} /> {label}</label></div>))}
-            <button onClick={handleAddNewMap} style={addButtonStyle}>Add</button>
-            <button onClick={() => setShowModal(false)} style={cancelButtonStyle}>Cancel</button>
+            <button onClick={handleAddNewMap} style={styles.addButtonStyle}>Add</button>
+            <button onClick={() => setShowModal(false)} style={styles.cancelButtonStyle}>Cancel</button>
           </div>
         </div>
       )}
@@ -777,11 +733,11 @@ function WeekMapsPage() {
                     notify.error("Error updating week map.");
                   }
                 }}
-                style={editButtonStyle}
+                style={styles.editButtonStyle}
               >
                 Save
               </button>
-              <button onClick={() => setShowEditModal(false)} style={cancelButtonStyle}>Cancel</button>
+              <button onClick={() => setShowEditModal(false)} style={styles.cancelButtonStyle}>Cancel</button>
             </div>
           </div>
         </div>
@@ -877,7 +833,7 @@ function WeekMapsPage() {
               </label>
             ))}
           </div>
-          <button onClick={handleAddActivityToMap} style= {isEditingActivity ? editButtonStyle : addButtonStyle}>
+          <button onClick={handleAddActivityToMap} style= {isEditingActivity ? styles.editButtonStyle : styles.addButtonStyle}>
             {isEditingActivity ? "Save" : "Add"}
           </button>
           <button
@@ -900,7 +856,7 @@ function WeekMapsPage() {
                 onSunday: false,
               });
             }}
-            style={cancelButtonStyle}
+            style={styles.cancelButtonStyle}
           >
             Cancel
           </button>
@@ -939,13 +895,13 @@ function WeekMapsPage() {
               }</p>
             )}
             <div style={{ marginTop: "15px" }}>
-              <button onClick={handleEditActivityClick} style={editButtonStyle}>
+              <button onClick={handleEditActivityClick} style={styles.editButtonStyle}>
                 Edit
               </button>
-              <button onClick={() => handleDeleteActivity(selectedActivity.weekMapActivityID)} style={deleteButtonStyle}>
+              <button onClick={() => handleDeleteActivity(selectedActivity.weekMapActivityID)} style={styles.deleteButtonStyle}>
                 Delete
               </button>
-              <button onClick={() => setShowViewActivityModal(false)} style={cancelButtonStyle}>
+              <button onClick={() => setShowViewActivityModal(false)} style={styles.cancelButtonStyle}>
                 Cancel
               </button>
             </div>

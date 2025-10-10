@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme, notify } from '../../Utils/utils';
 import WeekMapSample from "../../Images/WeekMapSample.png";
 
 function HomePage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState("");
   const navigate = useNavigate();
   const { isDarkMode, setIsDarkMode } = useTheme();
   const [userSettings, setUserSettings] = useState(null);
@@ -13,14 +11,10 @@ function HomePage() {
 
   useEffect(() => {
     const token = window.sessionStorage.getItem("auth_token");
-    const username = window.sessionStorage.getItem("username");
     
-    if (token) {
-      setIsLoggedIn(true);
-      setUsername(username);
-    } else {
+    if (!token)
       navigate("/login"); // redirect if not logged in
-    }
+    
   }, [navigate]);
 
   useEffect(() => {

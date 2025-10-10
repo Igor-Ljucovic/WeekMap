@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { notify, useTheme } from '../../Utils/utils';
+import ActivityCategoryItem from '../Items/ActivityCategoryItem';
+import { GeneralStyles } from "../../Styles/GeneralStyles";
 
 function ActivityCategoriesPage() {
   
@@ -13,7 +15,7 @@ function ActivityCategoriesPage() {
   
   const { isDarkMode } = useTheme();
   const userID = window.sessionStorage.getItem("id");
-
+  const styles = GeneralStyles(isDarkMode);
   const getBlankCategory = () => ({
     activityCategoryID: 0,
     name: '',
@@ -145,58 +147,8 @@ function ActivityCategoriesPage() {
     setCurrentCategory(getBlankCategory());
   };
 
-  const containerStyle = {
-    margin: '1%',
-    backgroundColor: isDarkMode ? "#444" : "#ddd",
-    color: isDarkMode ? "#fff" : "#000",
-    padding: '20px',
-    borderRadius: '8px',
-    maxWidth: '650px'
-  };
-
-  const inputStyle = {
-    padding: '8px',
-    margin: '0 10px 0 5px',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
-    backgroundColor: isDarkMode ? '#555' : '#fff',
-    color: isDarkMode ? '#fff' : '#000',
-  };
-
-  const buttonStyle = {
-    padding: "6px 12px",
-    border: "none",
-    borderRadius: "5px",
-    fontSize: "14px",
-    marginRight: "10px"
-  };
-
-  const addButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: "#5cb85c",
-    color: "white"
-  };
-
-  const editButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: "#0275d8",
-    color: "white"
-  };
-
-  const deleteButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: "#d9534f",
-    color: "white"
-  };
-
-  const cancelButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: "#6c757d",
-    color: "white"
-  };
-
   return (
-    <div style={containerStyle}>
+    <div style={styles.containerStyle}>
       <h2>Manage Activity Categories</h2>
       <hr style={{ border: `1px solid ${isDarkMode ? '#666' : '#bbb'}` }} />
       <form onSubmit={handleSubmit} style={{ marginBottom: '10px' }}>
@@ -211,7 +163,7 @@ function ActivityCategoriesPage() {
               onChange={handleInputChange}
               maxLength="50"
               required
-              style={inputStyle}
+              style={styles.inputStyle}
             />
           </label>
           <label>
@@ -221,13 +173,13 @@ function ActivityCategoriesPage() {
               name="color"
               value={`#${currentCategory?.color || 'FFFFFF'}`} // Color needs '#' prefix because its not in the database
               onChange={handleColorChange}
-              style={{...inputStyle, padding: '0px', height: '35px', verticalAlign: 'middle'}}
+              style={{...styles.inputStyle, padding: '0px', height: '35px', verticalAlign: 'middle'}}
             />
           </label>
         </div>
-        <button type="submit" style={addButtonStyle}>{isEditing ? 'Save' : 'Add'}</button>
+        <button type="submit" style={styles.addButtonStyle}>{isEditing ? 'Save' : 'Add'}</button>
         {isEditing && (
-          <button type="button" onClick={resetForm} style={cancelButtonStyle}>Cancel</button>
+          <button type="button" onClick={resetForm} style={styles.cancelButtonStyle}>Cancel</button>
         )}
       </form>
 
@@ -237,28 +189,15 @@ function ActivityCategoriesPage() {
       {categories.length > 0 ? (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {categories.map(cat => (
-            <li key={cat.activityCategoryID} style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '10px',
-              borderBottom: `1px solid ${isDarkMode ? '#555' : '#ccc'}`
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{
-                  width: '20px',
-                  height: '20px',
-                  backgroundColor: `#${cat.color}`,
-                  borderRadius: '50%',
-                  marginRight: '15px'
-                }}></div>
-                <span>{cat.name}</span>
-              </div>
-              <div>
-                <button onClick={() => handleEditClick(cat)} style={editButtonStyle}>Edit</button>
-                <button onClick={() => handleDeleteCategory(cat.activityCategoryID)} style={deleteButtonStyle}>Delete</button>
-              </div>
-            </li>
+            <ActivityCategoryItem
+              key={cat.activityCategoryID}
+              category={cat}
+              isDarkMode={isDarkMode}
+              onEdit={handleEditClick}
+              onDelete={handleDeleteCategory}
+              editButtonStyle={styles.editButtonStyle}
+              deleteButtonStyle={styles.deleteButtonStyle}
+            />
           ))}
         </ul>
       ) : (
