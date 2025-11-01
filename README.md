@@ -1,4 +1,6 @@
-A full-stack web app for organizing time through weekly routines
+**WeekMap | C#, ASP.NET, SQL Server, Entity, xUnit, React, Python, Selenium, PowerShell**
+
+-A full-stack web app for organizing time through weekly routines
 with visual analytics and tracking.
 
 Tech Stack
