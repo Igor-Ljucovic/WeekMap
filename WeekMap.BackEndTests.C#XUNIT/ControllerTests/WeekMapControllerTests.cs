@@ -30,7 +30,7 @@ namespace XUnitTests.Controllers
                 m.Name == plannedWeekMap.Name &&
                 m.DayStartTime == plannedWeekMap.DayStartTime &&
                 m.DayEndTime == plannedWeekMap.DayEndTime &&
-                m.ShowPlaceInPreview == plannedWeekMap.ShowPlaceInPreview &&
+                m.ShowLocationInPreview == plannedWeekMap.ShowLocationInPreview &&
                 m.ShowDescriptionInPreview == plannedWeekMap.ShowDescriptionInPreview &&
                 m.UserID == plannedWeekMap.UserID
             );
@@ -57,7 +57,7 @@ namespace XUnitTests.Controllers
                     m.Name == plannedWeekMap.Name &&
                     m.DayStartTime == plannedWeekMap.DayStartTime &&
                     m.DayEndTime == plannedWeekMap.DayEndTime &&
-                    m.ShowPlaceInPreview == plannedWeekMap.ShowPlaceInPreview &&
+                    m.ShowLocationInPreview == plannedWeekMap.ShowLocationInPreview &&
                     m.ShowDescriptionInPreview == plannedWeekMap.ShowDescriptionInPreview &&
                     m.UserID == plannedWeekMap.UserID
                 );
@@ -91,7 +91,7 @@ namespace XUnitTests.Controllers
                 Name = "name1",
                 DayStartTime = new TimeSpan(8, 0, 0),
                 DayEndTime = new TimeSpan(16, 0, 0),
-                ShowPlaceInPreview = true,
+                ShowLocationInPreview = true,
                 ShowDescriptionInPreview = true,
                 UserID = 1
             };
@@ -114,7 +114,7 @@ namespace XUnitTests.Controllers
                 editedMap?.Name.Should().Be(updatedPlannedWeekMap.Name);
                 editedMap?.DayStartTime.Should().Be(updatedPlannedWeekMap.DayStartTime);
                 editedMap?.DayEndTime.Should().Be(updatedPlannedWeekMap.DayEndTime);
-                editedMap?.ShowPlaceInPreview.Should().Be(updatedPlannedWeekMap.ShowPlaceInPreview);
+                editedMap?.ShowLocationInPreview.Should().Be(updatedPlannedWeekMap.ShowLocationInPreview);
                 editedMap?.ShowDescriptionInPreview.Should().Be(updatedPlannedWeekMap.ShowDescriptionInPreview);
                 editedMap?.UserID.Should().Be(updatedPlannedWeekMap.UserID);
             }
@@ -134,7 +134,7 @@ namespace XUnitTests.Controllers
                     m.Name == plannedWeekMapDTO.Name &&
                     m.DayStartTime == plannedWeekMapDTO.DayStartTime &&
                     m.DayEndTime == plannedWeekMapDTO.DayEndTime &&
-                    m.ShowPlaceInPreview == plannedWeekMapDTO.ShowPlaceInPreview &&
+                    m.ShowLocationInPreview == plannedWeekMapDTO.ShowLocationInPreview &&
                     m.ShowDescriptionInPreview == plannedWeekMapDTO.ShowDescriptionInPreview &&
                     m.UserID == plannedWeekMapDTO.UserID
                 );

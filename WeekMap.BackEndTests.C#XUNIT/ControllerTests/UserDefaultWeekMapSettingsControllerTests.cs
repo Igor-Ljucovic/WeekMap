@@ -38,7 +38,7 @@ namespace XUnitTests.Controllers
 
             userSettings!.DayStartTime.Should().Be(userSettingsSample.DayStartTime);
             userSettings.DayEndTime.Should().Be(userSettingsSample.DayEndTime);
-            userSettings.ShowPlaceInPreview.Should().Be(userSettingsSample.ShowPlaceInPreview);
+            userSettings.ShowLocationInPreview.Should().Be(userSettingsSample.ShowLocationInPreview);
             userSettings.ShowDescriptionInPreview.Should().Be(userSettingsSample.ShowDescriptionInPreview);
         }
 
@@ -59,7 +59,7 @@ namespace XUnitTests.Controllers
             {
                 DayStartTime = new TimeSpan(0, 0, 0),
                 DayEndTime = new TimeSpan(11, 0, 0),
-                ShowPlaceInPreview = false,
+                ShowLocationInPreview = false,
                 ShowDescriptionInPreview = false
             };
 
@@ -73,7 +73,7 @@ namespace XUnitTests.Controllers
                 var afterEditSettings = await response.Content.ReadFromJsonAsync<UserDefaultWeekMapSettings>();
                 response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
-                afterEditSettings!.ShowPlaceInPreview.Should().Be(updatedSettings.ShowPlaceInPreview);
+                afterEditSettings!.ShowLocationInPreview.Should().Be(updatedSettings.ShowLocationInPreview);
                 afterEditSettings.ShowDescriptionInPreview.Should().Be(updatedSettings.ShowDescriptionInPreview);
             }
 

@@ -36,3 +36,4 @@ namespace WeekMap.Models
         public bool OnSunday { get; set; }
     }
 }
+

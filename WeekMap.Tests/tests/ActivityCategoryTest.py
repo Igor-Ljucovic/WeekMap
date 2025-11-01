@@ -1,5 +1,3 @@
-import time
-
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -61,9 +59,9 @@ def login_user(driver, email, password):
 
 def add_category(driver, name, color):
 
-    def is_valid_hex_color(c):
+    def is_valid_hex_color(hex_color):
         # we need this because the JavaScript script will accept any string as a color
-        return re.fullmatch(r"[0-9a-fA-F]{6}", c) is not None
+        return re.fullmatch(r"[0-9a-fA-F]{6}", hex_color) is not None
 
     if not is_valid_hex_color(color):
         print(f"[ERROR] Invalid hex color: {color}")
