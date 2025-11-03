@@ -17,5 +17,12 @@ In Progress / Planned
 - Containerization with **Docker**
 - CI/CD pipeline using **GitHub Actions**
 
-Note: While this app has pretty simple functionalities, I mostly used it as a project 
-to learn about the technologies that I see other devs often talking about.
+
+
+YouTube video showcasing this video game: https://www.youtube.com/watch?v=mh1XE7md0tk
+
+Note: At the time of recording, I only had two front-end tests (register and activity category). 
+I may add more in the future, they would work in the same way.
+
+Note: I used this project to learn technologies I often saw other developers talking about. 
+After seeing Selenium and PowerShell, I got inspired and just had to turn my idea into reality.
