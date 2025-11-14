@@ -48,7 +48,7 @@ namespace WeekMap.Data
                 .HasOne(a => a.ActivityCategory)
                 .WithMany()
                 .HasForeignKey(a => a.ActivityCategoryID)
-                .IsRequired(false)   // This tells EF it's OPTIONAL
+                .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Models.WeekMap>()
@@ -84,7 +84,6 @@ namespace WeekMap.Data
             modelBuilder.Entity<WeekMapActivity>()
                 .HasKey(p => new { p.WeekMapActivityID} );
 
-            // class to database table mapping
             modelBuilder.Entity<User>().ToTable("Users");
             modelBuilder.Entity<UserDefaultWeekMapSettings>().ToTable("UserDefaultWeekMapSettings");
             modelBuilder.Entity<UserSettings>().ToTable("UserSettings");

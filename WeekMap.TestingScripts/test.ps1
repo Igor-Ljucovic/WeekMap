@@ -8,7 +8,7 @@ $BACKEND_PORT = 7141
 $FRONTEND_PORT = 3000
 $BACKEND_PATH = "E:\JOB\Git Hub my-projects\my-personal-projects\WeekMap\WeekMap.BackEnd.ASP.NET"
 $FRONTEND_PATH = "E:\JOB\Git Hub my-projects\my-personal-projects\WeekMap\WeekMap.FrontEnd.REACT"
-$PYTHON_SCRIPT = "E:\JOB\Git Hub my-projects\my-personal-projects\WeekMap\WeekMap.Tests\weekmap.py"
+$PYTHON_SCRIPT = "E:\JOB\Git Hub my-projects\my-personal-projects\WeekMap\WeekMap.Tests\main.py"
 
 function Test-PortOpen {
     param($port)

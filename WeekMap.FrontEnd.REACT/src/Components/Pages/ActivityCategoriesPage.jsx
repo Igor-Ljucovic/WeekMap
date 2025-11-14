@@ -187,7 +187,7 @@ function ActivityCategoriesPage() {
 
       <h3>Existing Categories</h3>
       {categories.length > 0 ? (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
+        <ul id="categories-list" style={{ listStyle: 'none', padding: 0 }}>
           {categories.map(cat => (
             <ActivityCategoryItem
               key={cat.activityCategoryID}

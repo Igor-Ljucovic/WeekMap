@@ -1,6 +1,6 @@
 import time
 import requests
-from tools import config
+from utils import config
 
 
 def cleanup_test_database():
@@ -13,7 +13,6 @@ def cleanup_test_database():
 
 
 def run_tests(*test_functions):
-
     print("=" * config.PRINT_SEPERATOR_LENGTH)
     print("RUNNING PYTHON TESTS")
     print("=" * config.PRINT_SEPERATOR_LENGTH)

@@ -1,7 +1,7 @@
 import subprocess
 import socket
 import time
-from . import config
+from utils import config
 
 
 def is_port_open(port):
