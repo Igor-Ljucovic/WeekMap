@@ -13,13 +13,13 @@ Tech Stack
 
 In Progress / Planned
 
-- Using **Azure Web Services**
+- Using **Azure Web Services** for hosting the app
 - Containerization with **Docker**
 - CI/CD pipeline using **GitHub Actions**
 
 
 
-YouTube video showcasing this video game: https://www.youtube.com/watch?v=mh1XE7md0tk
+YouTube video showcasing this web app: https://www.youtube.com/watch?v=mh1XE7md0tk
 
 Note: At the time of recording, I only had two front-end tests (register and activity category). 
 I may add more in the future, they would work in the same way.
