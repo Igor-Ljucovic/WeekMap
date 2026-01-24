@@ -6,7 +6,7 @@ namespace WeekMap.Services
 {
     public class EmailConfirmationService
     {
-        public void SendConfirmationEmail(User user, string confirmationLink)
+        public void SendConfirmationEmail(Models.User user, string confirmationLink)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("Your App Name", "your@email.com"));

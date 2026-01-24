@@ -4,6 +4,7 @@ using System.Diagnostics;
 using WeekMap.Data;
 using WeekMap.DTOs;
 using WeekMap.Models;
+using WeekMap.Services.ActivityCategory;
 
 namespace WeekMap.Controllers
 {
@@ -11,76 +12,54 @@ namespace WeekMap.Controllers
     [Route("api/[controller]")]
     public class ActivityCategoryController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly IActivityCategoryService _service;
 
-        public ActivityCategoryController(AppDbContext context, IMapper mapper)
+        public ActivityCategoryController(IActivityCategoryService service)
         {
-            _context = context;
-            _mapper = mapper;
+            _service = service;
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var categories = _context.ActivityCategories.Where(c => c.UserID == userId).ToList();
-
+            var categories = await _service.GetAllAsync(userId);
             return Ok(categories);
         }
 
         [HttpPost]
-        public IActionResult Add([FromBody] ActivityCategoryDTO category)
+        public async Task<IActionResult> Add([FromBody] ActivityCategoryDTO category)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            category.UserID = userId;
-
-            var entity = _mapper.Map<ActivityCategory>(category);
-
-            _context.ActivityCategories.Add(entity);
-            _context.SaveChanges();
-
+            await _service.CreateAsync(userId, category);
             return Ok(new { message = "Category added successfully!" });
         }
 
-        [HttpPut("{id}")]
-        public IActionResult Edit(long id, [FromBody] ActivityCategoryDTO updatedCategory)
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> Edit(long id, [FromBody] ActivityCategoryDTO updatedCategory)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var category = _context.ActivityCategories.FirstOrDefault(c => c.ActivityCategoryID == id);
-            if (category == null)
-                return NotFound();
-
-            _mapper.Map(updatedCategory, category);
-
-            _context.SaveChanges();
-
-            return Ok(new { message = "Category updated successfully!" });
+            var ok = await _service.UpdateAsync(userId, id, updatedCategory);
+            return ok ? Ok(new { message = "Category updated successfully!" }) : NotFound();
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(long id)
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> Delete(long id)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var category = _context.ActivityCategories.FirstOrDefault(c => c.ActivityCategoryID == id);
-            if (category == null)
-                return NotFound();
-
-            _context.ActivityCategories.Remove(category);
-            _context.SaveChanges();
-
-            return Ok(new { message = "Category deleted successfully!" });
+            var ok = await _service.DeleteAsync(userId, id);
+            return ok ? Ok(new { message = "Category deleted successfully!" }) : NotFound();
         }
     }
 }

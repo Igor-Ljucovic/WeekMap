@@ -1,5 +1,6 @@
 using WeekMap.Data;
 using Microsoft.EntityFrameworkCore;
+using WeekMap.Services.ActivityCategory;
 
 namespace WeekMap
 {
@@ -20,6 +21,7 @@ namespace WeekMap
             builder.Services.AddCors(options => { options.AddPolicy("AllowLocalhost3000", 
                 policy => policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod()); });
             builder.Services.AddAutoMapper(typeof(MappingProfile));
+            builder.Services.AddScoped<IActivityCategoryService, ActivityCategoryService>();
             var app = builder.Build();
 
             app.UseCors("AllowLocalhost3000");
