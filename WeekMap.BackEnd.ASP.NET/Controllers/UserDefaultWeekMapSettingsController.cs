@@ -1,8 +1,6 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using WeekMap.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using WeekMap.DTOs;
-using WeekMap.Models;
+using WeekMap.Services.UserDefaultWeekMapSettings;
 
 namespace WeekMap.Controllers
 {
@@ -10,46 +8,50 @@ namespace WeekMap.Controllers
     [Route("api/[controller]")]
     public class UserDefaultWeekMapSettingsController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly IUserDefaultWeekMapSettingsService _service;
 
-        public UserDefaultWeekMapSettingsController(AppDbContext context, IMapper mapper)
+        public UserDefaultWeekMapSettingsController(IUserDefaultWeekMapSettingsService service)
         {
-            _context = context;
-            _mapper = mapper;
+            _service = service;
         }
 
-        [HttpGet("{id}")]
-        public IActionResult GetById(long id)
+        private bool TryGetUserId(out long userId)
         {
-            if (!HttpContext.Session.TryGetValue("UserID", out _))
+            userId = 0;
+            return long.TryParse(HttpContext.Session.GetString("UserID"), out userId);
+        }
+
+        [HttpGet("{id:long}")]
+        public async Task<IActionResult> GetById(long id)
+        {
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var settings = _context.UserDefaultWeekMapSettings.FirstOrDefault(wms => wms.UserID == id);
+            if (id != userId)
+                return Unauthorized(new { message = "You can only access your own default WeekMap settings." });
 
+            var settings = await _service.GetByUserIdAsync(userId);
             if (settings == null)
-                return NotFound();
+                return NotFound(new { message = "Default WeekMap settings not found." });
 
             return Ok(settings);
         }
 
-        [HttpPut("{id}")]
-        public IActionResult Edit(long id, [FromBody] UserDefaultWeekMapSettingsDTO updated)
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> Edit(long id, [FromBody] UserDefaultWeekMapSettingsDTO dto)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
             if (!ModelState.IsValid)
-                return BadRequest();
-            
-            var settings = _context.UserDefaultWeekMapSettings.FirstOrDefault(wms => wms.UserID == id);
+                return BadRequest(ModelState);
 
-            if (settings == null) 
-                return NotFound();
+            if (id != userId)
+                return Unauthorized(new { message = "You can only edit your own default WeekMap settings." });
 
-            _mapper.Map(updated, settings);
-
-            _context.SaveChanges();
+            var ok = await _service.UpdateAsync(userId, dto);
+            if (!ok)
+                return NotFound(new { message = "Default WeekMap settings not found." });
 
             return Ok(new { message = "Default Week map settings updated successfully!" });
         }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using WeekMap.Data;
 using WeekMap.DTOs;
 using WeekMap.Models;
+using WeekMap.Services.ActivityTemplate;
 
 namespace WeekMap.Controllers
 {
@@ -10,78 +11,68 @@ namespace WeekMap.Controllers
     [Route("api/[controller]")]
     public class ActivityTemplateController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly IActivityTemplateService _service;
 
-        public ActivityTemplateController(AppDbContext context, IMapper mapper)
+        public ActivityTemplateController(IActivityTemplateService service)
         {
-            _context = context;
-            _mapper = mapper;
+            _service = service;
+        }
+
+        private bool TryGetUserId(out long userId)
+        {
+            userId = 0;
+            return long.TryParse(HttpContext.Session.GetString("UserID"), out userId);
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var activities = _context.ActivityTemplates.Where(a => a.UserID == userId).ToList();
-
-            return Ok(activities);
+            var templates = await _service.GetAllAsync(userId);
+            return Ok(templates);
         }
 
         [HttpPost]
-        public IActionResult Add([FromBody] ActivityTemplateDTO activity)
+        public async Task<IActionResult> Add([FromBody] ActivityTemplateDTO dto)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            activity.UserID = userId;
+            var id = await _service.CreateAsync(userId, dto);
 
-            var entity = _mapper.Map<ActivityTemplate>(activity);
-
-            entity.UserID = userId;
-            _context.ActivityTemplates.Add(entity);
-            _context.SaveChanges();
-
-            return Ok(new { message = "Activity template added successfully!" });
+            return Ok(new { message = "Activity template added successfully!", id });
         }
 
-        [HttpPut("{id}")]
-        public IActionResult Edit(long id, [FromBody] ActivityTemplateDTO updatedActivity)
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> Edit(long id, [FromBody] ActivityTemplateDTO dto)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var activity = _context.ActivityTemplates.FirstOrDefault(a => a.ActivityTemplateID == id);
-            if (activity == null)
-                return NotFound();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var x = activity.UserID;
-
-            _mapper.Map(updatedActivity, activity);
-            activity.UserID = userId;
-
-            _context.SaveChanges();
+            var updated = await _service.UpdateAsync(userId, id, dto);
+            if (!updated)
+                return NotFound(new { message = "Activity template not found." });
 
             return Ok(new { message = "Activity template updated successfully!" });
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(long id)
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> Delete(long id)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var activity = _context.ActivityTemplates.FirstOrDefault(a => a.ActivityTemplateID == id);
-            if (activity == null)
-                return NotFound();
-
-            _context.ActivityTemplates.Remove(activity);
-            _context.SaveChanges();
+            var deleted = await _service.DeleteAsync(userId, id);
+            if (!deleted)
+                return NotFound(new { message = "Activity template not found." });
 
             return Ok(new { message = "Activity template deleted successfully!" });
         }

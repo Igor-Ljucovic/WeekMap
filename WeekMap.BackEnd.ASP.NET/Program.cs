@@ -1,6 +1,12 @@
 using WeekMap.Data;
 using Microsoft.EntityFrameworkCore;
 using WeekMap.Services.ActivityCategory;
+using WeekMap.Services.ActivityTemplate;
+using WeekMap.Services.User;
+using WeekMap.Services.UserSettings;
+using WeekMap.Services.UserDefaultWeekMapSettings;
+using WeekMap.Services.WeekMap;
+using WeekMap.Services.WeekMapActivity;
 
 namespace WeekMap
 {
@@ -21,7 +27,15 @@ namespace WeekMap
             builder.Services.AddCors(options => { options.AddPolicy("AllowLocalhost3000", 
                 policy => policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod()); });
             builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IUserSettingsService, UserSettingsService>();
+            builder.Services.AddScoped<IUserDefaultWeekMapSettingsService, UserDefaultWeekMapSettingsService>();
             builder.Services.AddScoped<IActivityCategoryService, ActivityCategoryService>();
+            builder.Services.AddScoped<IActivityTemplateService, ActivityTemplateService>();
+            builder.Services.AddScoped<IWeekMapService, WeekMapService>();
+            builder.Services.AddScoped<IWeekMapActivityService, WeekMapActivityService>();
+
             var app = builder.Build();
 
             app.UseCors("AllowLocalhost3000");

@@ -1,15 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WeekMap.Data;
-using WeekMap.Models;
-using WeekMap.Services;
-using System.Security.Cryptography;
 using WeekMap.DTOs;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.Extensions.Configuration;
-
+using WeekMap.Services.User;
 
 namespace WeekMap.Controllers
 {
@@ -17,109 +8,71 @@ namespace WeekMap.Controllers
     [Route("api/")]
     public class UserController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IConfiguration _configuration;
+        private readonly IUserService _service;
 
-        public UserController(AppDbContext context, IConfiguration configuration, IWebHostEnvironment env)
+        public UserController(IUserService service)
         {
-            _context = context;
-            _configuration = configuration;
+            _service = service;
+        }
+
+        private bool TryGetUserId(out long userId)
+        {
+            userId = 0;
+            return long.TryParse(HttpContext.Session.GetString("UserID"), out userId);
+        }
+
+        private bool IsLoggedIn()
+        {
+            return HttpContext.Session.TryGetValue("UserID", out _);
         }
 
         [HttpPost("register")]
-        public IActionResult Register([FromBody] UserDTO data)
+        public async Task<IActionResult> Register([FromBody] UserDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (_context.Users.Any(u => u.Username == data.Username))
-                return BadRequest(new { field = "username", message = "Username already exists." });
+            var result = await _service.RegisterAsync(dto);
 
-            if (_context.Users.Any(u => u.Email.ToLower() == data.Email.ToLower()))
-                return BadRequest(new { field = "email", message = "Email is already in use." });
-
-            var user = new User
+            if (!result.ok)
             {
-                Username = data.Username,
-                Password = BCrypt.Net.BCrypt.HashPassword(data.Password),
-                Email = data.Email,
-                IsEmailConfirmed = false,
-                EmailConfirmationToken = GenerateSecureToken(32),
-                EmailConfirmationTokenExpiresAt = DateTime.UtcNow.AddMinutes(10)
-            };
+                // your old controller returned {field, message} for duplicates
+                // service returns only message, so we preserve field hints here
+                if (result.message.Contains("Username", StringComparison.OrdinalIgnoreCase))
+                    return BadRequest(new { field = "username", message = result.message });
 
-            _context.Users.Add(user);
+                if (result.message.Contains("Email", StringComparison.OrdinalIgnoreCase))
+                    return BadRequest(new { field = "email", message = result.message });
 
-            // Add default UserSettings after user is saved
-            var defaultUserSettings = new UserSettings { User = user };
-            _context.UserSettings.Add(defaultUserSettings);
+                return BadRequest(new { message = result.message });
+            }
 
-            // Add UserDefaultWeekMapSettings after user is saved
-            var userDefaultWeekMapSettings = new UserDefaultWeekMapSettings { User = user };
-            _context.UserDefaultWeekMapSettings.Add(userDefaultWeekMapSettings);
-
-            _context.SaveChanges();
-
-            //var confirmationLink = Url.Action("ConfirmEmail", "Account", new { token = user.EmailConfirmationToken, userId = user.UserID }, protocol: Request.Scheme);
-
-            //new EmailConfirmationService().SendConfirmationEmail(user, confirmationLink);
-
-            return Ok(new { message = "User registered successfully." });
-        }
-
-        private string GenerateSecureToken(int byteLength = 32)
-        {
-            byte[] tokenBytes = new byte[byteLength];
-            RandomNumberGenerator.Fill(tokenBytes);
-            return Convert.ToBase64String(tokenBytes);
-        }
-
-        private string GenerateJwtToken(User user)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var secretKey = _configuration["JwtSettings:SecretKey"]; // this gets the key from appsettings.config
-            var key = Encoding.ASCII.GetBytes(secretKey);
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[] {
-                new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
-                new Claim(ClaimTypes.Name, user.Username)
-            }),
-                Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            return Ok(new { message = result.message, id = result.userId });
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginDTO data)
+        public async Task<IActionResult> Login([FromBody] LoginDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var user = _context.Users.FirstOrDefault(u => u.Email == data.Email);
+            var result = await _service.LoginAsync(dto);
 
-            if (user == null || !BCrypt.Net.BCrypt.Verify(data.Password, user.Password))
-                return Unauthorized(new { message = "Invalid username or password." });
+            if (!result.ok || result.userId == null || string.IsNullOrWhiteSpace(result.username))
+                return Unauthorized(new { message = result.message });
 
-            //if (!user.IsEmailConfirmed)
-            //    return StatusCode(403, new { message = "Please confirm your email before logging in." });
-
-            // it has to be converted to a string, because only Int32 is supported in HttpContext, but not Int64 (long)
-            HttpContext.Session.SetString("UserID", user.UserID.ToString());
-            HttpContext.Session.SetString("Username", user.Username);
+            // session behavior stays the same
+            HttpContext.Session.SetString("UserID", result.userId.Value.ToString());
+            HttpContext.Session.SetString("Username", result.username);
 
             return Ok(new
             {
-                message = "Login successful!",
-                access_token = GenerateJwtToken(user),
+                message = result.message,
+                access_token = result.accessToken,
                 user = new
                 {
-                    Username = user.Username,
-                    UserID = user.UserID
+                    Username = result.username,
+                    UserID = result.userId
                 }
             });
         }
@@ -127,7 +80,7 @@ namespace WeekMap.Controllers
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            if (!HttpContext.Session.TryGetValue("UserID", out _))
+            if (!IsLoggedIn())
                 return Unauthorized(new { message = "User not logged in." });
 
             HttpContext.Session.Clear();
@@ -135,133 +88,91 @@ namespace WeekMap.Controllers
         }
 
         [HttpGet("confirm-email")]
-        public IActionResult ConfirmEmail(string token, int userId)
+        public async Task<IActionResult> ConfirmEmail([FromQuery] string token, [FromQuery] long userId)
         {
-            var user = _context.Users.FirstOrDefault(u => u.UserID == userId &&
-                                                     u.EmailConfirmationToken == token &&
-                                                     u.EmailConfirmationTokenExpiresAt > DateTime.UtcNow);
+            var result = await _service.ConfirmEmailAsync(token, userId);
 
-            if (user.EmailConfirmationTokenExpiresAt < DateTime.UtcNow)
-                return BadRequest(new { message = "This confirmation link is invalid or expired." });
+            if (!result.ok)
+                return BadRequest(new { message = result.message });
 
-            if (user == null)
-                return NotFound();
-
-            user.IsEmailConfirmed = true;
-            user.EmailConfirmationToken = null;
-            user.EmailConfirmationTokenExpiresAt = null;
-            _context.SaveChanges();
-
-            return Ok(new { message = "Your email has been verified!" });
+            return Ok(new { message = result.message });
         }
 
         [HttpGet("users")]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            if (!HttpContext.Session.TryGetValue("UserID", out _))
+            if (!IsLoggedIn())
                 return Unauthorized(new { message = "User not logged in." });
 
-            var users = _context.Users
-                .Select(u => new
-                {
-                    u.UserID,
-                    u.Username,
-                    u.Email,
-                    u.IsEmailConfirmed
-                })
-                .ToList();
-
+            var users = await _service.GetAllAsync();
             return Ok(users);
         }
 
-        [HttpGet("users/{id}")]
-        public IActionResult GetById(long id)
+        [HttpGet("users/{id:long}")]
+        public async Task<IActionResult> GetById(long id)
         {
-            if (!HttpContext.Session.TryGetValue("UserID", out _))
+            if (!IsLoggedIn())
                 return Unauthorized(new { message = "User not logged in." });
 
-            var user = _context.Users.FirstOrDefault(u => u.UserID == id);
+            var user = await _service.GetByIdAsync(id);
             if (user == null)
-                return NotFound();
+                return NotFound(new { message = "User not found." });
 
-            return Ok(new
-            {
-                user.UserID,
-                user.Username,
-                user.Email,
-                user.IsEmailConfirmed
-            });
+            return Ok(user);
         }
 
         [HttpPost("users")]
-        public IActionResult CreateUser([FromBody] UserDTO data)
+        public async Task<IActionResult> CreateUser([FromBody] UserDTO dto)
         {
-            if (!HttpContext.Session.TryGetValue("UserID", out _))
+            if (!IsLoggedIn())
                 return Unauthorized(new { message = "User not logged in." });
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (_context.Users.Any(u => u.Username == data.Username))
-                return BadRequest(new { field = "username", message = "Username already exists." });
+            var result = await _service.CreateAsync(dto);
 
-            if (_context.Users.Any(u => u.Email.ToLower() == data.Email.ToLower()))
-                return BadRequest(new { field = "email", message = "Email is already in use." });
-
-            var user = new User
+            if (!result.ok)
             {
-                Username = data.Username,
-                Password = BCrypt.Net.BCrypt.HashPassword(data.Password),
-                Email = data.Email,
-                IsEmailConfirmed = false,
-                EmailConfirmationToken = GenerateSecureToken(32),
-                EmailConfirmationTokenExpiresAt = DateTime.UtcNow.AddMinutes(10)
-            };
+                if (result.message.Contains("Username", StringComparison.OrdinalIgnoreCase))
+                    return BadRequest(new { field = "username", message = result.message });
 
-            _context.Users.Add(user);
-            _context.SaveChanges();
+                if (result.message.Contains("Email", StringComparison.OrdinalIgnoreCase))
+                    return BadRequest(new { field = "email", message = result.message });
 
-            return Ok(new { message = "User created successfully." });
+                return BadRequest(new { message = result.message });
+            }
+
+            return Ok(new { message = result.message, id = result.userId });
         }
 
-        [HttpPut("users/{id}")]
-        public IActionResult Edit(long id, [FromBody] UserDTO data)
+        [HttpPut("users/{id:long}")]
+        public async Task<IActionResult> Edit(long id, [FromBody] UserDTO dto)
         {
-            if (!HttpContext.Session.TryGetValue("UserID", out _))
+            if (!IsLoggedIn())
                 return Unauthorized(new { message = "User not logged in." });
-
-            var user = _context.Users.FirstOrDefault(u => u.UserID == id);
-            if (user == null)
-                return NotFound();
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            user.Username = data.Username;
-            user.Email = data.Email;
+            var result = await _service.UpdateAsync(id, dto);
+            if (!result.ok)
+                return NotFound(new { message = result.message });
 
-            if (!string.IsNullOrWhiteSpace(data.Password))
-                user.Password = BCrypt.Net.BCrypt.HashPassword(data.Password);
-
-            _context.SaveChanges();
-
-            return Ok(new { message = "User updated successfully." });
+            return Ok(new { message = result.message });
         }
 
-        [HttpDelete("users/{id}")]
-        public IActionResult Delete(long id)
+        [HttpDelete("users/{id:long}")]
+        public async Task<IActionResult> Delete(long id)
         {
-            if (!HttpContext.Session.TryGetValue("UserID", out _))
+            if (!IsLoggedIn())
                 return Unauthorized(new { message = "User not logged in." });
 
-            var user = _context.Users.FirstOrDefault(u => u.UserID == id);
-            if (user == null)
-                return NotFound();
+            var result = await _service.DeleteAsync(id);
+            if (!result.ok)
+                return NotFound(new { message = result.message });
 
-            _context.Users.Remove(user); // Automatically cascades to UserSettings
-            _context.SaveChanges();
-
-            return Ok(new { message = "User deleted successfully." });
+            return Ok(new { message = result.message });
         }
     }
 }

@@ -1,8 +1,6 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using WeekMap.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using WeekMap.DTOs;
-using WeekMap.Models;
+using WeekMap.Services.UserSettings;
 
 namespace WeekMap.Controllers
 {
@@ -10,46 +8,50 @@ namespace WeekMap.Controllers
     [Route("api/[controller]")]
     public class UserSettingsController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly IUserSettingsService _service;
 
-        public UserSettingsController(AppDbContext context, IMapper mapper)
+        public UserSettingsController(IUserSettingsService service)
         {
-            _context = context;
-            _mapper = mapper;
+            _service = service;
         }
 
-        [HttpGet("{id}")]
-        public IActionResult GetById(long id)
+        private bool TryGetUserId(out long userId)
         {
-            if (!HttpContext.Session.TryGetValue("UserID", out _))
+            userId = 0;
+            return long.TryParse(HttpContext.Session.GetString("UserID"), out userId);
+        }
+
+        [HttpGet("{id:long}")]
+        public async Task<IActionResult> GetById(long id)
+        {
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var settings = _context.UserSettings.FirstOrDefault(us => us.UserID == id);
+            if (id != userId)
+                return Unauthorized(new { message = "You can only access your own settings." });
 
+            var settings = await _service.GetByUserIdAsync(userId);
             if (settings == null)
-                return NotFound();
+                return NotFound(new { message = "Settings not found." });
 
             return Ok(settings);
         }
 
-        [HttpPut("{id}")]
-        public IActionResult Edit(long id, [FromBody] UserSettingsDTO updated)
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> Edit(long id, [FromBody] UserSettingsDTO dto)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
             if (!ModelState.IsValid)
-                return BadRequest();
+                return BadRequest(ModelState);
 
-            var settings = _context.UserSettings.FirstOrDefault(u => u.UserID == id);
+            if (id != userId)
+                return Unauthorized(new { message = "You can only edit your own settings." });
 
-            if (settings == null) 
-                return NotFound();
-
-            _mapper.Map(updated, settings);
-
-            _context.SaveChanges();
+            var ok = await _service.UpdateAsync(userId, dto);
+            if (!ok)
+                return NotFound(new { message = "Settings not found." });
 
             return Ok(new { message = "Settings updated successfully!" });
         }

@@ -16,12 +16,12 @@ public class MappingProfile : Profile
                                                       .ForMember(dest => dest.UserID, opt => opt.Ignore());
         CreateMap<WeekMapActivityDTO, WeekMapActivity>().ForMember(dest => dest.WeekMapID, opt => opt.Ignore())
                                                                     //.ForMember(dest => dest.ActivityTemplateID, opt => opt.Ignore())
-                                                                      .ForMember(dest => dest.WeekMapActivityID, opt => opt.Ignore());
+                                                                      .ForMember(dest => dest.WeekMapActivityID, opt => opt.Ignore()).ReverseMap();
         CreateMap<ActivityTemplateDTO, ActivityTemplate>().ForMember(dest => dest.ActivityTemplateID, opt => opt.Ignore())
                                         //.ForMember(dest => dest.ActivityCategoryID, opt => opt.Ignore())
-                                          .ForMember(dest => dest.UserID, opt => opt.Ignore());
+                                          .ForMember(dest => dest.UserID, opt => opt.Ignore()).ReverseMap();
         CreateMap<ActivityCategoryDTO, ActivityCategory>().ForMember(dest => dest.ActivityCategoryID, opt => opt.Ignore()).ReverseMap();
-        CreateMap<UserSettingsDTO, UserSettings>().ForMember(dest => dest.UserID, opt => opt.Ignore());
-        CreateMap<UserDefaultWeekMapSettingsDTO, UserDefaultWeekMapSettings>().ForMember(dest => dest.UserID, opt => opt.Ignore());
+        CreateMap<UserSettingsDTO, UserSettings>().ForMember(dest => dest.UserID, opt => opt.Ignore()).ReverseMap();
+        CreateMap<UserDefaultWeekMapSettingsDTO, UserDefaultWeekMapSettings>().ForMember(dest => dest.UserID, opt => opt.Ignore()).ReverseMap();
     }
 }

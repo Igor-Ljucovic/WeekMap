@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WeekMap.Data;
-using WeekMap.Models;
 using WeekMap.DTOs;
-using Microsoft.EntityFrameworkCore;
-using AutoMapper;
+using WeekMap.Services.WeekMapActivity;
 
 namespace WeekMap.Controllers
 {
@@ -11,93 +8,112 @@ namespace WeekMap.Controllers
     [Route("api/[controller]")]
     public class WeekMapActivityController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly IWeekMapActivityService _service;
 
-        public WeekMapActivityController(AppDbContext context, IMapper mapper)
+        public WeekMapActivityController(IWeekMapActivityService service)
         {
-            _context = context;
-            _mapper = mapper;
+            _service = service;
         }
 
-        [HttpGet("{weekMapActivityID}")]
-        public IActionResult GetById(long weekMapActivityID)
+        private bool TryGetUserId(out long userId)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            userId = 0;
+            return long.TryParse(HttpContext.Session.GetString("UserID"), out userId);
+        }
+
+        [HttpGet("{weekMapActivityID:long}")]
+        public async Task<IActionResult> GetById(long weekMapActivityID)
+        {
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var activity = _context.WeekMapActivities
-                .FirstOrDefault(pwma => pwma.WeekMapActivityID == weekMapActivityID);
+            var dto = await _service.GetByIdAsync(userId, weekMapActivityID);
+            if (dto == null)
+                return NotFound(new { message = "Activity not found." });
 
-            if (activity == null)
-                return NotFound();
-
-            var dto = _mapper.Map<WeekMapActivity>(activity);
             return Ok(dto);
         }
 
         [HttpPost]
-        public IActionResult Add([FromBody] WeekMapActivityDTO activity)
+        public async Task<IActionResult> Add([FromBody] WeekMapActivityDTO dto)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Check if the associated ActivityTemplate exists
-            var existingActivity = _context.ActivityTemplates.FirstOrDefault(a => a.ActivityTemplateID == activity.ActivityTemplateID);
-            if (existingActivity == null)
-                return NotFound(new { message = $"ActivityTemplate with ID {activity.ActivityTemplateID} does not exist." });
+            var result = await _service.CreateAsync(userId, dto);
 
-            // Check if the associated PlannedWeekMap exists
-            var existingMap = _context.WeekMaps.FirstOrDefault(p => p.WeekMapID == activity.WeekMapID);
-            if (existingMap == null)
-                return NotFound(new { message = $"PlannedWeekMap with ID {activity.WeekMapID} does not exist." });
+            if (!result.ok)
+            {
+                if (result.errorMessage != null &&
+                    (result.errorMessage.Contains("outside", StringComparison.OrdinalIgnoreCase)))
+                {
+                    return BadRequest(new { message = result.errorMessage });
+                }
 
-            if (existingMap.DayStartTime > activity.StartTime || existingMap.DayEndTime < activity.EndTime)
-                return BadRequest(new { message = "Activity start or end time is outside the PlannedWeekMap time range." });
+                if (result.errorMessage != null &&
+                    (result.errorMessage.Contains("Unauthorized", StringComparison.OrdinalIgnoreCase)))
+                {
+                    return Unauthorized(new { message = result.errorMessage });
+                }
 
-            var entity = _mapper.Map<WeekMapActivity>(activity);
-            entity.ActivityTemplateID = activity.ActivityTemplateID;
-            entity.WeekMapID = activity.WeekMapID;
-            _context.WeekMapActivities.Add(entity);
-            _context.SaveChanges();
+                return NotFound(new { message = result.errorMessage ?? "Create failed." });
+            }
 
-            return Ok(new { message = "Activity added successfully!" });
+            return Ok(new { message = "Activity added successfully!", id = result.id });
         }
 
-        [HttpPut("{id}")]
-        public IActionResult Edit(long id, [FromBody] WeekMapActivityDTO updatedActivity)
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> Edit(long id, [FromBody] WeekMapActivityDTO dto)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var activity = _context.WeekMapActivities.FirstOrDefault(pwma => pwma.WeekMapActivityID == id);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            if (activity == null)
-                return NotFound();
+            var result = await _service.UpdateAsync(userId, id, dto);
 
-            _mapper.Map(updatedActivity, activity);
+            if (!result.ok)
+            {
+                if (result.errorMessage != null &&
+                    result.errorMessage.Contains("Unauthorized", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Unauthorized(new { message = result.errorMessage });
+                }
 
-            _context.SaveChanges();
+                if (result.errorMessage != null &&
+                    result.errorMessage.Contains("outside", StringComparison.OrdinalIgnoreCase))
+                {
+                    return BadRequest(new { message = result.errorMessage });
+                }
+
+                return NotFound(new { message = result.errorMessage ?? "Activity not found." });
+            }
 
             return Ok(new { message = "Activity updated successfully!" });
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(long id)
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> Delete(long id)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var activity = _context.WeekMapActivities.FirstOrDefault(pwma => pwma.WeekMapActivityID == id);
+            var result = await _service.DeleteAsync(userId, id);
 
-            if (activity == null)
-                return NotFound();
+            if (!result.ok)
+            {
+                if (result.errorMessage != null &&
+                    result.errorMessage.Contains("Unauthorized", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Unauthorized(new { message = result.errorMessage });
+                }
 
-            _context.WeekMapActivities.Remove(activity);
-            _context.SaveChanges();
+                return NotFound(new { message = result.errorMessage ?? "Activity not found." });
+            }
 
             return Ok(new { message = "Activity deleted successfully!" });
         }

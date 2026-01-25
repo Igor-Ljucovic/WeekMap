@@ -1,8 +1,6 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WeekMap.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using WeekMap.DTOs;
+using WeekMap.Services.WeekMap;
 
 namespace WeekMap.Controllers
 {
@@ -10,36 +8,39 @@ namespace WeekMap.Controllers
     [Route("api/[controller]")]
     public class WeekMapController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly IWeekMapService _service;
 
-        public WeekMapController(AppDbContext context, IMapper mapper)
+        public WeekMapController(IWeekMapService service)
         {
-            _context = context;
-            _mapper = mapper;
+            _service = service;
+        }
+
+        private bool TryGetUserId(out long userId)
+        {
+            userId = 0;
+            return long.TryParse(HttpContext.Session.GetString("UserID"), out userId);
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var maps = _context.WeekMaps.Where(p => p.UserID == userId).ToList();
+            var maps = await _service.GetAllAsync(userId);
             return Ok(maps);
         }
 
-        [HttpGet("{id}")] 
-
-        public IActionResult GetById(long id)
+        [HttpGet("{id:long}")]
+        public async Task<IActionResult> GetLatestForUser(long id)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long sessionUserID) || sessionUserID != id)
+            if (!TryGetUserId(out var sessionUserId))
+                return Unauthorized(new { message = "User not logged in." });
+
+            if (sessionUserId != id)
                 return Unauthorized(new { message = "Unauthorized access." });
 
-            var map = _context.WeekMaps
-                .Where(p => p.UserID == id)
-                .OrderByDescending(p => p.DateCreated)
-                .FirstOrDefault();
+            var map = await _service.GetLatestByUserIdAsync(sessionUserId, id);
 
             if (map == null)
                 return NotFound(new { message = "No week maps found for user." });
@@ -47,68 +48,60 @@ namespace WeekMap.Controllers
             return Ok(map);
         }
 
-        [HttpGet("{id}/activityTemplates")] // idk whether or not to put it in WeekMapActivity or here in PlannedWeekMap controller
-        public IActionResult GetWeekMapActivities(long id)
+        [HttpGet("{id:long}/activityTemplates")]
+        public async Task<IActionResult> GetWeekMapActivities(long id)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long sessionUserID))
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var activities = _context.WeekMapActivities
-            .Include(pwma => pwma.ActivityTemplate)
-                .ThenInclude(a => a.ActivityCategory)
-            .Where(a => a.WeekMapID == id)
-            .ToList();
+            var activities = await _service.GetWeekMapActivitiesAsync(userId, id);
+
+            if (activities.Count == 0)
+                return NotFound(new { message = "Week map not found (or you don't have access)." });
 
             return Ok(activities);
         }
 
         [HttpPost]
-        public IActionResult Add([FromBody] WeekMapDTO map)
+        public async Task<IActionResult> Add([FromBody] WeekMapDTO dto)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            map.UserID = userId;
+            var id = await _service.CreateAsync(userId, dto);
 
-            var entity = _mapper.Map<Models.WeekMap>(map);
-            entity.UserID = userId;
-            _context.WeekMaps.Add(entity);
-            _context.SaveChanges();
-
-            return Ok(new { message = "Week map added successfully!" });
+            return Ok(new { message = "Week map added successfully!", id });
         }
 
-        [HttpPut("{id}")]
-        public IActionResult Edit(long id, [FromBody] WeekMapDTO updatedMap)
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> Edit(long id, [FromBody] WeekMapDTO dto)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var map = _context.WeekMaps.FirstOrDefault(p => p.WeekMapID == id);
-            if (map == null)
-                return NotFound();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            _mapper.Map(updatedMap, map);
+            var ok = await _service.UpdateAsync(userId, id, dto);
+            if (!ok)
+                return NotFound(new { message = "Week map not found." });
 
-            _context.SaveChanges();
             return Ok(new { message = "Week map updated successfully!" });
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(long id)
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> Delete(long id)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var map = _context.WeekMaps.FirstOrDefault(p => p.WeekMapID == id);
-            if (map == null)
-                return NotFound();
+            var ok = await _service.DeleteAsync(userId, id);
+            if (!ok)
+                return NotFound(new { message = "Week map not found." });
 
-            _context.WeekMaps.Remove(map);
-            _context.SaveChanges();
             return Ok(new { message = "Week map deleted successfully!" });
         }
     }
