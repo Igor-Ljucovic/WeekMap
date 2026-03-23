@@ -16,7 +16,7 @@ namespace XUnitTests.Controllers
         private readonly WeekMapActivityTestData _plannedWeekMapActivityTestData = new WeekMapActivityTestData();
 
         [Fact]
-        public async Task GetPlannedWeekMapActivity()
+        public async Task GetWeekMapActivity()
         {
             var (client, factory) = await ClientAsync.CreateAuthenticatedClientAsync();
             await using var _factory = factory;
@@ -47,7 +47,7 @@ namespace XUnitTests.Controllers
         }
 
         [Fact]
-        public async Task PostPlannedWeekMapActivity()
+        public async Task PostWeekMapActivity()
         {
             var (client, factory) = await ClientAsync.CreateAuthenticatedClientAsync();
             await using var _factory = factory;
@@ -81,7 +81,7 @@ namespace XUnitTests.Controllers
         }
 
         [Fact]
-        public async Task PutPlannedWeekMapActivity()
+        public async Task PutWeekMapActivity()
         {
             var (client, factory) = await ClientAsync.CreateAuthenticatedClientAsync();
             await using var _factory = factory;
@@ -132,7 +132,7 @@ namespace XUnitTests.Controllers
         }
 
         [Fact]
-        public async Task DeletePlannedWeekMapActivity()
+        public async Task DeleteWeekMapActivity()
         {
             var (client, factory) = await ClientAsync.CreateAuthenticatedClientAsync();
             await using var _factory = factory;
