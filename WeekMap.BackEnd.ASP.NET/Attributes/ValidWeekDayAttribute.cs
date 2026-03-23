@@ -5,7 +5,6 @@ namespace WeekMap.Attributes
 {
     public class ValidWeekDayAttribute : ValidationAttribute
     {
-        // Now uses case-sensitive comparison
         private static readonly HashSet<string> ValidDays = new HashSet<string>(
             CultureInfo.InvariantCulture.DateTimeFormat.DayNames
         );

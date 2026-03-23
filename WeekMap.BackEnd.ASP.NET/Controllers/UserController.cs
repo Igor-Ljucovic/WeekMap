@@ -15,12 +15,6 @@ namespace WeekMap.Controllers
             _service = service;
         }
 
-        private bool TryGetUserId(out long userId)
-        {
-            userId = 0;
-            return long.TryParse(HttpContext.Session.GetString("UserID"), out userId);
-        }
-
         private bool IsLoggedIn()
         {
             return HttpContext.Session.TryGetValue("UserID", out _);
@@ -34,20 +28,10 @@ namespace WeekMap.Controllers
 
             var result = await _service.RegisterAsync(dto);
 
-            if (!result.ok)
-            {
-                // your old controller returned {field, message} for duplicates
-                // service returns only message, so we preserve field hints here
-                if (result.message.Contains("Username", StringComparison.OrdinalIgnoreCase))
-                    return BadRequest(new { field = "username", message = result.message });
+            if (!result.ok || result.userId == null)
+                return BadRequest(new { message = "Username or email already exists." });
 
-                if (result.message.Contains("Email", StringComparison.OrdinalIgnoreCase))
-                    return BadRequest(new { field = "email", message = result.message });
-
-                return BadRequest(new { message = result.message });
-            }
-
-            return Ok(new { message = result.message, id = result.userId });
+            return Ok(new { message = "Registration successful", id = result.userId });
         }
 
         [HttpPost("login")]
@@ -59,15 +43,14 @@ namespace WeekMap.Controllers
             var result = await _service.LoginAsync(dto);
 
             if (!result.ok || result.userId == null || string.IsNullOrWhiteSpace(result.username))
-                return Unauthorized(new { message = result.message });
+                return Unauthorized(new { message = "Log in failed" });
 
-            // session behavior stays the same
             HttpContext.Session.SetString("UserID", result.userId.Value.ToString());
             HttpContext.Session.SetString("Username", result.username);
 
             return Ok(new
             {
-                message = result.message,
+                message = "Log in successful",
                 access_token = result.accessToken,
                 user = new
                 {
@@ -92,10 +75,10 @@ namespace WeekMap.Controllers
         {
             var result = await _service.ConfirmEmailAsync(token, userId);
 
-            if (!result.ok)
-                return BadRequest(new { message = result.message });
+            if (!result)
+                return BadRequest();
 
-            return Ok(new { message = result.message });
+            return Ok();
         }
 
         [HttpGet("users")]
@@ -121,31 +104,6 @@ namespace WeekMap.Controllers
             return Ok(user);
         }
 
-        [HttpPost("users")]
-        public async Task<IActionResult> CreateUser([FromBody] UserDTO dto)
-        {
-            if (!IsLoggedIn())
-                return Unauthorized(new { message = "User not logged in." });
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var result = await _service.CreateAsync(dto);
-
-            if (!result.ok)
-            {
-                if (result.message.Contains("Username", StringComparison.OrdinalIgnoreCase))
-                    return BadRequest(new { field = "username", message = result.message });
-
-                if (result.message.Contains("Email", StringComparison.OrdinalIgnoreCase))
-                    return BadRequest(new { field = "email", message = result.message });
-
-                return BadRequest(new { message = result.message });
-            }
-
-            return Ok(new { message = result.message, id = result.userId });
-        }
-
         [HttpPut("users/{id:long}")]
         public async Task<IActionResult> Edit(long id, [FromBody] UserDTO dto)
         {
@@ -156,10 +114,10 @@ namespace WeekMap.Controllers
                 return BadRequest(ModelState);
 
             var result = await _service.UpdateAsync(id, dto);
-            if (!result.ok)
-                return NotFound(new { message = result.message });
+            if (!result)
+                return NotFound(new { message = "User not found." });
 
-            return Ok(new { message = result.message });
+            return Ok(new { message = "User successfully updated." });
         }
 
         [HttpDelete("users/{id:long}")]
@@ -169,10 +127,10 @@ namespace WeekMap.Controllers
                 return Unauthorized(new { message = "User not logged in." });
 
             var result = await _service.DeleteAsync(id);
-            if (!result.ok)
-                return NotFound(new { message = result.message });
+            if (!result)
+                return NotFound(new { message = "User not found." });
 
-            return Ok(new { message = result.message });
+            return Ok(new { message = "User successfully deleted." });
         }
     }
 }

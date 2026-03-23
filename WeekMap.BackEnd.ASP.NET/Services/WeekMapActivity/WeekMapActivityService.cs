@@ -1,27 +1,24 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using WeekMap.Data;
 using WeekMap.DTOs;
+using WeekMap.Repositories.WeekMapActivity;
 using Models = WeekMap.Models;
 
 namespace WeekMap.Services.WeekMapActivity
 {
     public class WeekMapActivityService : IWeekMapActivityService
     {
-        private readonly AppDbContext _context;
+        private readonly IWeekMapActivityRepository _repo;
         private readonly IMapper _mapper;
 
-        public WeekMapActivityService(AppDbContext context, IMapper mapper)
+        public WeekMapActivityService(IWeekMapActivityRepository repo, IMapper mapper)
         {
-            _context = context;
+            _repo = repo;
             _mapper = mapper;
         }
 
         public async Task<WeekMapActivityDTO?> GetByIdAsync(long userId, long weekMapActivityId)
         {
-            var activity = await _context.WeekMapActivities
-                .Include(a => a.WeekMap)
-                .FirstOrDefaultAsync(a => a.WeekMapActivityID == weekMapActivityId);
+            var activity = await _repo.GetByIdWithWeekMapAsync(weekMapActivityId);
 
             if (activity == null) return null;
             if (activity.WeekMap == null || activity.WeekMap.UserID != userId) return null;
@@ -29,97 +26,52 @@ namespace WeekMap.Services.WeekMapActivity
             return _mapper.Map<WeekMapActivityDTO>(activity);
         }
 
-        public async Task<(bool ok, string? errorMessage, long? id)> CreateAsync(long userId, WeekMapActivityDTO dto)
+        public async Task<long?> CreateAsync(long userId, WeekMapActivityDTO dto)
         {
-            var templateExists = await _context.ActivityTemplates
-                .AnyAsync(a => a.ActivityTemplateID == dto.ActivityTemplateID);
-
+            var templateExists = await _repo.ActivityTemplateExistsAsync(dto.ActivityTemplateID);
             if (!templateExists)
-                return (false, $"ActivityTemplate with ID {dto.ActivityTemplateID} does not exist.", null);
+                return null;
 
-            var weekMap = await _context.WeekMaps
-                .FirstOrDefaultAsync(wm => wm.WeekMapID == dto.WeekMapID);
-
-            if (weekMap == null)
-                return (false, $"PlannedWeekMap with ID {dto.WeekMapID} does not exist.", null);
-
-            if (weekMap.UserID != userId)
-                return (false, "Unauthorized access.", null);
-
-            if (weekMap.DayStartTime > dto.StartTime || weekMap.DayEndTime < dto.EndTime)
-                return (false, "Activity start or end time is outside the PlannedWeekMap time range.", null);
+            var weekMap = await _repo.GetWeekMapByIdAsync(dto.WeekMapID);
+            if (weekMap == null || weekMap.UserID != userId)
+                return null;
 
             var entity = _mapper.Map<Models.WeekMapActivity>(dto);
-
             entity.ActivityTemplateID = dto.ActivityTemplateID;
             entity.WeekMapID = dto.WeekMapID;
 
-            _context.WeekMapActivities.Add(entity);
-            await _context.SaveChangesAsync();
+            _repo.Create(entity);
 
-            return (true, null, entity.WeekMapActivityID);
+            await _repo.SaveChangesAsync();
+            return dto.WeekMapID;
         }
 
-        public async Task<(bool ok, string? errorMessage)> UpdateAsync(long userId, long id, WeekMapActivityDTO dto)
+        public async Task<bool> UpdateAsync(long userId, long id, WeekMapActivityDTO dto)
         {
-            var activity = await _context.WeekMapActivities
-                .Include(a => a.WeekMap)
-                .FirstOrDefaultAsync(a => a.WeekMapActivityID == id);
-
-            if (activity == null)
-                return (false, "Activity not found.");
-
-            if (activity.WeekMap == null || activity.WeekMap.UserID != userId)
-                return (false, "Unauthorized access.");
+            var activity = await _repo.GetByIdWithWeekMapAsync(id);
 
             var targetWeekMapId = dto.WeekMapID != 0 ? dto.WeekMapID : activity.WeekMapID;
 
-            var weekMap = await _context.WeekMaps
-                .FirstOrDefaultAsync(wm => wm.WeekMapID == targetWeekMapId);
-
-            if (weekMap == null)
-                return (false, $"PlannedWeekMap with ID {targetWeekMapId} does not exist.");
-
-            if (weekMap.UserID != userId)
-                return (false, "Unauthorized access.");
-
-            if (dto.ActivityTemplateID != 0)
-            {
-                var templateExists = await _context.ActivityTemplates
-                    .AnyAsync(a => a.ActivityTemplateID == dto.ActivityTemplateID);
-
-                if (!templateExists)
-                    return (false, $"ActivityTemplate with ID {dto.ActivityTemplateID} does not exist.");
-            }
-
-            if (weekMap.DayStartTime > dto.StartTime || weekMap.DayEndTime < dto.EndTime)
-                return (false, "Activity start or end time is outside the PlannedWeekMap time range.");
+            var weekMap = await _repo.GetWeekMapByIdAsync(targetWeekMapId);
 
             _mapper.Map(dto, activity);
 
             activity.WeekMapID = targetWeekMapId;
+
             activity.ActivityTemplateID = dto.ActivityTemplateID;
 
-            await _context.SaveChangesAsync();
-            return (true, null);
+            await _repo.SaveChangesAsync();
+            return true;
         }
 
-        public async Task<(bool ok, string? errorMessage)> DeleteAsync(long userId, long id)
+        public async Task<bool> DeleteAsync(long userId, long id)
         {
-            var activity = await _context.WeekMapActivities
-                .Include(a => a.WeekMap)
-                .FirstOrDefaultAsync(a => a.WeekMapActivityID == id);
+            var activity = await _repo.GetByIdWithWeekMapAsync(id);
 
-            if (activity == null)
-                return (false, "Activity not found.");
+            _repo.Delete(activity);
+            await _repo.SaveChangesAsync();
 
-            if (activity.WeekMap == null || activity.WeekMap.UserID != userId)
-                return (false, "Unauthorized access.");
-
-            _context.WeekMapActivities.Remove(activity);
-            await _context.SaveChangesAsync();
-
-            return (true, null);
+            return true;
         }
     }
 }

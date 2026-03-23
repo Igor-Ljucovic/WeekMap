@@ -45,24 +45,10 @@ namespace WeekMap.Controllers
 
             var result = await _service.CreateAsync(userId, dto);
 
-            if (!result.ok)
-            {
-                if (result.errorMessage != null &&
-                    (result.errorMessage.Contains("outside", StringComparison.OrdinalIgnoreCase)))
-                {
-                    return BadRequest(new { message = result.errorMessage });
-                }
+            if (result == null)
+                return NotFound(new { message = "WeekMap or ActivityTemplate not found." });
 
-                if (result.errorMessage != null &&
-                    (result.errorMessage.Contains("Unauthorized", StringComparison.OrdinalIgnoreCase)))
-                {
-                    return Unauthorized(new { message = result.errorMessage });
-                }
-
-                return NotFound(new { message = result.errorMessage ?? "Create failed." });
-            }
-
-            return Ok(new { message = "Activity added successfully!", id = result.id });
+            return Ok(new { message = "Activity added successfully!"});
         }
 
         [HttpPut("{id:long}")]
@@ -76,23 +62,6 @@ namespace WeekMap.Controllers
 
             var result = await _service.UpdateAsync(userId, id, dto);
 
-            if (!result.ok)
-            {
-                if (result.errorMessage != null &&
-                    result.errorMessage.Contains("Unauthorized", StringComparison.OrdinalIgnoreCase))
-                {
-                    return Unauthorized(new { message = result.errorMessage });
-                }
-
-                if (result.errorMessage != null &&
-                    result.errorMessage.Contains("outside", StringComparison.OrdinalIgnoreCase))
-                {
-                    return BadRequest(new { message = result.errorMessage });
-                }
-
-                return NotFound(new { message = result.errorMessage ?? "Activity not found." });
-            }
-
             return Ok(new { message = "Activity updated successfully!" });
         }
 
@@ -103,17 +72,6 @@ namespace WeekMap.Controllers
                 return Unauthorized(new { message = "User not logged in." });
 
             var result = await _service.DeleteAsync(userId, id);
-
-            if (!result.ok)
-            {
-                if (result.errorMessage != null &&
-                    result.errorMessage.Contains("Unauthorized", StringComparison.OrdinalIgnoreCase))
-                {
-                    return Unauthorized(new { message = result.errorMessage });
-                }
-
-                return NotFound(new { message = result.errorMessage ?? "Activity not found." });
-            }
 
             return Ok(new { message = "Activity deleted successfully!" });
         }

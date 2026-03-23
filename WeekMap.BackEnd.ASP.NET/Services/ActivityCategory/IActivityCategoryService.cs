@@ -10,3 +10,5 @@ namespace WeekMap.Services.ActivityCategory
         Task<bool> DeleteAsync(long userId, long id);
     }
 }
+
+

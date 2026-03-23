@@ -15,16 +15,10 @@ namespace WeekMap.Controllers
             _service = service;
         }
 
-        private bool TryGetUserId(out long userId)
-        {
-            userId = 0;
-            return long.TryParse(HttpContext.Session.GetString("UserID"), out userId);
-        }
-
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            if (!TryGetUserId(out var userId))
+            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
                 return Unauthorized(new { message = "User not logged in." });
 
             var categories = await _service.GetAllAsync(userId);
@@ -32,31 +26,30 @@ namespace WeekMap.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] ActivityCategoryDTO dto)
+        public async Task<IActionResult> Add([FromBody] ActivityCategoryDTO category)
         {
-            if (!TryGetUserId(out var userId))
+            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
                 return Unauthorized(new { message = "User not logged in." });
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var id = await _service.CreateAsync(userId, dto);
+            var id = await _service.CreateAsync(userId, category);
 
-            return Ok(new { message = "Category added successfully!", id });
+            return Ok(new { message = "Category added successfully!", activityCategoryId = id });
         }
 
         [HttpPut("{id:long}")]
-        public async Task<IActionResult> Edit(long id, [FromBody] ActivityCategoryDTO dto)
+        public async Task<IActionResult> Edit(long id, [FromBody] ActivityCategoryDTO updatedCategory)
         {
-            if (!TryGetUserId(out var userId))
+            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
                 return Unauthorized(new { message = "User not logged in." });
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var ok = await _service.UpdateAsync(userId, id, dto);
-            if (!ok)
-                return NotFound(new { message = "Category not found." });
+            var updated = await _service.UpdateAsync(userId, id, updatedCategory);
+            if (!updated) return NotFound();
 
             return Ok(new { message = "Category updated successfully!" });
         }
@@ -64,12 +57,11 @@ namespace WeekMap.Controllers
         [HttpDelete("{id:long}")]
         public async Task<IActionResult> Delete(long id)
         {
-            if (!TryGetUserId(out var userId))
+            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
                 return Unauthorized(new { message = "User not logged in." });
 
-            var ok = await _service.DeleteAsync(userId, id);
-            if (!ok)
-                return NotFound(new { message = "Category not found." });
+            var deleted = await _service.DeleteAsync(userId, id);
+            if (!deleted) return NotFound();
 
             return Ok(new { message = "Category deleted successfully!" });
         }

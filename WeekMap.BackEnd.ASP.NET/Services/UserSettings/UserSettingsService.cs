@@ -1,27 +1,23 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using WeekMap.Data;
 using WeekMap.DTOs;
-using Models = WeekMap.Models;
+using WeekMap.Repositories.UserSettings;
 
 namespace WeekMap.Services.UserSettings
 {
     public class UserSettingsService : IUserSettingsService
     {
-        private readonly AppDbContext _context;
+        private readonly IUserSettingsRepository _repo;
         private readonly IMapper _mapper;
 
-        public UserSettingsService(AppDbContext context, IMapper mapper)
+        public UserSettingsService(IUserSettingsRepository repo, IMapper mapper)
         {
-            _context = context;
+            _repo = repo;
             _mapper = mapper;
         }
 
         public async Task<UserSettingsDTO?> GetByUserIdAsync(long userId)
         {
-            var settings = await _context.UserSettings
-                .FirstOrDefaultAsync(us => us.UserID == userId);
-
+            var settings = await _repo.GetByUserIdAsync(userId);
             if (settings == null) return null;
 
             return _mapper.Map<UserSettingsDTO>(settings);
@@ -29,15 +25,13 @@ namespace WeekMap.Services.UserSettings
 
         public async Task<bool> UpdateAsync(long userId, UserSettingsDTO dto)
         {
-            var settings = await _context.UserSettings
-                .FirstOrDefaultAsync(us => us.UserID == userId);
-
+            var settings = await _repo.GetByUserIdAsync(userId);
             if (settings == null) return false;
 
             _mapper.Map(dto, settings);
             settings.UserID = userId;
 
-            await _context.SaveChangesAsync();
+            await _repo.SaveChangesAsync();
             return true;
         }
     }

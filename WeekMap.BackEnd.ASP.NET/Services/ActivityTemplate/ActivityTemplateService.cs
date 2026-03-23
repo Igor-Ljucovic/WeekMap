@@ -1,27 +1,23 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using WeekMap.Data;
 using WeekMap.DTOs;
+using WeekMap.Repositories.ActivityTemplate;
 
 namespace WeekMap.Services.ActivityTemplate
 {
     public class ActivityTemplateService : IActivityTemplateService
     {
-        private readonly AppDbContext _context;
+        private readonly IActivityTemplateRepository _repo;
         private readonly IMapper _mapper;
 
-        public ActivityTemplateService(AppDbContext context, IMapper mapper)
+        public ActivityTemplateService(IActivityTemplateRepository repo, IMapper mapper)
         {
-            _context = context;
+            _repo = repo;
             _mapper = mapper;
         }
 
         public async Task<List<ActivityTemplateDTO>> GetAllAsync(long userId)
         {
-            var templates = await _context.ActivityTemplates
-                .Where(a => a.UserID == userId)
-                .ToListAsync();
-
+            var templates = await _repo.GetAllAsync(userId);
             return _mapper.Map<List<ActivityTemplateDTO>>(templates);
         }
 
@@ -32,35 +28,32 @@ namespace WeekMap.Services.ActivityTemplate
             var entity = _mapper.Map<Models.ActivityTemplate>(dto);
             entity.UserID = userId;
 
-            _context.ActivityTemplates.Add(entity);
-            await _context.SaveChangesAsync();
+            _repo.Create(entity);
 
-            return entity.ActivityTemplateID;
+            await _repo.SaveChangesAsync();
+
+            return dto.ActivityTemplateID;
         }
 
         public async Task<bool> UpdateAsync(long userId, long id, ActivityTemplateDTO dto)
         {
-            var template = await _context.ActivityTemplates
-                .FirstOrDefaultAsync(a => a.ActivityTemplateID == id && a.UserID == userId);
-
+            var template = await _repo.GetByIdOwnedAsync(userId, id);
             if (template == null) return false;
 
             _mapper.Map(dto, template);
             template.UserID = userId;
 
-            await _context.SaveChangesAsync();
+            await _repo.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> DeleteAsync(long userId, long id)
         {
-            var template = await _context.ActivityTemplates
-                .FirstOrDefaultAsync(a => a.ActivityTemplateID == id && a.UserID == userId);
-
+            var template = await _repo.GetByIdOwnedAsync(userId, id);
             if (template == null) return false;
 
-            _context.ActivityTemplates.Remove(template);
-            await _context.SaveChangesAsync();
+            _repo.Delete(template);
+            await _repo.SaveChangesAsync();
             return true;
         }
     }

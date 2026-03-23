@@ -93,7 +93,7 @@ namespace XUnitTests.Controllers
                 users = await response.Content.ReadFromJsonAsync<List<UserDTO>>();
 
                 users.Should().ContainSingle(u => u.Username == user.Username);
-                //users.Should().ContainSingle(u => u.Password == user.Password);
+                // users.Should().ContainSingle(u => u.Password == user.Password); (skipped because it's hashed)
                 users.Should().ContainSingle(u => u.Email == user.Email);
 
                 response = await client.PostAsJsonAsync("api/logout", user);
@@ -123,53 +123,14 @@ namespace XUnitTests.Controllers
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
             var user = _userTestData.Valid.ElementAt(0);
-            await client.PostAsJsonAsync("api/users", user);
+            await client.PostAsJsonAsync("api/register", user);
 
             var users = await client.GetFromJsonAsync<List<UserDTO>>("api/users");
 
             users.Should().ContainSingle(u => u.Username == user.Username);
 
-            // passwords can't be compared because they are hashed
-            //users.Should().ContainSingle(u => u.Password == user.Password);
+            // users.Should().ContainSingle(u => u.Password == user.Password); (skipped because it's hashed)
             users.Should().ContainSingle(u => u.Email == user.Email);
-        }
-
-        [Fact]
-        public async Task PostUser()
-        {
-            var (client, factory) = await ClientAsync.CreateAuthenticatedClientAsync();
-            await using var _factory = factory;
-
-            HttpResponseMessage? response;
-            List<UserDTO>? users;
-
-            foreach (var user in _userTestData.Valid)
-            {
-                response = await client.PostAsJsonAsync("api/users", user);
-                response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-
-                response = await client.GetAsync("/api/users");
-                users = await response.Content.ReadFromJsonAsync<List<UserDTO>>();
-
-                users.Should().ContainSingle(u => u.Username == user.Username);
-                // users.Should().ContainSingle(u => u.Password == user.Password);
-                users.Should().ContainSingle(u => u.Email == user.Email);
-
-                long? id = users?.First().UserID;
-                response = await client.DeleteAsync($"/api/users/{id}");
-                response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-            }
-
-            foreach (var activity in _userTestData.Invalid)
-            {
-                response = await client.PostAsJsonAsync("api/users", activity);
-                response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
-
-                response = await client.GetAsync("/api/users");
-                users = await response.Content.ReadFromJsonAsync<List<UserDTO>>();
-                // because 1 user needs to be logged in in order to use the method
-                users.Should().HaveCount(1);
-            }
         }
 
         [Fact]
@@ -181,7 +142,7 @@ namespace XUnitTests.Controllers
             List<UserDTO>? users;
 
             UserDTO userDTO = new UserDTO { Username = "user1", Email = "user@gmail.com", Password = "StrongPass1" };
-            HttpResponseMessage? response = await client.PostAsJsonAsync("/api/Users", userDTO);
+            HttpResponseMessage? response = await client.PostAsJsonAsync("/api/register", userDTO);
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
             users = await client.GetFromJsonAsync<List<UserDTO>>("/api/Users");
             var id = users?.First().UserID;
@@ -196,7 +157,7 @@ namespace XUnitTests.Controllers
                 var editedUser = afterEditUser?.FirstOrDefault(u => u.UserID == id);
 
                 editedUser?.Username.Should().Be(updatedUser.Username);
-                //editedUser?.Password.Should().Be(updatedUser.Password);
+                // editedUser?.Password.Should().Be(updatedUser.Password); (skipped because it's hashed)
                 editedUser?.Email.Should().Be(updatedUser.Email);
                 users.Should().HaveCount(2);
             }
@@ -221,7 +182,7 @@ namespace XUnitTests.Controllers
             await using var _factory = factory;
 
             var user = _userTestData.Valid.ElementAt(0);
-            await client.PostAsJsonAsync("api/users", user);
+            await client.PostAsJsonAsync("api/register", user);
             var users = await client.GetFromJsonAsync<List<UserDTO>>("api/users");
             var id = users?.First().UserID;
 

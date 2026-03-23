@@ -22,7 +22,7 @@ namespace WeekMap.Controllers
         }
 
         [HttpGet("{id:long}")]
-        public async Task<IActionResult> GetById(long id)
+        public async Task<IActionResult> GetByUserId(long id)
         {
             if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });

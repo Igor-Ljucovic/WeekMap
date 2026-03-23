@@ -1,52 +1,40 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using WeekMap.Data;
 using WeekMap.DTOs;
-using WeekMap.Models;
-using Models = WeekMap.Models;
+using WeekMap.Repositories.WeekMap;
 
 namespace WeekMap.Services.WeekMap
 {
     public class WeekMapService : IWeekMapService
     {
-        private readonly AppDbContext _context;
+        private readonly IWeekMapRepository _repo;
         private readonly IMapper _mapper;
 
-        public WeekMapService(AppDbContext context, IMapper mapper)
+        public WeekMapService(IWeekMapRepository repo, IMapper mapper)
         {
-            _context = context;
+            _repo = repo;
             _mapper = mapper;
         }
 
         public async Task<List<Models.WeekMap>> GetAllAsync(long userId)
         {
-            return await _context.WeekMaps
-                .Where(wm => wm.UserID == userId)
-                .ToListAsync();
+            return await _repo.GetAllAsync(userId);
         }
 
         public async Task<Models.WeekMap?> GetLatestByUserIdAsync(long sessionUserId, long requestedUserId)
         {
-            if (sessionUserId != requestedUserId) return null;
+            if (sessionUserId != requestedUserId)
+                return null;
 
-            return await _context.WeekMaps
-                .Where(wm => wm.UserID == requestedUserId)
-                .OrderByDescending(wm => wm.DateCreated)
-                .FirstOrDefaultAsync();
+            return await _repo.GetLatestByUserIdAsync(requestedUserId);
         }
 
         public async Task<List<Models.WeekMapActivity>> GetWeekMapActivitiesAsync(long sessionUserId, long weekMapId)
         {
-            var ownsWeekMap = await _context.WeekMaps
-                .AnyAsync(wm => wm.WeekMapID == weekMapId && wm.UserID == sessionUserId);
+            var ownsMap = await _repo.GetByIdOwnedAsync(sessionUserId, weekMapId);
+            if (ownsMap == null)
+                return new List<Models.WeekMapActivity>();
 
-            if (!ownsWeekMap) return new List<Models.WeekMapActivity>();
-
-            return await _context.WeekMapActivities
-                .Include(wma => wma.ActivityTemplate)
-                    .ThenInclude(at => at.ActivityCategory)
-                .Where(wma => wma.WeekMapID == weekMapId)
-                .ToListAsync();
+            return await _repo.GetWeekMapActivitiesAsync(weekMapId);
         }
 
         public async Task<long> CreateAsync(long userId, WeekMapDTO dto)
@@ -56,35 +44,32 @@ namespace WeekMap.Services.WeekMap
             var entity = _mapper.Map<Models.WeekMap>(dto);
             entity.UserID = userId;
 
-            _context.WeekMaps.Add(entity);
-            await _context.SaveChangesAsync();
+            _repo.Create(entity);
 
-            return entity.WeekMapID;
+            await _repo.SaveChangesAsync();
+
+            return dto.UserID;
         }
 
         public async Task<bool> UpdateAsync(long userId, long id, WeekMapDTO dto)
         {
-            var map = await _context.WeekMaps
-                .FirstOrDefaultAsync(wm => wm.WeekMapID == id && wm.UserID == userId);
-
+            var map = await _repo.GetByIdOwnedAsync(userId, id);
             if (map == null) return false;
 
             _mapper.Map(dto, map);
             map.UserID = userId;
 
-            await _context.SaveChangesAsync();
+            await _repo.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> DeleteAsync(long userId, long id)
         {
-            var map = await _context.WeekMaps
-                .FirstOrDefaultAsync(wm => wm.WeekMapID == id && wm.UserID == userId);
-
+            var map = await _repo.GetByIdOwnedAsync(userId, id);
             if (map == null) return false;
 
-            _context.WeekMaps.Remove(map);
-            await _context.SaveChangesAsync();
+            _repo.Delete(map);
+            await _repo.SaveChangesAsync();
             return true;
         }
     }

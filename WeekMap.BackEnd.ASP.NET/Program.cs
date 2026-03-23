@@ -1,5 +1,6 @@
 using WeekMap.Data;
 using Microsoft.EntityFrameworkCore;
+
 using WeekMap.Services.ActivityCategory;
 using WeekMap.Services.ActivityTemplate;
 using WeekMap.Services.User;
@@ -7,6 +8,14 @@ using WeekMap.Services.UserSettings;
 using WeekMap.Services.UserDefaultWeekMapSettings;
 using WeekMap.Services.WeekMap;
 using WeekMap.Services.WeekMapActivity;
+
+using WeekMap.Repositories.ActivityCategory;
+using WeekMap.Repositories.ActivityTemplate;
+using WeekMap.Repositories.User;
+using WeekMap.Repositories.UserSettings;
+using WeekMap.Repositories.UserDefaultWeekMapSettings;
+using WeekMap.Repositories.WeekMap;
+using WeekMap.Repositories.WeekMapActivity;
 
 namespace WeekMap
 {
@@ -29,12 +38,25 @@ namespace WeekMap
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+
             builder.Services.AddScoped<IUserSettingsService, UserSettingsService>();
+            builder.Services.AddScoped<IUserSettingsRepository, UserSettingsRepository>();
+
             builder.Services.AddScoped<IUserDefaultWeekMapSettingsService, UserDefaultWeekMapSettingsService>();
+            builder.Services.AddScoped<IUserDefaultWeekMapSettingsRepository, UserDefaultWeekMapSettingsRepository>();
+
             builder.Services.AddScoped<IActivityCategoryService, ActivityCategoryService>();
+            builder.Services.AddScoped<IActivityCategoryRepository, ActivityCategoryRepository>();
+
             builder.Services.AddScoped<IActivityTemplateService, ActivityTemplateService>();
+            builder.Services.AddScoped<IActivityTemplateRepository, ActivityTemplateRepository>();
+
             builder.Services.AddScoped<IWeekMapService, WeekMapService>();
+            builder.Services.AddScoped<IWeekMapRepository, WeekMapRepository>();
+
             builder.Services.AddScoped<IWeekMapActivityService, WeekMapActivityService>();
+            builder.Services.AddScoped<IWeekMapActivityRepository, WeekMapActivityRepository>();
 
             var app = builder.Build();
 

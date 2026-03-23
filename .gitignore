@@ -1,0 +1,7 @@
+# ASP.NET / .NET
+bin/
+obj/
+vs/
+*.user
+*.suo
+*.cache

@@ -1,34 +1,33 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using WeekMap.Data;
 using WeekMap.DTOs;
 using WeekMap.Models;
+using WeekMap.Repositories.User;
 
 namespace WeekMap.Services.User
 {
     public class UserService : IUserService
     {
-        private readonly AppDbContext _context;
+        private readonly IUserRepository _repo;
         private readonly IConfiguration _configuration;
 
-        public UserService(AppDbContext context, IConfiguration configuration)
+        public UserService(IUserRepository repo, IConfiguration configuration)
         {
-            _context = context;
+            _repo = repo;
             _configuration = configuration;
         }
 
-        public async Task<(bool ok, string message, long? userId)> RegisterAsync(UserDTO dto)
+        public async Task<(bool ok, long? userId)> RegisterAsync(UserDTO dto)
         {
-            if (await _context.Users.AnyAsync(u => u.Username == dto.Username))
-                return (false, "Username already exists.", null);
+            if (await _repo.UsernameExistsAsync(dto.Username))
+                return (false, null);
 
-            if (await _context.Users.AnyAsync(u => u.Email.ToLower() == dto.Email.ToLower()))
-                return (false, "Email is already in use.", null);
+            if (await _repo.EmailExistsAsync(dto.Email.ToLower()))
+                return (false, null);
 
             var user = new Models.User
             {
@@ -40,109 +39,83 @@ namespace WeekMap.Services.User
                 EmailConfirmationTokenExpiresAt = DateTime.UtcNow.AddMinutes(10)
             };
 
-            _context.Users.Add(user);
+            _repo.Create(user);
 
-            _context.UserSettings.Add(new Models.UserSettings { User = user });
-            _context.UserDefaultWeekMapSettings.Add(new Models.UserDefaultWeekMapSettings { User = user });
+            var userId = user.UserID;
 
-            await _context.SaveChangesAsync();
+            _repo.AddUserSettings(new Models.UserSettings { UserID = userId });
+            _repo.AddUserDefaultWeekMapSettings(new Models.UserDefaultWeekMapSettings { UserID = userId });
 
-            return (true, "User registered successfully.", user.UserID);
+            await _repo.SaveChangesAsync();
+
+            return (true, userId);
         }
 
-        public async Task<(bool ok, string message, string? accessToken, long? userId, string? username)> LoginAsync(LoginDTO dto)
+        public async Task<(bool ok, string? accessToken, long? userId, string? username)> LoginAsync(LoginDTO dto)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+            var user = await _repo.GetByEmailAsync(dto.Email);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
-                return (false, "Invalid username or password.", null, null, null);
+               return (false, null, null, null);
 
             // if (!user.IsEmailConfirmed)
             //     return (false, "Please confirm your email before logging in.", null, null, null);
 
             var token = GenerateJwtToken(user);
 
-            return (true, "Login successful!", token, user.UserID, user.Username);
+            return (true, token, user.UserID, user.Username);
         }
 
-        public async Task<(bool ok, string message)> ConfirmEmailAsync(string token, long userId)
+        public async Task<bool> ConfirmEmailAsync(string token, long userId)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u =>
-                u.UserID == userId &&
-                u.EmailConfirmationToken == token);
+            var user = await _repo.GetByEmailConfirmationTokenAsync(userId, token);
 
             if (user == null)
-                return (false, "User not found or invalid token.");
+                return false;
 
             if (user.EmailConfirmationTokenExpiresAt == null || user.EmailConfirmationTokenExpiresAt <= DateTime.UtcNow)
-                return (false, "This confirmation link is invalid or expired.");
+                return false;
 
             user.IsEmailConfirmed = true;
             user.EmailConfirmationToken = null;
             user.EmailConfirmationTokenExpiresAt = null;
 
-            await _context.SaveChangesAsync();
-            return (true, "Your email has been verified!");
+            await _repo.SaveChangesAsync();
+            return true;
         }
 
         public async Task<List<object>> GetAllAsync()
         {
-            return await _context.Users
-                .Select(u => (object)new
-                {
-                    u.UserID,
-                    u.Username,
-                    u.Email,
-                    u.IsEmailConfirmed
-                })
-                .ToListAsync();
+            var users = await _repo.GetAllAsync();
+
+            return users.Select(u => (object)new
+            {
+                u.UserID,
+                u.Username,
+                u.Email,
+                u.IsEmailConfirmed
+            }).ToList();
         }
 
         public async Task<object?> GetByIdAsync(long id)
         {
-            var user = await _context.Users
-                .Where(u => u.UserID == id)
-                .Select(u => new
-                {
-                    u.UserID,
-                    u.Username,
-                    u.Email,
-                    u.IsEmailConfirmed
-                })
-                .FirstOrDefaultAsync();
+            var user = await _repo.GetByIdAsync(id);
 
-            return user == null ? null : (object)user;
-        }
-
-        public async Task<(bool ok, string message, long? userId)> CreateAsync(UserDTO dto)
-        {
-            if (await _context.Users.AnyAsync(u => u.Username == dto.Username))
-                return (false, "Username already exists.", null);
-
-            if (await _context.Users.AnyAsync(u => u.Email.ToLower() == dto.Email.ToLower()))
-                return (false, "Email is already in use.", null);
-
-            var user = new Models.User
-            {
-                Username = dto.Username,
-                Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-                Email = dto.Email,
-                IsEmailConfirmed = false,
-                EmailConfirmationToken = GenerateSecureToken(32),
-                EmailConfirmationTokenExpiresAt = DateTime.UtcNow.AddMinutes(10)
-            };
-
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            return (true, "User created successfully.", user.UserID);
-        }
-
-        public async Task<(bool ok, string message)> UpdateAsync(long id, UserDTO dto)
-        {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserID == id);
             if (user == null)
-                return (false, "User not found.");
+                return null;
+
+            return new
+            {
+                user.UserID,
+                user.Username,
+                user.Email,
+                user.IsEmailConfirmed
+            };
+        }
+
+        public async Task<bool> UpdateAsync(long id, UserDTO dto)
+        {
+            var user = await _repo.GetByIdAsync(id);
 
             user.Username = dto.Username;
             user.Email = dto.Email;
@@ -150,20 +123,18 @@ namespace WeekMap.Services.User
             if (!string.IsNullOrWhiteSpace(dto.Password))
                 user.Password = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
-            await _context.SaveChangesAsync();
-            return (true, "User updated successfully.");
+            await _repo.SaveChangesAsync();
+            return true;
         }
 
-        public async Task<(bool ok, string message)> DeleteAsync(long id)
+        public async Task<bool> DeleteAsync(long id)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserID == id);
-            if (user == null)
-                return (false, "User not found.");
+            var user = await _repo.GetByIdAsync(id);
 
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+            _repo.Delete(user);
+            await _repo.SaveChangesAsync();
 
-            return (true, "User deleted successfully.");
+            return true;
         }
 
         private static string GenerateSecureToken(int byteLength = 32)
@@ -191,7 +162,9 @@ namespace WeekMap.Services.User
                     new Claim(ClaimTypes.Name, user.Username)
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature)
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
