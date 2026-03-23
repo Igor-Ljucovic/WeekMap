@@ -35,7 +35,7 @@ namespace WeekMap.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] ActivityTemplateDTO dto)
+        public async Task<IActionResult> Create([FromBody] ActivityTemplateDTO dto)
         {
             if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
@@ -49,7 +49,7 @@ namespace WeekMap.Controllers
         }
 
         [HttpPut("{id:long}")]
-        public async Task<IActionResult> Edit(long id, [FromBody] ActivityTemplateDTO dto)
+        public async Task<IActionResult> Update(long id, [FromBody] ActivityTemplateDTO dto)
         {
             if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });

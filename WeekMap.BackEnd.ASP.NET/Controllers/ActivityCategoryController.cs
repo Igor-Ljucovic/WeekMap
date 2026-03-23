@@ -26,7 +26,7 @@ namespace WeekMap.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] ActivityCategoryDTO category)
+        public async Task<IActionResult> Create([FromBody] ActivityCategoryDTO category)
         {
             if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
                 return Unauthorized(new { message = "User not logged in." });
@@ -40,7 +40,7 @@ namespace WeekMap.Controllers
         }
 
         [HttpPut("{id:long}")]
-        public async Task<IActionResult> Edit(long id, [FromBody] ActivityCategoryDTO updatedCategory)
+        public async Task<IActionResult> Update(long id, [FromBody] ActivityCategoryDTO updatedCategory)
         {
             if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
                 return Unauthorized(new { message = "User not logged in." });

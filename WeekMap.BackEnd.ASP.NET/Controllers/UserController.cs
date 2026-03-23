@@ -105,7 +105,7 @@ namespace WeekMap.Controllers
         }
 
         [HttpPut("users/{id:long}")]
-        public async Task<IActionResult> Edit(long id, [FromBody] UserDTO dto)
+        public async Task<IActionResult> Update(long id, [FromBody] UserDTO dto)
         {
             if (!IsLoggedIn())
                 return Unauthorized(new { message = "User not logged in." });

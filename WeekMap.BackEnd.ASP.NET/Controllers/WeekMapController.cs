@@ -63,7 +63,7 @@ namespace WeekMap.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] WeekMapDTO dto)
+        public async Task<IActionResult> Create([FromBody] WeekMapDTO dto)
         {
             if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
@@ -77,7 +77,7 @@ namespace WeekMap.Controllers
         }
 
         [HttpPut("{id:long}")]
-        public async Task<IActionResult> Edit(long id, [FromBody] WeekMapDTO dto)
+        public async Task<IActionResult> Update(long id, [FromBody] WeekMapDTO dto)
         {
             if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
