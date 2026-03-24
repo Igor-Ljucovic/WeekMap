@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using WeekMap.DTOs;
+using WeekMap.Repositories.UnitOfWork;
 using WeekMap.Repositories.UserSettings;
 
 namespace WeekMap.Services.UserSettings
@@ -8,11 +9,13 @@ namespace WeekMap.Services.UserSettings
     {
         private readonly IUserSettingsRepository _repo;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UserSettingsService(IUserSettingsRepository repo, IMapper mapper)
+        public UserSettingsService(IUserSettingsRepository repo, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _repo = repo;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<UserSettingsDTO?> GetByUserIdAsync(long userId)
@@ -31,7 +34,7 @@ namespace WeekMap.Services.UserSettings
             _mapper.Map(dto, settings);
             settings.UserID = userId;
 
-            await _repo.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
     }

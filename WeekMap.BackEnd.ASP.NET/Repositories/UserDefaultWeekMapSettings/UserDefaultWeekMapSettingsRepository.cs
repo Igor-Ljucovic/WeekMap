@@ -17,10 +17,5 @@ namespace WeekMap.Repositories.UserDefaultWeekMapSettings
             return await _context.UserDefaultWeekMapSettings
                 .FirstOrDefaultAsync(wms => wms.UserID == userId);
         }
-
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
     }
 }

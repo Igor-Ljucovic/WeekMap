@@ -13,6 +13,5 @@ namespace WeekMap.Repositories.User
         void Delete(Models.User user);
         void AddUserSettings(Models.UserSettings settings);
         void AddUserDefaultWeekMapSettings(Models.UserDefaultWeekMapSettings settings);
-        Task SaveChangesAsync();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using WeekMap.DTOs;
+using WeekMap.Repositories.UnitOfWork;
 using WeekMap.Repositories.WeekMap;
 
 namespace WeekMap.Services.WeekMap
@@ -8,11 +9,13 @@ namespace WeekMap.Services.WeekMap
     {
         private readonly IWeekMapRepository _repo;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public WeekMapService(IWeekMapRepository repo, IMapper mapper)
+        public WeekMapService(IWeekMapRepository repo, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _repo = repo;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<List<Models.WeekMap>> GetAllAsync(long userId)
@@ -46,7 +49,7 @@ namespace WeekMap.Services.WeekMap
 
             _repo.Create(entity);
 
-            await _repo.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return dto.UserID;
         }
@@ -59,7 +62,7 @@ namespace WeekMap.Services.WeekMap
             _mapper.Map(dto, map);
             map.UserID = userId;
 
-            await _repo.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
@@ -69,7 +72,7 @@ namespace WeekMap.Services.WeekMap
             if (map == null) return false;
 
             _repo.Delete(map);
-            await _repo.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
     }

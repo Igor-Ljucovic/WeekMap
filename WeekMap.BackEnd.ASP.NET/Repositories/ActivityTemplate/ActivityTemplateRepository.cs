@@ -34,10 +34,5 @@ namespace WeekMap.Repositories.ActivityTemplate
         {
             _context.ActivityTemplates.Remove(entity);
         }
-
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
     }
 }

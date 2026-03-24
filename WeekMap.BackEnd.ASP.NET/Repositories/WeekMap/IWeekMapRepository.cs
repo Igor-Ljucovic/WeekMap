@@ -8,6 +8,5 @@ namespace WeekMap.Repositories.WeekMap
         Task<List<Models.WeekMapActivity>> GetWeekMapActivitiesAsync(long weekMapId);
         void Create(Models.WeekMap entity);
         void Delete(Models.WeekMap entity);
-        Task SaveChangesAsync();
     }
 }

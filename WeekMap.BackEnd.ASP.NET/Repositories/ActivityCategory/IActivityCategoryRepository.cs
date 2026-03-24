@@ -8,7 +8,6 @@ namespace WeekMap.Repositories.ActivityCategory
         Task<Models.ActivityCategory?> GetByIdOwnedAsync(long userId, long activityCategoryId);
         void Create(Models.ActivityCategory entity);
         void Delete(Models.ActivityCategory entity);
-        Task SaveChangesAsync();
     }
 }
 

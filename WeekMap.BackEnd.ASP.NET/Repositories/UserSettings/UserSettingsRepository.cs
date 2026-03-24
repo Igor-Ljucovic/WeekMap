@@ -17,10 +17,5 @@ namespace WeekMap.Repositories.UserSettings
             return await _context.UserSettings
                 .FirstOrDefaultAsync(us => us.UserID == userId);
         }
-
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
     }
 }

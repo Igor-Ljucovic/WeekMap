@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using WeekMap.DTOs;
 using WeekMap.Repositories.ActivityTemplate;
+using WeekMap.Repositories.UnitOfWork;
 
 namespace WeekMap.Services.ActivityTemplate
 {
@@ -8,11 +9,13 @@ namespace WeekMap.Services.ActivityTemplate
     {
         private readonly IActivityTemplateRepository _repo;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ActivityTemplateService(IActivityTemplateRepository repo, IMapper mapper)
+        public ActivityTemplateService(IActivityTemplateRepository repo, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _repo = repo;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<List<ActivityTemplateDTO>> GetAllAsync(long userId)
@@ -30,7 +33,7 @@ namespace WeekMap.Services.ActivityTemplate
 
             _repo.Create(entity);
 
-            await _repo.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return dto.ActivityTemplateID;
         }
@@ -43,7 +46,7 @@ namespace WeekMap.Services.ActivityTemplate
             _mapper.Map(dto, template);
             template.UserID = userId;
 
-            await _repo.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
@@ -53,7 +56,7 @@ namespace WeekMap.Services.ActivityTemplate
             if (template == null) return false;
 
             _repo.Delete(template);
-            await _repo.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
     }

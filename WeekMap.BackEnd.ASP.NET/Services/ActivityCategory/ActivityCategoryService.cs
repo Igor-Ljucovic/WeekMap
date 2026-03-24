@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using WeekMap.DTOs;
 using WeekMap.Repositories.ActivityCategory;
+using WeekMap.Repositories.UnitOfWork;
 
 namespace WeekMap.Services.ActivityCategory
 {
@@ -8,11 +9,13 @@ namespace WeekMap.Services.ActivityCategory
     {
         private readonly IActivityCategoryRepository _repo;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ActivityCategoryService(IActivityCategoryRepository repo, IMapper mapper)
+        public ActivityCategoryService(IActivityCategoryRepository repo, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _repo = repo;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<List<ActivityCategoryDTO>> GetAllAsync(long userId)
@@ -30,7 +33,7 @@ namespace WeekMap.Services.ActivityCategory
 
             _repo.Create(entity);
 
-            await _repo.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return entity.ActivityCategoryID;
         }
@@ -44,7 +47,7 @@ namespace WeekMap.Services.ActivityCategory
 
             category.UserID = userId;
 
-            await _repo.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
@@ -54,7 +57,7 @@ namespace WeekMap.Services.ActivityCategory
             if (category == null) return false;
 
             _repo.Delete(category);
-            await _repo.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
     }

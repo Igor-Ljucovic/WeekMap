@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using WeekMap.DTOs;
+using WeekMap.Repositories.UnitOfWork;
 using WeekMap.Repositories.UserDefaultWeekMapSettings;
 
 namespace WeekMap.Services.UserDefaultWeekMapSettings
@@ -8,13 +9,13 @@ namespace WeekMap.Services.UserDefaultWeekMapSettings
     {
         private readonly IUserDefaultWeekMapSettingsRepository _repo;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UserDefaultWeekMapSettingsService(
-            IUserDefaultWeekMapSettingsRepository repo,
-            IMapper mapper)
+        public UserDefaultWeekMapSettingsService(IUserDefaultWeekMapSettingsRepository repo, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _repo = repo;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<UserDefaultWeekMapSettingsDTO?> GetByUserIdAsync(long userId)
@@ -33,7 +34,7 @@ namespace WeekMap.Services.UserDefaultWeekMapSettings
             _mapper.Map(dto, settings);
             settings.UserID = userId;
 
-            await _repo.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
     }

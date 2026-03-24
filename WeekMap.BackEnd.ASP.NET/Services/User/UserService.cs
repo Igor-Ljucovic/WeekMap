@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using WeekMap.DTOs;
 using WeekMap.Models;
+using WeekMap.Repositories.UnitOfWork;
 using WeekMap.Repositories.User;
 
 namespace WeekMap.Services.User
@@ -14,11 +15,13 @@ namespace WeekMap.Services.User
     {
         private readonly IUserRepository _repo;
         private readonly IConfiguration _configuration;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UserService(IUserRepository repo, IConfiguration configuration)
+        public UserService(IUserRepository repo, IConfiguration configuration, IUnitOfWork unitOfWork)
         {
             _repo = repo;
             _configuration = configuration;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<(bool ok, long? userId)> RegisterAsync(UserDTO dto)
@@ -46,7 +49,7 @@ namespace WeekMap.Services.User
             _repo.AddUserSettings(new Models.UserSettings { UserID = userId });
             _repo.AddUserDefaultWeekMapSettings(new Models.UserDefaultWeekMapSettings { UserID = userId });
 
-            await _repo.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return (true, userId);
         }
@@ -80,7 +83,7 @@ namespace WeekMap.Services.User
             user.EmailConfirmationToken = null;
             user.EmailConfirmationTokenExpiresAt = null;
 
-            await _repo.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
@@ -123,7 +126,7 @@ namespace WeekMap.Services.User
             if (!string.IsNullOrWhiteSpace(dto.Password))
                 user.Password = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
-            await _repo.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
@@ -132,7 +135,7 @@ namespace WeekMap.Services.User
             var user = await _repo.GetByIdAsync(id);
 
             _repo.Delete(user);
-            await _repo.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return true;
         }

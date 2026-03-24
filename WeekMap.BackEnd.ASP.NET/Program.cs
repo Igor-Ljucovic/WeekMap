@@ -1,21 +1,20 @@
-using WeekMap.Data;
 using Microsoft.EntityFrameworkCore;
-
+using WeekMap.Data;
+using WeekMap.Repositories.ActivityCategory;
+using WeekMap.Repositories.ActivityTemplate;
+using WeekMap.Repositories.UnitOfWork;
+using WeekMap.Repositories.User;
+using WeekMap.Repositories.UserDefaultWeekMapSettings;
+using WeekMap.Repositories.UserSettings;
+using WeekMap.Repositories.WeekMap;
+using WeekMap.Repositories.WeekMapActivity;
 using WeekMap.Services.ActivityCategory;
 using WeekMap.Services.ActivityTemplate;
 using WeekMap.Services.User;
-using WeekMap.Services.UserSettings;
 using WeekMap.Services.UserDefaultWeekMapSettings;
+using WeekMap.Services.UserSettings;
 using WeekMap.Services.WeekMap;
 using WeekMap.Services.WeekMapActivity;
-
-using WeekMap.Repositories.ActivityCategory;
-using WeekMap.Repositories.ActivityTemplate;
-using WeekMap.Repositories.User;
-using WeekMap.Repositories.UserSettings;
-using WeekMap.Repositories.UserDefaultWeekMapSettings;
-using WeekMap.Repositories.WeekMap;
-using WeekMap.Repositories.WeekMapActivity;
 
 namespace WeekMap
 {
@@ -35,7 +34,10 @@ namespace WeekMap
 
             builder.Services.AddCors(options => { options.AddPolicy("AllowLocalhost3000", 
                 policy => policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod()); });
+
             builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
