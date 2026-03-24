@@ -6,19 +6,13 @@ namespace WeekMap.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class WeekMapController : ControllerBase
+    public class WeekMapController : BaseApiController
     {
         private readonly IWeekMapService _service;
 
         public WeekMapController(IWeekMapService service)
         {
             _service = service;
-        }
-
-        private bool TryGetUserId(out long userId)
-        {
-            userId = 0;
-            return long.TryParse(HttpContext.Session.GetString("UserID"), out userId);
         }
 
         [HttpGet]

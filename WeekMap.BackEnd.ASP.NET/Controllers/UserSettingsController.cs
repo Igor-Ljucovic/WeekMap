@@ -6,19 +6,13 @@ namespace WeekMap.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UserSettingsController : ControllerBase
+    public class UserSettingsController : BaseApiController
     {
         private readonly IUserSettingsService _service;
 
         public UserSettingsController(IUserSettingsService service)
         {
             _service = service;
-        }
-
-        private bool TryGetUserId(out long userId)
-        {
-            userId = 0;
-            return long.TryParse(HttpContext.Session.GetString("UserID"), out userId);
         }
 
         [HttpGet("{id:long}")]

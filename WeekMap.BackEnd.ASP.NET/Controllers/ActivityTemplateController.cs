@@ -9,19 +9,13 @@ namespace WeekMap.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ActivityTemplateController : ControllerBase
+    public class ActivityTemplateController : BaseApiController
     {
         private readonly IActivityTemplateService _service;
 
         public ActivityTemplateController(IActivityTemplateService service)
         {
             _service = service;
-        }
-
-        private bool TryGetUserId(out long userId)
-        {
-            userId = 0;
-            return long.TryParse(HttpContext.Session.GetString("UserID"), out userId);
         }
 
         [HttpGet]

@@ -6,7 +6,7 @@ namespace WeekMap.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ActivityCategoryController : ControllerBase
+    public class ActivityCategoryController : BaseApiController
     {
         private readonly IActivityCategoryService _service;
 
@@ -18,7 +18,7 @@ namespace WeekMap.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
             var categories = await _service.GetAllAsync(userId);
@@ -28,7 +28,7 @@ namespace WeekMap.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ActivityCategoryDTO category)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
             if (!ModelState.IsValid)
@@ -42,7 +42,7 @@ namespace WeekMap.Controllers
         [HttpPut("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] ActivityCategoryDTO updatedCategory)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
             if (!ModelState.IsValid)
@@ -57,7 +57,7 @@ namespace WeekMap.Controllers
         [HttpDelete("{id:long}")]
         public async Task<IActionResult> Delete(long id)
         {
-            if (!long.TryParse(HttpContext.Session.GetString("UserID"), out long userId))
+            if (!TryGetUserId(out var userId))
                 return Unauthorized(new { message = "User not logged in." });
 
             var deleted = await _service.DeleteAsync(userId, id);
