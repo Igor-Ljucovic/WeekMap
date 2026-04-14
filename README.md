@@ -1,28 +1,31 @@
-**WeekMap | C#, ASP.NET, SQL Server, Entity, xUnit, React, Python, Selenium, PowerShell**
+# WeekMap
 
--A full-stack web app for organizing time through weekly routines
-with visual analytics and tracking.
+A full-stack web application for organizing activities through weekly routine schedules.
 
-Tech Stack
+---
 
-- **Backend**: C#, ASP.NET Core, Entity Framework
-- **Frontend**: React
-- **Testing**: xUnit (backend), Python Selenium (frontend)
-- **Automation**: PowerShell script for end-to-end automation
-- **Database**: SQL Server
+## Features & Architecture
 
-In Progress / Planned
+- Create and manage WeekMaps with categorized activities, configurable schedules, and support for recurring and one-time activities
+- Includes quality-of-life UI features such as real-time day/time indicators for improved schedule readability
+- Built using layered architecture with controllers, services, repositories, and DTO mapping
+- Implemented backend unit testing using xUnit
+- Implemented frontend end-to-end testing using Python Selenium
+- Automated full test execution using PowerShell scripting
 
-- Using **Azure Web Services** for hosting the app
-- Containerization with **Docker**
-- CI/CD pipeline using **GitHub Actions**
+---
 
+## Tech Stack
 
+- **Frontend:** React (JavaScript)
+- **Backend:** .NET (C#), ASP.NET Core, Entity Framework
+- **Database:** SQL Server
+- **Testing:** xUnit (backend), Python Selenium WebDriver (frontend)
+- **Tools:** PowerShell
 
-YouTube video showcasing this web app: https://www.youtube.com/watch?v=mh1XE7md0tk
+---
 
-Note: At the time of recording, I only had two front-end tests (register and activity category). 
-I may add more in the future, they would work in the same way.
+## Demo
 
-Note: I used this project to learn technologies I often saw other developers talking about. 
-After seeing Selenium and PowerShell, I got inspired and just had to turn my idea into reality.
+YouTube video showcasing this web app:  
+https://www.youtube.com/watch?v=mh1XE7md0tk
