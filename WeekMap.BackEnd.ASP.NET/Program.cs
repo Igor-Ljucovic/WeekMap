@@ -64,11 +64,25 @@ namespace WeekMap
 
             app.UseCors("AllowLocalhost3000");
 
-            using (var scope = app.Services.CreateScope())
+            // Is the database ready to run EnsureCreated() yet?
+            var dbMaxAttempts = 10;
+            for (var attempt = 1; attempt <= dbMaxAttempts; attempt++)
             {
-                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                //context.Database.Migrate();
-                context.Database.EnsureCreated();
+                try
+                {
+                    using var scope = app.Services.CreateScope();
+                    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    context.Database.EnsureCreated();
+                    break;
+                }
+                catch (Microsoft.Data.SqlClient.SqlException ex) when (ex.Number == 1801)
+                {
+                    break;
+                }
+                catch (Exception) when (attempt < dbMaxAttempts)
+                {
+                    Thread.Sleep(3000);
+                }
             }
 
             if (!app.Environment.IsDevelopment())

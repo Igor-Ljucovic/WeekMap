@@ -1,0 +1,5 @@
+services:
+  backend:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Server=db;Database=WeekMap_Production;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;"

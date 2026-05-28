@@ -43,15 +43,14 @@ namespace WeekMap.Services.User
             };
 
             _repo.Create(user);
+            await _unitOfWork.SaveChangesAsync();
 
-            var userId = user.UserID;
-
-            _repo.AddUserSettings(new Models.UserSettings { UserID = userId });
-            _repo.AddUserDefaultWeekMapSettings(new Models.UserDefaultWeekMapSettings { UserID = userId });
+            _repo.AddUserSettings(new Models.UserSettings { User = user });
+            _repo.AddUserDefaultWeekMapSettings(new Models.UserDefaultWeekMapSettings { User = user });
 
             await _unitOfWork.SaveChangesAsync();
 
-            return (true, userId);
+            return (true, user.UserID);
         }
 
         public async Task<(bool ok, string? accessToken, long? userId, string? username)> LoginAsync(LoginDTO dto)

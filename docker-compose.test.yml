@@ -1,0 +1,5 @@
+services:
+  backend:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Testing
+      ConnectionStrings__DefaultConnection: "Server=db;Database=WeekMap_Test;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;"

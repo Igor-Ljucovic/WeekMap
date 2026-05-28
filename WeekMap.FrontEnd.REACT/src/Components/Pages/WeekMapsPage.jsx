@@ -135,7 +135,7 @@ function WeekMapsPage() {
       setWeekMapActivities([]);
       fetch(`api/WeekMap/${plannedMap.weekMapID}/activityTemplates`, { credentials: "include" })
         .then(res => res.json())
-        .then(data => setWeekMapActivities(data))
+        .then(data => setWeekMapActivities(Array.isArray(data) ? data : []))
         .catch(() => notify.error("Failed to load activities for this map."));
     } else {
       setWeekMapActivities([]);
@@ -229,7 +229,8 @@ function WeekMapsPage() {
       setShowViewActivityModal(false);
 
       const refreshed = await fetch(`api/WeekMap/${plannedMap.weekMapID}/activityTemplates`, { credentials: "include" });
-      setWeekMapActivities(await refreshed.json());
+      const refreshedData = await refreshed.json();
+      setWeekMapActivities(Array.isArray(refreshedData) ? refreshedData : []);
     } catch {
       notify.error("Failed to remove activity.");
     }
@@ -308,7 +309,8 @@ function WeekMapsPage() {
       });
 
       const refreshed = await fetch(`api/WeekMap/${plannedMap.weekMapID}/activityTemplates`, { credentials: "include" });
-      setWeekMapActivities(await refreshed.json());
+      const refreshedData = await refreshed.json();
+      setWeekMapActivities(Array.isArray(refreshedData) ? refreshedData : []);
 
     } catch (err) {
       notify.error("Unexpected error occurred.");
