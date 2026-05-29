@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import registerPhoto from "../../Images/loginPreview.png";
+import { API_BASE } from '../../Utils/apiBase';
 import { Link, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -30,7 +31,7 @@ function LoginPage() {
     toast.dismiss();
     
     try {
-      const response = await fetch("api/login", {
+      const response = await fetch(`${API_BASE}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData)

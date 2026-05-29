@@ -18,10 +18,6 @@ namespace WeekMap.Migrations
                table: "UserDefaultWeekMapSettings",
                newName: "ShowLocationInPreview");
 
-            migrationBuilder.RenameIndex(
-                name: "IX_WeekMaps_UserID", 
-                table: "WeekMaps",
-                newName: "IX_PlannedWeekMaps_UserID");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -36,10 +32,6 @@ namespace WeekMap.Migrations
                table: "UserDefaultWeekMapSettings",
                newName: "ShowPlaceInPreview");
 
-            migrationBuilder.RenameIndex(
-               name: "IX_PlannedWeekMaps_UserID", 
-               table: "WeekMaps",
-               newName: "IX_WeekMaps_UserID");
         }
     }
 }

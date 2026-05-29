@@ -10,18 +10,8 @@ namespace WeekMap.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.RenameTable(
-                name: "Activities",
-                newName: "ActivityTemplates"
-            );
-
-            migrationBuilder.RenameTable(
                 name: "PlannedWeekMaps",
                 newName: "WeekMaps"
-            );
-
-            migrationBuilder.RenameTable(
-                name: "PlannedWeekMapActivities",
-                newName: "WeekMapActivities"
             );
 
             migrationBuilder.RenameColumn(
@@ -46,12 +36,6 @@ namespace WeekMap.Migrations
                 name: "ActivityID",
                 table: "WeekMapActivities",
                 newName: "ActivityTemplateID"
-            );
-
-            migrationBuilder.RenameColumn(
-                name: "PlannedWeekMapActivityID",
-                table: "WeekMapActivities",
-                newName: "WeekMapActivityID"
             );
 
             migrationBuilder.RenameColumn(
@@ -94,18 +78,8 @@ namespace WeekMap.Migrations
             );
 
             migrationBuilder.RenameTable(
-                name: "WeekMapActivities",
-                newName: "PlannedWeekMapActivities"
-            );
-
-            migrationBuilder.RenameTable(
                 name: "WeekMaps",
                 newName: "PlannedWeekMaps"
-            );
-
-            migrationBuilder.RenameTable(
-                name: "ActivityTemplates",
-                newName: "Activities"
             );
         }
     }

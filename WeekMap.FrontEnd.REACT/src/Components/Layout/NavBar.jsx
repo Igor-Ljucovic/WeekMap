@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { API_BASE } from "../../Utils/apiBase";
 
 function NavBar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -14,7 +15,7 @@ function NavBar() {
 
     if (token) {
       setIsLoggedIn(true);
-      fetch(`/api/users/${UserID}`, {
+      fetch(`${API_BASE}/api/users/${UserID}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -42,7 +43,7 @@ function NavBar() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("api/logout", {
+      const response = await fetch(`${API_BASE}/api/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

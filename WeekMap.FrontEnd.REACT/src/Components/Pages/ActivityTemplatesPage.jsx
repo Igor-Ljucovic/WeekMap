@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
+import { API_BASE } from '../../Utils/apiBase';
 import 'react-toastify/dist/ReactToastify.css';
 import { notify, useTheme } from '../../Utils/utils';
 import ActivityTemplateItem from '../Items/ActivityTemplateItem'; 
@@ -44,7 +45,7 @@ function ActivityTemplatesPage() {
 
   const fetchActivities = async () => {
     try {
-      const response = await fetch(`api/ActivityTemplate`, { credentials: 'include' });
+      const response = await fetch(`${API_BASE}/api/ActivityTemplate`, { credentials: 'include' });
       if (!response.ok) throw new Error("Failed to fetch activity templates.");
       const data = await response.json();
       setActivities(data);
@@ -57,7 +58,7 @@ function ActivityTemplatesPage() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch(`api/ActivityCategory`, { credentials: 'include' });
+      const response = await fetch(`${API_BASE}/api/ActivityCategory`, { credentials: 'include' });
       if (!response.ok) throw new Error("Failed to fetch activity categories.");
       const data = await response.json();
       setCategories(data);
@@ -68,7 +69,7 @@ function ActivityTemplatesPage() {
 
   const handleAddActivity = async (activity) => {
     try {
-      const response = await fetch('api/ActivityTemplate', {
+      const response = await fetch(`${API_BASE}/api/ActivityTemplate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -85,7 +86,7 @@ function ActivityTemplatesPage() {
 
   const handleUpdateActivity = async (activity) => {
     try {
-      const response = await fetch(`api/ActivityTemplate/${activity.activityTemplateID}`, {
+      const response = await fetch(`${API_BASE}/api/ActivityTemplate/${activity.activityTemplateID}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -103,7 +104,7 @@ function ActivityTemplatesPage() {
   const handleDeleteActivity = async (id) => {
     if (!window.confirm("Are you sure you want to delete this activity template?")) return;
     try {
-      const response = await fetch(`api/ActivityTemplate/${id}`, {
+      const response = await fetch(`${API_BASE}/api/ActivityTemplate/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       });

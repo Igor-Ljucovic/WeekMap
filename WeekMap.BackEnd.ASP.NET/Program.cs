@@ -32,8 +32,9 @@ namespace WeekMap
             builder.Services.AddSession();
             builder.Services.AddHttpContextAccessor();
 
-            builder.Services.AddCors(options => { options.AddPolicy("AllowLocalhost3000", 
-                policy => policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod()); });
+            var allowedOrigin = builder.Configuration["AllowedOrigin"] ?? "http://localhost:3000";
+            builder.Services.AddCors(options => { options.AddPolicy("AllowFrontend",
+                policy => policy.WithOrigins(allowedOrigin).AllowAnyHeader().AllowAnyMethod()); });
 
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
@@ -62,7 +63,7 @@ namespace WeekMap
 
             var app = builder.Build();
 
-            app.UseCors("AllowLocalhost3000");
+            app.UseCors("AllowFrontend");
 
             // Is the database ready to run EnsureCreated() yet?
             var dbMaxAttempts = 10;

@@ -167,7 +167,7 @@ namespace WeekMap.Migrations
                         name: "FK_RealisedWeekMaps_PlannedWeekMaps_PlannedWeekMapID",
                         column: x => x.PlannedWeekMapID,
                         principalTable: "PlannedWeekMaps",
-                        principalColumn: "WeekMapID",
+                        principalColumn: "PlannedWeekMapID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -198,13 +198,13 @@ namespace WeekMap.Migrations
                         name: "FK_PlannedWeekMapActivities_Activities_ActivityID",
                         column: x => x.ActivityID,
                         principalTable: "ActivityTemplates",
-                        principalColumn: "ActivityTemplateID",
+                        principalColumn: "ActivityID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_PlannedWeekMapActivities_PlannedWeekMaps_PlannedWeekMapID",
                         column: x => x.PlannedWeekMapID,
                         principalTable: "PlannedWeekMaps",
-                        principalColumn: "WeekMapID",
+                        principalColumn: "PlannedWeekMapID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -227,7 +227,7 @@ namespace WeekMap.Migrations
                         name: "FK_RealisedWeekMapActivities_Activities_ActivityID",
                         column: x => x.ActivityID,
                         principalTable: "ActivityTemplates",
-                        principalColumn: "ActivityTemplateID",
+                        principalColumn: "ActivityID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_RealisedWeekMapActivities_RealisedWeekMaps_RealisedWeekMapID",
@@ -255,12 +255,12 @@ namespace WeekMap.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_PlannedWeekMapActivities_ActivityID",
                 table: "WeekMapActivities",
-                column: "ActivityTemplateID");
+                column: "ActivityID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PlannedWeekMapActivities_PlannedWeekMapID",
                 table: "WeekMapActivities",
-                column: "WeekMapID");
+                column: "PlannedWeekMapID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PlannedWeekMaps_UserID",
@@ -270,7 +270,7 @@ namespace WeekMap.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_RealisedWeekMapActivities_ActivityID",
                 table: "RealisedWeekMapActivities",
-                column: "ActivityTemplateID");
+                column: "ActivityID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RealisedWeekMapActivities_RealisedWeekMapID",
@@ -280,7 +280,7 @@ namespace WeekMap.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_RealisedWeekMaps_PlannedWeekMapID",
                 table: "RealisedWeekMaps",
-                column: "WeekMapID");
+                column: "PlannedWeekMapID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",

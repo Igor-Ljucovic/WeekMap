@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
+import { API_BASE } from '../../Utils/apiBase';
 import 'react-toastify/dist/ReactToastify.css';
 import { notify, useTheme } from '../../Utils/utils';
 import ActivityCategoryItem from '../Items/ActivityCategoryItem';
@@ -37,7 +38,7 @@ function ActivityCategoriesPage() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch(`api/ActivityCategory`, { credentials: 'include' });
+      const response = await fetch(`${API_BASE}/api/ActivityCategory`, { credentials: 'include' });
       if (!response.ok) {
         throw new Error('Failed to fetch categories.');
       }
@@ -52,7 +53,7 @@ function ActivityCategoriesPage() {
 
   const handleAddCategory = async (category) => {
     try {
-      const response = await fetch('api/ActivityCategory', {
+      const response = await fetch(`${API_BASE}/api/ActivityCategory`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -76,7 +77,7 @@ function ActivityCategoriesPage() {
 
   const handleUpdateCategory = async (category) => {
     try {
-      const response = await fetch(`api/ActivityCategory/${category.activityCategoryID}`, {
+      const response = await fetch(`${API_BASE}/api/ActivityCategory/${category.activityCategoryID}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -99,7 +100,7 @@ function ActivityCategoriesPage() {
     }
 
     try {
-      const response = await fetch(`api/ActivityCategory/${id}`, {
+      const response = await fetch(`${API_BASE}/api/ActivityCategory/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       });

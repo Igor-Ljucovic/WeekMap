@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE } from '../../Utils/apiBase';
 import { useTheme, notify } from '../../Utils/utils';
 import WeekMapSample from "../../Images/WeekMapSample.png";
 
@@ -23,7 +24,7 @@ function HomePage() {
       return;
     }
 
-    fetch(`api/UserSettings/${userID}`, { credentials: 'include' })
+    fetch(`${API_BASE}/api/UserSettings/${userID}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => setUserSettings(data))
       .catch(() => notify.error("Failed to load user settings."));
