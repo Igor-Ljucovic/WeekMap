@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
-import { API_BASE } from '../../Utils/apiBase';
+import { API_BASE, authFetch } from '../../Utils/apiBase';
 import 'react-toastify/dist/ReactToastify.css';
 import { notify, useTheme } from '../../Utils/utils';
 
@@ -16,12 +16,12 @@ function SettingsPage() {
       return;
     }
 
-    fetch(`${API_BASE}/api/UserSettings/${userID}`, { credentials: 'include' })
+    authFetch(`${API_BASE}/api/UserSettings/${userID}`)
       .then(res => res.json())
       .then(data => setUserSettings(data))
       .catch(() => notify.error("Failed to load user settings."));
 
-    fetch(`${API_BASE}/api/UserDefaultWeekMapSettings/${userID}`, { credentials: 'include' })
+    authFetch(`${API_BASE}/api/UserDefaultWeekMapSettings/${userID}`)
       .then(res => res.json())
       .then(data => setDefaultMapSettings(data))
       .catch(() => notify.error("Failed to load default week map settings."));
@@ -37,10 +37,9 @@ function SettingsPage() {
 
   const updateUserSettingsBackend = (updatedSettings) => {
     setUserSettings(updatedSettings);
-    fetch(`${API_BASE}/api/UserSettings/${userID}`, {
+    authFetch(`${API_BASE}/api/UserSettings/${userID}`, {
       method: "PUT",
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify(updatedSettings)
     })
       .then(res => {
@@ -52,10 +51,9 @@ function SettingsPage() {
 
   const updateMapSettingsBackend = (updatedSettings) => {
     setDefaultMapSettings(updatedSettings);
-    fetch(`${API_BASE}/api/UserDefaultWeekMapSettings/${userID}`, {
+    authFetch(`${API_BASE}/api/UserDefaultWeekMapSettings/${userID}`, {
       method: "PUT",
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify(updatedSettings)
     })
       .then(res => {
