@@ -15,10 +15,8 @@ namespace WeekMap.Controllers
             _service = service;
         }
 
-        private bool IsLoggedIn()
-        {
-            return HttpContext.Session.TryGetValue("UserID", out _);
-        }
+        private bool IsLoggedIn() =>
+            User.Identity?.IsAuthenticated == true || HttpContext.Session.TryGetValue("UserID", out _);
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserDTO dto)

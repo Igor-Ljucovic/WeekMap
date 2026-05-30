@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { API_BASE } from "../../Utils/apiBase";
+import { API_BASE, authFetch } from "../../Utils/apiBase";
 import { useTheme, notify, WEEKDAYS } from "../../Utils/utils";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -95,7 +95,7 @@ function WeekMapsPage() {
   useEffect(() => {
     if (!userID) return;
 
-    fetch(`${API_BASE}/api/WeekMap`, { credentials: "include" })
+    authFetch(`${API_BASE}/api/WeekMap`)
       .then(res => res.json())
       .then(data => {
         setAllWeekMaps(data);
@@ -118,7 +118,7 @@ function WeekMapsPage() {
   }, [userID]);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/ActivityTemplate`, { credentials: "include" })
+    authFetch(`${API_BASE}/api/ActivityTemplate`)
       .then(res => res.json())
       .then(data => setAllActivities(data))
       .catch(() => notify.error("Failed to load activities."));
@@ -134,7 +134,7 @@ function WeekMapsPage() {
   useEffect(() => {
     if (plannedMap) {
       setWeekMapActivities([]);
-      fetch(`${API_BASE}/api/WeekMap/${plannedMap.weekMapID}/activityTemplates`, { credentials: "include" })
+      authFetch(`${API_BASE}/api/WeekMap/${plannedMap.weekMapID}/activityTemplates`)
         .then(res => res.json())
         .then(data => setWeekMapActivities(Array.isArray(data) ? data : []))
         .catch(() => notify.error("Failed to load activities for this map."));
@@ -144,7 +144,7 @@ function WeekMapsPage() {
   }, [plannedMap]);
 
   const loadDefaults = () => {
-    fetch(`${API_BASE}/api/UserDefaultWeekMapSettings/${userID}`, { credentials: "include" })
+    authFetch(`${API_BASE}/api/UserDefaultWeekMapSettings/${userID}`)
       .then(res => {
         if (!res.ok) throw new Error("No default settings");
         return res.json();
@@ -205,9 +205,9 @@ function WeekMapsPage() {
     };
 
     try {
-      const res = await fetch(`${API_BASE}/api/WeekMap`, {
+      const res = await authFetch(`${API_BASE}/api/WeekMap`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        credentials: "include", body: JSON.stringify(postMap)
+        body: JSON.stringify(postMap)
       });
       if (!res.ok) { throw new Error("Failed to add map"); }
       notify.success("Week map added!");
@@ -221,15 +221,14 @@ function WeekMapsPage() {
   const handleDeleteActivity = async (weekMapActivityID) => {
     if (!weekMapActivityID || !window.confirm("Are you sure you want to delete this activity from the map?")) return;
     try {
-      const res = await fetch(`${API_BASE}/api/WeekMapActivity/${weekMapActivityID}`, {
-        method: "DELETE",
-        credentials: "include"
+      const res = await authFetch(`${API_BASE}/api/WeekMapActivity/${weekMapActivityID}`, {
+        method: "DELETE"
       });
       if (!res.ok) throw new Error();
       notify.success("Activity removed from map.");
       setShowViewActivityModal(false);
 
-      const refreshed = await fetch(`${API_BASE}/api/WeekMap/${plannedMap.weekMapID}/activityTemplates`, { credentials: "include" });
+      const refreshed = await authFetch(`${API_BASE}/api/WeekMap/${plannedMap.weekMapID}/activityTemplates`);
       const refreshedData = await refreshed.json();
       setWeekMapActivities(Array.isArray(refreshedData) ? refreshedData : []);
     } catch {
@@ -286,10 +285,9 @@ function WeekMapsPage() {
 
       const method = isEditingActivity ? "PUT" : "POST";
       console.log("Editing activity payload:", payload);
-      const res = await fetch(url, {
+      const res = await authFetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify(payload),
       });
 
@@ -309,7 +307,7 @@ function WeekMapsPage() {
         onThursday: false, onFriday: false, onSaturday: false, onSunday: false,
       });
 
-      const refreshed = await fetch(`${API_BASE}/api/WeekMap/${plannedMap.weekMapID}/activityTemplates`, { credentials: "include" });
+      const refreshed = await authFetch(`${API_BASE}/api/WeekMap/${plannedMap.weekMapID}/activityTemplates`);
       const refreshedData = await refreshed.json();
       setWeekMapActivities(Array.isArray(refreshedData) ? refreshedData : []);
 
@@ -321,7 +319,7 @@ function WeekMapsPage() {
   const handleDeleteMap = () => {
     if (!plannedMap || !window.confirm("Are you sure you want to delete this week map?")) return;
 
-    fetch(`${API_BASE}/api/WeekMap/${plannedMap.weekMapID}`, { method: "DELETE", credentials: "include" })
+    authFetch(`${API_BASE}/api/WeekMap/${plannedMap.weekMapID}`, { method: "DELETE" })
       .then(res => {
         if (!res.ok) throw new Error();
         notify.success("Week map deleted.");
@@ -333,7 +331,7 @@ function WeekMapsPage() {
         }
 
         // Refresh maps list
-        return fetch(`${API_BASE}/api/WeekMap`, { credentials: "include" });
+        return authFetch(`${API_BASE}/api/WeekMap`);
       })
       .then(res => res.json())
       .then(data => {
@@ -712,10 +710,9 @@ function WeekMapsPage() {
               <button
                 onClick={async () => {
                   try {
-                    const response = await fetch(`${API_BASE}/api/WeekMap/${plannedMap.weekMapID}`, {
+                    const response = await authFetch(`${API_BASE}/api/WeekMap/${plannedMap.weekMapID}`, {
                       method: "PUT",
                       headers: { "Content-Type": "application/json" },
-                      credentials: "include",
                       body: JSON.stringify({
                         ...plannedMap,
                         showLocationInPreview: editMapSettings.showLocationInPreview,
@@ -726,7 +723,7 @@ function WeekMapsPage() {
                     if (!response.ok) throw new Error("Failed to update week map.");
 
                     notify.success("Week map updated.");
-                    const refreshed = await fetch(`${API_BASE}/api/WeekMap`, { credentials: "include" });
+                    const refreshed = await authFetch(`${API_BASE}/api/WeekMap`);
                     const updatedMaps = await refreshed.json();
                     setAllWeekMaps(updatedMaps);
                     const updatedSelected = updatedMaps.find(m => m.weekMapID === plannedMap.weekMapID);

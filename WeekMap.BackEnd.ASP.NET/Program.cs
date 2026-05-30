@@ -1,3 +1,7 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using WeekMap.Data;
 using WeekMap.Repositories.ActivityCategory;
@@ -27,14 +31,33 @@ namespace WeekMap
 
             builder.Services.AddControllers();
 
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.ASCII.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!)),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+                });
+
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services.AddDataProtection()
+                .PersistKeysToFileSystem(new System.IO.DirectoryInfo("/tmp/DataProtection-Keys"));
             builder.Services.AddDistributedMemoryCache();
-            builder.Services.AddSession();
+            builder.Services.AddSession(options =>
+            {
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            });
             builder.Services.AddHttpContextAccessor();
 
             var allowedOrigin = builder.Configuration["AllowedOrigin"] ?? "http://localhost:3000";
             builder.Services.AddCors(options => { options.AddPolicy("AllowFrontend",
-                policy => policy.WithOrigins(allowedOrigin).AllowAnyHeader().AllowAnyMethod()); });
+                policy => policy.WithOrigins(allowedOrigin).AllowAnyHeader().AllowAnyMethod().AllowCredentials()); });
 
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
@@ -98,6 +121,7 @@ namespace WeekMap
             app.UseSession();
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
