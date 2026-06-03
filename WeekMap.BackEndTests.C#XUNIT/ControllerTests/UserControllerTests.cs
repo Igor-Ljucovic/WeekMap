@@ -52,12 +52,13 @@ namespace XUnitTests.Controllers
 
                 response = await client.PostAsJsonAsync("api/login", user);
                 response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+                await UserTestHelper.SetBearerToken(client, response);
 
                 response = await client.GetAsync("api/users");
                 users = await response.Content.ReadFromJsonAsync<List<UserDTO>>();
 
                 users.Should().ContainSingle(u => u.Username == user.Username);
-                // Password check is typically skipped because it's hashed, but here’s how it would look:
+                // Password check is typically skipped because it’s hashed, but here’s how it would look:
                 // users.Should().ContainSingle(u => u.Password == user.Password); // Only if passwords are stored or returned in plaintext
                 users.Should().ContainSingle(u => u.Email == user.Email);
             }
@@ -88,6 +89,7 @@ namespace XUnitTests.Controllers
 
                 response = await client.PostAsJsonAsync("api/login", user);
                 response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+                await UserTestHelper.SetBearerToken(client, response);
 
                 response = await client.GetAsync("api/users");
                 users = await response.Content.ReadFromJsonAsync<List<UserDTO>>();
@@ -98,6 +100,7 @@ namespace XUnitTests.Controllers
 
                 response = await client.PostAsJsonAsync("api/logout", user);
                 response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+                client.DefaultRequestHeaders.Authorization = null;
             }
 
             foreach (var user in _userTestData.Invalid)
