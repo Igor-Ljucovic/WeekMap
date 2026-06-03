@@ -29,11 +29,21 @@ jobs:
         with:
           dotnet-version: '6.0.x'
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Build backend
+        run: dotnet build "WeekMap.BackEnd.ASP.NET/WeekMap.csproj"
+
       - name: Start backend in background
-        run: |
-          dotnet run --project WeekMap.BackEnd.ASP.NET/WeekMap.csproj --urls "http://localhost:5141" &
+        run: dotnet run --project WeekMap.BackEnd.ASP.NET/WeekMap.csproj --no-build --urls "http://localhost:5141" &
         env:
-          ASPNETCORE_ENVIRONMENT: Testing
+          ASPNETCORE_ENVIRONMENT: Test
           ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=WeekMap_Test;User Id=sa;Password=SeleniumTestPass123!;TrustServerCertificate=True;"
           JwtSettings__SecretKey: ci-test-secret-key-must-be-at-least-32-chars!
           AllowedOrigin: http://localhost:3000
@@ -53,12 +63,6 @@ jobs:
           REACT_APP_API_URL: http://localhost:5141
           BROWSER: none
 
-      - name: Wait for backend
-        run: timeout 120 bash -c 'until curl -s -o /dev/null http://localhost:5141; do sleep 2; done'
-
-      - name: Wait for frontend
-        run: timeout 120 bash -c 'until curl -s -o /dev/null http://localhost:3000; do sleep 2; done'
-
       - uses: browser-actions/setup-chrome@v1
 
       - uses: actions/setup-python@v5
@@ -67,6 +71,12 @@ jobs:
 
       - name: Install Python dependencies
         run: pip install selenium requests urllib3 colorama
+
+      - name: Wait for backend
+        run: timeout 120 bash -c 'until curl -s -o /dev/null http://localhost:5141; do sleep 2; done'
+
+      - name: Wait for frontend
+        run: timeout 120 bash -c 'until curl -s -o /dev/null http://localhost:3000; do sleep 2; done'
 
       - name: Run Selenium tests
         run: python main.py test
