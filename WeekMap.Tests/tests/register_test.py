@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
 from selenium.common.exceptions import TimeoutException
 from utils import console_helpers, base_test, driver_factory
 from test_data.register_test_data import RegisterTestData
@@ -9,7 +10,7 @@ from test_data.register_test_data import RegisterTestData
 class RegisterTest(base_test.BaseTest):
     def run_test_case(self, driver, case):
         driver.get("http://localhost:3000/register")
-        driver.find_element(By.ID, "username").send_keys(case["username"])
+        WebDriverWait(driver, 10).until(ec.element_to_be_clickable((By.ID, "username"))).send_keys(case["username"])
         driver.find_element(By.ID, "email").send_keys(case["email"])
         driver.find_element(By.ID, "password").send_keys(case["password"])
         driver.find_element(By.ID, "confirmPassword").send_keys(case["password"])
