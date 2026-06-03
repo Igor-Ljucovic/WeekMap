@@ -17,13 +17,16 @@ if __name__ == "__main__":
     if command == "test":
         rt = RegisterTest()
         act = ActivityCategoryTest()
-        run_tests(rt.run_all_test_cases, act.run_all_test_cases)
+        failures = run_tests(rt.run_all_test_cases, act.run_all_test_cases)
+        sys.exit(1 if failures else 0)
     elif command == "register":
         rt = RegisterTest()
-        run_tests(rt.run_all_test_cases)
+        failures = run_tests(rt.run_all_test_cases)
+        sys.exit(1 if failures else 0)
     elif command == "activitycategory":
         act = ActivityCategoryTest()
-        run_tests(act.run_all_test_cases)
+        failures = run_tests(act.run_all_test_cases)
+        sys.exit(1 if failures else 0)
     else:
         script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
         print("Usage:")

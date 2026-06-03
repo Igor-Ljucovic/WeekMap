@@ -5,7 +5,7 @@ from utils import config
 
 def cleanup_test_database():
     try:
-        response = requests.delete("https://localhost:7141/api/test-tools/cleanup-all", verify=False)
+        response = requests.delete(f"{config.BACKEND_BASE_URL}/api/test-tools/cleanup-all", verify=False)
         status = "successful" if response.status_code == 200 else "unsuccessful"
         print(f"Database cleanup {status}, HTTP response status code: {response.status_code}\n")
     except Exception as e:
@@ -18,10 +18,13 @@ def run_tests(*test_functions):
     print("=" * config.PRINT_SEPERATOR_LENGTH)
 
     start_time = time.time()
+    total_failures = 0
 
     cleanup_test_database()
     for test_func in test_functions:
-        test_func()
+        failures = test_func()
+        if failures:
+            total_failures += failures
     cleanup_test_database()
 
     elapsed_seconds = time.time() - start_time
@@ -30,3 +33,5 @@ def run_tests(*test_functions):
     print("=" * config.PRINT_SEPERATOR_LENGTH)
     print("ALL DONE")
     print("=" * config.PRINT_SEPERATOR_LENGTH)
+
+    return total_failures

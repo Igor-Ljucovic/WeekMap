@@ -22,22 +22,23 @@ namespace WeekMap.Controllers
             if (!_env.IsEnvironment("Test"))
                 return Forbid("CleanupAllTables can only run in the Test environment.");
 
-            // The order MATTERS - delete child tables first
-            _context.WeekMapActivities.RemoveRange(_context.WeekMapActivities);
-
-            _context.WeekMaps.RemoveRange(_context.WeekMaps);
-
-            _context.ActivityTemplates.RemoveRange(_context.ActivityTemplates);
-            _context.ActivityCategories.RemoveRange(_context.ActivityCategories);
-
-            _context.UserDefaultWeekMapSettings.RemoveRange(_context.UserDefaultWeekMapSettings);
-            _context.UserSettings.RemoveRange(_context.UserSettings);
-
-            _context.Users.RemoveRange(_context.Users);
-
-            _context.SaveChanges();
-
-            return Ok(new { message = "All data deleted from database." });
+            try
+            {
+                // The order MATTERS - delete child tables first
+                _context.WeekMapActivities.RemoveRange(_context.WeekMapActivities);
+                _context.WeekMaps.RemoveRange(_context.WeekMaps);
+                _context.ActivityTemplates.RemoveRange(_context.ActivityTemplates);
+                _context.ActivityCategories.RemoveRange(_context.ActivityCategories);
+                _context.UserDefaultWeekMapSettings.RemoveRange(_context.UserDefaultWeekMapSettings);
+                _context.UserSettings.RemoveRange(_context.UserSettings);
+                _context.Users.RemoveRange(_context.Users);
+                _context.SaveChanges();
+                return Ok(new { message = "All data deleted from database." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message, inner = ex.InnerException?.Message });
+            }
         }
     }
 }

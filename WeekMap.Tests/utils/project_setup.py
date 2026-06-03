@@ -45,7 +45,7 @@ def start_frontend():
 
 def setup_project():
     print("=" * config.PRINT_SEPERATOR_LENGTH)
-    print(f"CHECKING BACKEND (https://localhost:{config.BACKEND_PORT})")
+    print(f"CHECKING BACKEND ({config.BACKEND_PROTOCOL}://localhost:{config.BACKEND_PORT})")
     print("=" * config.PRINT_SEPERATOR_LENGTH)
     start_backend()
 

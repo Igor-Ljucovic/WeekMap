@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
-from utils import console_helpers, base_test
+from utils import console_helpers, base_test, driver_factory
 from test_data.register_test_data import RegisterTestData
 
 
@@ -28,7 +28,7 @@ class RegisterTest(base_test.BaseTest):
         successful_test_results = 0
         rtd = RegisterTestData()
         cases = rtd.test_data
-        driver = webdriver.Chrome()
+        driver = driver_factory.create_driver()
         try:
             for case in cases:
                 registration_message = self.run_test_case(driver, case)
@@ -48,3 +48,4 @@ class RegisterTest(base_test.BaseTest):
         registration_test_results = f"Registration test results: {successful_test_results}/{len(cases)}\n"
         print(console_helpers.colorize_based_on_message_success(registration_test_results,
                                                                 successful_test_results == len(cases)))
+        return len(cases) - successful_test_results

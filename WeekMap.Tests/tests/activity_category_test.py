@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as ec
-from utils import auth_actions, console_helpers, base_test
+from utils import auth_actions, console_helpers, base_test, driver_factory
 from test_data.activity_category_test_data import ActivityCategoryTestData
 import re
 
@@ -60,7 +60,7 @@ class ActivityCategoryTest(base_test.BaseTest):
 
     def run_all_test_cases(self):
         try:
-            driver = webdriver.Chrome()
+            driver = driver_factory.create_driver()
             auth_actions.register_user(driver)
             auth_actions.login_user(driver)
 
@@ -85,5 +85,6 @@ class ActivityCategoryTest(base_test.BaseTest):
             final_summary = f"Activity category test results: {successful_test_results}/{len(cases)}\n"
             print(console_helpers.colorize_based_on_message_success(
                 final_summary, successful_test_results == len(cases)))
+            return len(cases) - successful_test_results
         finally:
             driver.quit()
