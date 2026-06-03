@@ -1,6 +1,6 @@
-﻿using System.Net.Http.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
-using WeekMap;
+﻿using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
 using WeekMap.DTOs;
 
 public static class UserTestHelper
@@ -17,6 +17,14 @@ public static class UserTestHelper
     {
         var loginResponse = await _client.PostAsJsonAsync("api/login", sampleUser);
         loginResponse.EnsureSuccessStatusCode();
+        await SetBearerToken(_client, loginResponse);
+    }
+
+    public static async Task SetBearerToken(HttpClient _client, HttpResponseMessage loginResponse)
+    {
+        var body = await loginResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var token = body.GetProperty("access_token").GetString();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
     }
 }
 

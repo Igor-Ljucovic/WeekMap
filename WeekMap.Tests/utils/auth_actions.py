@@ -10,7 +10,7 @@ _password = "StrongPassword123"
 
 def register_user(driver, username=_username, email=_email, password=_password):
     driver.get("http://localhost:3000/register")
-    driver.find_element(By.ID, "username").send_keys(username)
+    WebDriverWait(driver, 30).until(ec.element_to_be_clickable((By.ID, "username"))).send_keys(username)
     driver.find_element(By.ID, "email").send_keys(email)
     driver.find_element(By.ID, "password").send_keys(password)
     driver.find_element(By.ID, "confirmPassword").send_keys(password)
@@ -24,16 +24,15 @@ def register_user(driver, username=_username, email=_email, password=_password):
 
 
 def login_user(driver, email=_email, password=_password):
-    driver.get("http://localhost:3000/register")
-    login_link = WebDriverWait(driver, 5).until(ec.element_to_be_clickable((By.LINK_TEXT, "Log in")))
-    login_link.click()
+    driver.get("http://localhost:3000/login")
 
-    WebDriverWait(driver, 5).until(ec.presence_of_element_located((By.ID, "email")))
+    email_field = WebDriverWait(driver, 30).until(ec.element_to_be_clickable((By.ID, "email")))
+    email_field.send_keys(email)
 
-    driver.find_element(By.ID, "email").send_keys(email)
-    driver.find_element(By.ID, "password").send_keys(password)
+    password_field = WebDriverWait(driver, 30).until(ec.element_to_be_clickable((By.ID, "password")))
+    password_field.send_keys(password)
 
-    login_button = driver.find_element(By.XPATH, '//button[text()="Log in"]')
+    login_button = WebDriverWait(driver, 30).until(ec.element_to_be_clickable((By.XPATH, '//button[text()="Log in"]')))
     login_button.click()
 
     try:

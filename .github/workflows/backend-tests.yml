@@ -1,0 +1,22 @@
+name: Backend xUnit Tests
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Run xUnit tests
+        run: dotnet test "WeekMap.BackEndTests.C#XUNIT/XUnitTests.csproj" --verbosity normal
+        env:
+          ASPNETCORE_ENVIRONMENT: Test
+          JwtSettings__SecretKey: ci-test-secret-key-must-be-at-least-32-chars!
